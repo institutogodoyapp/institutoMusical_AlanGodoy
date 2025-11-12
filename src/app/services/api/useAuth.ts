@@ -1,0 +1,55 @@
+import { useState, useEffect, useCallback } from 'react';
+import { authService } from '@/app/services/api/authSeervice';
+import { UsuarioLogin } from '@/app/models/usuario'
+
+export const useAuth = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  // Verifica autenticação ao carregar
+  useEffect(() => {
+    setIsLoading(true)
+    checkAuth();
+    
+      
+  }, []);
+
+  const checkAuth = useCallback(() => {
+    const authenticated = authService.isAuthenticated();
+    setIsAuthenticated(authenticated);
+  console.log("fui chM")
+    setIsLoading(false);
+  }, []);
+
+  const login = useCallback(async (email: string, senha: string) => {
+    try {
+       console.log("fui")
+      const response = await authService.login({ email, senha });
+      authService.setTokens(response.accessToken, response.refreshToken);
+      setIsAuthenticated(true);
+      return { success: true };
+    } catch (error) {
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Erro ao fazer login' 
+      };
+    }
+  }, []);
+
+  const logout = useCallback(() => {
+    console.log("call") 
+    authService.logout();
+    
+    setIsAuthenticated(false);
+  }, []);
+
+  return {
+    isAuthenticated,
+    isLoading,
+    login,
+    logout,
+    checkAuth
+  };
+};
+
+export default useAuth

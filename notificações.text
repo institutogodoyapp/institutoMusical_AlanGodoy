@@ -1,0 +1,14 @@
+  <NotificationContainer
+          notifications={notifications}
+          onRemove={removeNotification}
+        />
+
+          const {
+    notifications,
+    showSuccess,
+    showError,
+    removeNotification
+  } = useNotifications();
+
+  showError('Falha ao deletar. Tente novamente.');
+   showSuccess("Categoria criada com sucesso!");

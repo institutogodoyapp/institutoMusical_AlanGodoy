@@ -1,0 +1,7 @@
+export { getDataAtual, adicionarDias, extrairData, parseApiDate } from './Datas'
+export { determinarTipoAula,mapearStatus } from './statusETipos'
+export { traduzirDiaSemana } from './traduçãoApi'
+export { getPrimeiroEUltimoNome } from './Nomes'
+export { formatarMoeda } from './moeda'
+export { getInstrumentoIcon } from './escola/instrumento'
+export {formatCPF, unformatCPF} from './formatar/cpf'

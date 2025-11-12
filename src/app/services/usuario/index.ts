@@ -1,0 +1,1 @@
+export { useUsuarioService } from '@/app/services/usuario/usuario.service'

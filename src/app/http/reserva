@@ -1,0 +1,63 @@
+// app/services/httpClient.ts
+import axios from 'axios';
+
+export const httpClient = axios.create({
+  baseURL: 'http://localhost:8080/',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+
+
+// Interceptor de resposta para tratar token expirado
+httpClient.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+    
+    // Verifica se é erro 401 (não autorizado) e se já não tentou refresh
+    if ( (error.response?.status === 401 && !originalRequest._retry) || (error.response?.status === 403 && !originalRequest._retry) ) {
+      originalRequest._retry = true;
+      
+      const refreshToken = localStorage.getItem('refreshToken');
+      console.log('Refresh token encontrado:', refreshToken);
+      
+      if (refreshToken) {
+        try {
+          // Faz requisição para refresh token
+          const response = await httpClient.post('/usuario/refresh', {}, {
+            headers: { 
+              Authorization: `Bearer${refreshToken.trim()}`
+            }
+          });
+          
+          // Atualiza tokens no localStorage
+          localStorage.setItem('accessToken', response.data.accessToken);
+          if (response.data.refreshToken) {
+             console.log('Refresh token localst:', refreshToken);
+            localStorage.setItem('refreshToken', response.data.refreshToken);
+          }
+          
+          // Atualiza header da requisição original e repete
+          originalRequest.headers.Authorization = `${response.data.accessToken}`;
+          return httpClient(originalRequest);
+        } catch (refreshError) {
+          // Refresh token também expirou - fazer logout
+          console.error('Erro ao renovar token:', refreshError);
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('refreshToken');
+          localStorage.removeItem('jwt');
+         window.location.href = 'http://localhost:3000/autenticacao/login';
+        }
+      } else {
+        // Não há refresh token - fazer logout
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('jwt');
+       window.location.href = 'http://localhost:3000/autenticacao/login';
+      }
+    }
+    return Promise.reject(error);
+  }
+);
