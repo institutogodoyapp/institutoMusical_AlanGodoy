@@ -5,7 +5,7 @@ export const CabecalhoDespesas = ({ abrirModalDespesa }: any) => (
   <div className="box" style={{ display: 'inline', boxShadow: 'none' }}>
     <div className="level">
       <div className="level-left">
-        <h2 className="title is-5">Despesas</h2>
+        <h2 className="title is-5" style={{marginBottom: '20px'}}>Despesas</h2>
       </div>
       <div className="level-right">
         <div className="buttons">

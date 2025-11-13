@@ -34,7 +34,8 @@ export const CadastroAlunos: React.FC = () => {
     const [instrumentos, setInstrumentos] = useState<Instrumento[]>([]);
     const [professores, setProfessores] = useState<Professor[]>([]);
     const [isAlunoLoaded, setIsAlunoLoaded] = useState<boolean>(false);
-     const [isMobile, setIsMobile] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
+    const [professorSelecionado, setProfessorSelecionado] = useState<Professor>()
 
 
 
@@ -91,12 +92,22 @@ export const CadastroAlunos: React.FC = () => {
         }
     }, [id, service]);
 
+
+    useEffect(() => {
+    if (formData.professorId) {
+       const instrumentos = fetchInstrumentos(Number(formData.professorId));
+           console.log(instrumentos)
+    }
+
+
+}, [formData.professorId]);
+
     useEffect(() => {
         const fetchAllData = async () => {
             setLoading(true);
 
             try {
-                await Promise.all([fetchInstrumentos(), fetchProfessores()]);
+                await Promise.all([fetchProfessores()]);
             } catch (err) {
                 showError('Erro ao carregar dados necessários');
             } finally {
@@ -121,9 +132,9 @@ export const CadastroAlunos: React.FC = () => {
 
 
     // ========== FUNÇÕES DE CARREGAMENTO DE DADOS ==========
-    const fetchInstrumentos = async () => {
+    const fetchInstrumentos = async (id: number) => {
         try {
-            const response = await serviceInstrumento.getAllInstrumentos();
+            const response = await serviceInstrumento.getInstrumentoByProfessorId(id);
             setInstrumentos(Array.isArray(response) ? response : [response]);
         } catch (err) {
             showError('Não foi possível carregar os instrumentos');
@@ -296,33 +307,6 @@ export const CadastroAlunos: React.FC = () => {
                             <h2 className="title is-5 has-primary-custom">Dados Musicais</h2>
 
                             <div className="columns">
-                                <div className="column">
-                                    <div className="field">
-                                        <label className="label">
-                                            <span className="icon-text has-text-descrition-cinza-custom has-text-bold-normal">
-                                                <span className="icon"><FaMusic /></span>
-                                                <span>Instrumento</span>
-                                            </span>
-                                        </label>
-                                        <div className="control">
-                                            <div className="select is-fullwidth">
-                                                <select
-                                                    name="instrumentoId"
-                                                    value={formData.instrumentoId}
-                                                    onChange={handleChange}
-                                                    required
-                                                >
-                                                    <option value="">Selecione um instrumento</option>
-                                                    {instrumentos.map(instrumento => (
-                                                        <option key={instrumento.id} value={instrumento.id}>
-                                                            {instrumento.nome}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
 
                                 <div className="column">
                                     <div className="field">
@@ -351,6 +335,36 @@ export const CadastroAlunos: React.FC = () => {
                                         </div>
                                     </div>
                                 </div>
+
+                                <div className="column">
+                                    <div className="field">
+                                        <label className="label">
+                                            <span className="icon-text has-text-descrition-cinza-custom has-text-bold-normal">
+                                                <span className="icon"><FaMusic /></span>
+                                                <span>Instrumento</span>
+                                            </span>
+                                        </label>
+                                        <div className="control">
+                                            <div className="select is-fullwidth">
+                                                <select
+                                                    name="instrumentoId"
+                                                    value={formData.instrumentoId}
+                                                    onChange={handleChange}
+                                                    required
+                                                >
+                                                    <option value="">Selecione um instrumento</option>
+                                                    {instrumentos.map(instrumento => (
+                                                        <option key={instrumento.id} value={instrumento.id}>
+                                                            {instrumento.nome}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+
                             </div>
 
                             {/* Agendamento de Aulas */}

@@ -77,6 +77,19 @@ export const GerenciamentoClientesPage: React.FC = () => {
     }
   };
 
+  const handleDelete = async (cliente: Cliente) => {
+        try {
+          if (confirm("Tem certeza que deseja excluir?")) {
+         
+              await serviceCliente.deletar(cliente.id);
+              setClientes(prev => prev.filter(d => d.id !== cliente.id));
+            
+          }
+        } catch (error) {
+          showError('Falha ao deletar. Tente novamente.');
+        }
+      };
+
   // ========== FUNÇÕES DE CONTROLE DE UI ==========
   const toggleExpandirCliente = async (id: number) => {
     const novosExpandidos = new Set(clientesExpandidos);
@@ -206,7 +219,7 @@ export const GerenciamentoClientesPage: React.FC = () => {
                           <button
                             className="button is-danger is-light"
                             title="Excluir produto"
-                            onClick={(e) => { e.stopPropagation(); console.log(cliente.id); }}
+                            onClick={(e) => { e.stopPropagation(); handleDelete(cliente); }}
                           >
                             <span className="icon"><FiTrash2 /></span>
                           </button>

@@ -9,6 +9,7 @@ export type CampoModal = {
   label: string;
   placeholder?: string;
   required?: boolean;
+  disable?: boolean;
   opcoes?: { valor: string; label: string }[];
 };
 
@@ -133,6 +134,7 @@ export const ModalGenerico: React.FC<ModalGenericoProps> = ({
             onChange={(e) => handleInputChange(campo.nome, e.target.value)}
             required={campo.required}
             placeholder={campo.placeholder}
+            disabled={campo.disable}
           />
         );
     }

@@ -324,7 +324,8 @@ export const ControleFinanceiro: React.FC = () => {
       tipo: 'date',
       nome: 'data',
       label: 'Data',
-      required: true
+      required: true,
+       disable: despesaEditando ? true : false
     },
     {
       tipo: 'select',

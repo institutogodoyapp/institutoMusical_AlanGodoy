@@ -45,7 +45,7 @@ export const useFinancasService = () => {
 
     const atualizarDespesa = async (despesaId: number, updates: Record<string, any>): Promise<Despesas> => {
         try {
-            const response: AxiosResponse<Despesas> = await httpClient.patch(`${resourceURL}/${despesaId}/parcial`, updates)
+            const response: AxiosResponse<Despesas> = await httpClient.patch(`${resourceURL}despesas/${despesaId}/parcial`, updates)
             return response.data
         } 
         catch (error: any) {

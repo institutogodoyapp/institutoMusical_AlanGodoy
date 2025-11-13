@@ -58,10 +58,26 @@ export const useInstrumentoService = () => {
         }
     }
 
+    const getInstrumentoByProfessorId = async (professorId: number): Promise<Instrumento[]> => {
+        try {
+            const response: AxiosResponse<Instrumento[]> = await httpClient.get<Instrumento[]>(`${resourceURL}/professorId/${professorId}`)
+            return response.data
+        }
+        catch (error: any) {
+            if (error.response?.data) {
+                console.log(error)
+                throw new Error(error.response.data)
+            } else {
+
+            }
+            throw new Error("Erro de Conexão com o servidor")
+        }
+    }
+
     const AtualizarInstrumentos = async (instrumentoId: number, updates: Record<string, any>): Promise<InstrumentoCadastro> => {
         try {
             console.log("sou eu", updates)
-            
+
             const response: AxiosResponse<InstrumentoCadastro> = await httpClient.patch<InstrumentoCadastro>(
                 `${resourceURL}/${instrumentoId}/parcial`,
                 updates
@@ -104,6 +120,7 @@ export const useInstrumentoService = () => {
         cadastrarInstrumento,
         getAllInstrumentos,
         getAllInstrumentosConteudo,
+        getInstrumentoByProfessorId,
         AtualizarInstrumentos,
         removerInstrumento
     }

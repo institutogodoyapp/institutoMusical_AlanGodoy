@@ -177,11 +177,12 @@ export const MarcarReposicao: React.FC = () => {
 
     // ========== FUNÇÕES DE NAVEGAÇÃO ==========
     const irParaAgendaAulaOriginal = () => {
-         const professorId = alunoSelecionado?.professorId || Number(router.query.alunoId)
+         const professorId = alunoSelecionado?.professor?.id
         if (!alunoSelecionado?.id) {
             showError('Selecione um aluno primeiro');
             return;
         }
+        console.log(alunoSelecionado)
 
         router.push({
             pathname: '/instituto-musical/escola/aula/agenda',
@@ -189,7 +190,7 @@ export const MarcarReposicao: React.FC = () => {
                 mode: 'select',
                 tipo: 'original',
                 alunoId: alunoSelecionado.id,
-                professorId: alunoSelecionado.id,
+                professorId: professorId,
                 returnUrl: `${router.pathname}?alunoId=${alunoSelecionado.id}`
             }
         });

@@ -110,7 +110,7 @@ export const GerenciamentoCategoriasPage: React.FC = () => {
 
     const handleDeleteCategoria = async (categoria: CategoriaServico) => {
       try {
-        if (confirm("Tem certeza que deseja excluir esta despesa?")) {
+        if (confirm("Tem certeza que deseja excluir?")) {
           if (!categoria.comServico) {
             await serviceCat.deletarCategoria(categoria.id);
             setCategorias(prev => prev.filter(d => d.id !== categoria.id));

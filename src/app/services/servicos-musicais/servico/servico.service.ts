@@ -17,7 +17,7 @@ export const useServicoService = () => {
         try {
             const response: AxiosResponse<Servico> = await httpClient.post(`${resourceURL}`, servico)
             return response.data
-        } 
+        }
         catch (error: any) {
             if (error.response?.data) {
                 console.log(error)
@@ -33,7 +33,7 @@ export const useServicoService = () => {
         try {
             const response: AxiosResponse<Servico> = await httpClient.patch(`${resourceURL}/${servicoId}`, updates)
             return response.data
-        } 
+        }
         catch (error: any) {
             if (error.response?.data) {
                 console.log(error)
@@ -45,6 +45,23 @@ export const useServicoService = () => {
         }
     }
 
+
+    const deleteById = async (servicoId: number): Promise<void> => {
+        try {
+            const response: AxiosResponse<void> = await httpClient.delete(`${resourceURL}/${servicoId}`)
+            console.log(response)
+            return response.data
+        }
+        catch (error: any) {
+            if (error.response?.data) {
+                console.log(error)
+                throw new Error(error.response.data)
+            } else {
+
+            }
+            throw new Error("Erro de Conexão com o servidor")
+        }
+    }
     // =========================================================================
     // OPERAÇÕES DE CONSULTA DE SERVIÇOS
     // =========================================================================
@@ -53,7 +70,7 @@ export const useServicoService = () => {
         try {
             const response: AxiosResponse<Servico[]> = await httpClient.get(`${resourceURL}`)
             return response.data
-        } 
+        }
         catch (error: any) {
             if (error.response?.data) {
                 console.log(error)
@@ -70,7 +87,7 @@ export const useServicoService = () => {
             const response: AxiosResponse<Servico> = await httpClient.get(`${resourceURL}/${servicoId}`)
             console.log(response)
             return response.data
-        } 
+        }
         catch (error: any) {
             if (error.response?.data) {
                 console.log(error)
@@ -89,6 +106,7 @@ export const useServicoService = () => {
     return {
         salvarServico,
         atualizarServico,
+        deleteById,
         getServicos,
         getServicoById
     }

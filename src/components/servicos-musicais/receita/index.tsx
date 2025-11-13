@@ -60,7 +60,7 @@ export const ControleFinanceiroServicos: React.FC = () => {
   const [periodoInicio, setPeriodoInicio] = useState<string>('');
   const [periodoFim, setPeriodoFim] = useState<string>('');
   const [categoriaFiltro, setCategoriaFiltro] = useState<number | null>(null);
-  
+
   const [filtroDashboard, setFiltroDashboard] = useState({
     dataInicio: '',
     dataFim: '',
@@ -207,7 +207,7 @@ export const ControleFinanceiroServicos: React.FC = () => {
           await financasService.DeletarCategoria(categoria.id);
           setCategorias(prev => prev.filter(d => d.id !== categoria.id));
         } else {
-           showWarning('Não é possivel excluir categoria com despesa associada');
+          showWarning('Não é possivel excluir categoria com despesa associada');
         }
       }
     } catch (error) {
@@ -296,7 +296,8 @@ export const ControleFinanceiroServicos: React.FC = () => {
       tipo: 'date',
       nome: 'data',
       label: 'Data',
-      required: true
+      required: true,
+      disable: despesaEditando ? true : false
     },
     {
       tipo: 'select',
@@ -364,7 +365,7 @@ export const ControleFinanceiroServicos: React.FC = () => {
             notifications={notifications}
             onRemove={removeNotification}
           />
-          
+
           {/* Tabs de Navegação */}
           <div className="tabs is-boxed">
             <ul>

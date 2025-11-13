@@ -26,6 +26,22 @@ export const useClienteService = () => {
         }
     }
 
+    const deletar = async (clienteId: number): Promise<void> => {
+           
+            try {
+                await httpClient.delete(`${resourceURL}/${clienteId}`)
+            }
+            catch (error: any) {
+                if (error.response?.data) {
+                    console.log(error)
+                    throw new Error(error.response.data)
+                } else {
+    
+                }
+                throw new Error("Erro de Conexão com o servidor")
+            }
+        }
+
     const atualizarCliente = async (clienteId: number, updates: Record<string, any>): Promise<Cliente> => {
         try {
             const response: AxiosResponse<Cliente> = await httpClient.patch(`${resourceURL}/${clienteId}/parcial`, updates)
@@ -81,6 +97,7 @@ export const useClienteService = () => {
     return {
         salvarCliente,
         atualizarCliente,
+        deletar,
         getClient,
         getClientById
     }

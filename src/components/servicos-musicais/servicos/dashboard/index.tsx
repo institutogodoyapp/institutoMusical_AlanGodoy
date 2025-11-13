@@ -58,6 +58,22 @@ export const DashboardServicosMusicais: React.FC = () => {
     }
   };
 
+
+
+    const excluir = async (id: number) => {
+
+        if (confirm('Tem certeza que deseja excluir?')) {
+      try {
+        await servicosService.deleteById(id)
+        showSuccess("Serviço excluído com sucesso!");
+        setServicos(prevServicos => prevServicos.filter(servico => servico.id !== id))
+      } catch (err) {
+        showError('Erro ao excluir Serviço');
+      }
+    }
+    
+  };
+
   // ========== FUNÇÕES DE FORMATAÇÃO ==========
   const formatarMoeda = (valor: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -81,11 +97,10 @@ export const DashboardServicosMusicais: React.FC = () => {
     router.push('/instituto-musical/servicos-musicais/categoria-servico');
   };
 
-  const navegarParaDetalhesServico = (id: number) => {
-    router.push(`admin/servicos-musicais/servico/${id}`);
-  };
+
 
   // ========== FILTROS E DERIVAÇÕES ==========
+
   const servicosFiltrados = servicos.filter(servico => {
     const categoriaMatch = filtroCategoria === 'todos' || String(servico.categoriaId) === filtroCategoria;
     const nomeMatch = servico.nome.toLowerCase().includes(filtroNome.toLowerCase());
@@ -232,7 +247,7 @@ export const DashboardServicosMusicais: React.FC = () => {
                         <button
                           className="button is-danger is-light"
                           title="Ver detalhes"
-                          onClick={() => navegarParaDetalhesServico(servico.id)}
+                          onClick={() => excluir(servico.id)}
                         >
                           <span className="icon"><FaTrash /></span>
                         </button>
