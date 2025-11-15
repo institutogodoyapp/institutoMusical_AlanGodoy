@@ -102,6 +102,22 @@ export const useAulaService = () => {
         }
     }
 
+       const getAllReposições = async (): Promise<Reposicao[]> => {
+        try {
+            const response: AxiosResponse<Reposicao[]> = await httpClient.get(`${resourceURL}all`)
+            return response.data
+        }
+        catch (error: any) {
+            if (error.response?.data) {
+                console.log(error)
+                throw new Error(error.response.data)
+            } else {
+                
+            }
+            throw new Error("Erro de Conexão com o servidor")
+        }
+    }
+
     const cancelarReposicao = async (reposiçãoId: number, statusReposicao: StatusReposicao): Promise<Reposicao> => {
         try {
             const response: AxiosResponse<Reposicao> = await httpClient.put(
@@ -132,6 +148,7 @@ export const useAulaService = () => {
         // Operações de Reposição
         marcarReposicao,
         getReposições,
+        getAllReposições,
         cancelarReposicao
     }
 }

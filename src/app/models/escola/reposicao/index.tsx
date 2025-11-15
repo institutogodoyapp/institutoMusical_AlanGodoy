@@ -1,3 +1,5 @@
+import { aula } from "../aula";
+
 export enum StatusReposicao {
     PENDENTE = 'PENDENTE',       // Solicitação feita, aguardando aprovação
     AGENDADA = 'AGENDADA',       // Reposição agendada
@@ -10,6 +12,7 @@ export enum StatusReposicao {
 
 export interface Reposicao {
     id: number;
+    aula?: aula
     aulaOriginalId: number;
     alunoNome: string;
     novaDataHora: string;

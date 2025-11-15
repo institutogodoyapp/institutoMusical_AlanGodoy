@@ -1,2 +1,2 @@
-import { GerenciamentoClientes } from "@/components";
-export default GerenciamentoClientes
+import { GerenciamentoClientesPage } from "@/components";
+export default GerenciamentoClientesPage

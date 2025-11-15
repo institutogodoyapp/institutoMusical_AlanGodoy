@@ -191,6 +191,7 @@ export const GerenciamentoInstrumentos: React.FC = () => {
 
   // ========== FUNÇÕES DE NAVEGAÇÃO ==========
   const irParaConteudo = (id: number) => {
+    console.log("instrumentoId", id)
     router.push(`/instituto-musical/escola/instrumento/conteudo?id=${id}`)
   }
 

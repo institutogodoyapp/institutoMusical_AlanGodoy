@@ -60,7 +60,7 @@ export const VisualizarReposicoes: React.FC = () => {
     const fetchReposicoes = async () => {
         try {
             setLoading(true);
-            const response = await service.getReposições();
+            const response = await service.getAllReposições();
             setReposicoes(response);
             console.log(response)
         } catch (err) {

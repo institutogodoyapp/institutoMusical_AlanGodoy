@@ -421,7 +421,7 @@ export const GerenciamentoProfessores: React.FC = () => {
               <footer className="modal-card-foot is-flex is-justify-content-flex-end">
                 <button
                   type="button"
-                  className="button"
+                  className="button is-primary-custom"
                   onClick={fecharModal}
                 >
                   <span className="icon">

@@ -192,7 +192,7 @@ export const Menu: React.FC = () => {
                                 <MenuItens href="/instituto-musical/escola/professor" label="Professores" />
                             
                                 <MenuItens href="/instituto-musical/escola/receita" label="Financeiro" />
-                                <MenuItens href="/instituto-musical/escola/instrumento" label="Cursos" />
+                                <MenuItens href="/instituto-musical/escola/instrumento" label="Instrumentos" />
                             </ul>
                         }
                     </li>

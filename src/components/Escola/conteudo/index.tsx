@@ -40,7 +40,8 @@ export const GerenciamentoConteudo: React.FC = () => {
   } = useNotifications();
   const instrumentoService = useInstrumentoService()
   const router = useRouter();
-  const { instrumentoId } = router.query;
+  const { id } = router.query;
+  const InstrumentoIdConvert = Number(id)
 
 
   // ========== ESTADOS DE DADOS ==========
@@ -93,10 +94,11 @@ export const GerenciamentoConteudo: React.FC = () => {
 
   useEffect(() => {
     fetchConteudo();
-  }, [instrumentoId]);
+  }, [id]);
 
   useEffect(() => {
     if (instrumentoSelecionado) {
+console.log(InstrumentoIdConvert, "bgygy")
       buscarConteudoInstrumento(instrumentoSelecionado.id);
     }
   }, [instrumentoSelecionado?.id]);
@@ -117,10 +119,11 @@ export const GerenciamentoConteudo: React.FC = () => {
   const fetchConteudo = async () => {
     try {
       setLoading(true);
-      const response = await instrumentoService.getAllInstrumentosConteudo();
+     const response = await instrumentoService.getAllInstrumentosConteudo();
       console.log(response)
 
-      const instrumentoIdNum = Number(instrumentoId);
+      const instrumentoIdNum = InstrumentoIdConvert;
+      console.log(id)
       const instrumentoEncontrado = response.find(i => i.id === instrumentoIdNum);
       const instrumentoParaSelecionar = instrumentoEncontrado || response[0];
 
