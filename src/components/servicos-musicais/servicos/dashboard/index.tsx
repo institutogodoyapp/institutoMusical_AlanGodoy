@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Layout } from '@/components/layout';
-import { FiSearch, FiUsers, FiMusic, FiDollarSign, FiTrendingUp, FiCalendar, FiClock, FiBarChart2, FiPlus, FiFilter, FiTool } from 'react-icons/fi';
+import { FiClock, FiPlus, FiTool } from 'react-icons/fi';
 import { CustomButton, useNotifications } from '@/components';
 import { useRouter } from 'next/router';
 import { useServicoService } from '@/app/services/servicos-musicais/servico/servico.service';
@@ -9,7 +9,6 @@ import { FaTrash } from 'react-icons/fa';
 import { usePedidoService } from '@/app/services/servicos-musicais/pedidos/pedido.service';
 import NotificationContainer from '@/components/common/notificacao/mutiplasNotifacoes';
 import CardList from '@/components/common/tableMobile';
-import { Input } from '@/components/common/input';
 import MetricaCard from '../../../common/metricaComponent';
 import { BiSolidCategory } from 'react-icons/bi';
 

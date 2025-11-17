@@ -44,10 +44,11 @@ export const useUsuarioService = () => {
 
     const login = async (user: UsuarioLogin): Promise<LoginResponse> => {
         try {
-            console.log("fui")
-
+        
             const response: AxiosResponse<LoginResponse> = await httpClient.post<LoginResponse>(resourceURL + '/login', user)
+        
             return response.data
+                
         }
         catch (error: any) {
             if (error.response?.data) {

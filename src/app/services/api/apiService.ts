@@ -1,5 +1,4 @@
 import axios, { AxiosInstance } from 'axios'
-import { httpClient } from '@/app/http'
 
 export const apiRequest = async (url: string) => {
   const token = localStorage.getItem('jwt');

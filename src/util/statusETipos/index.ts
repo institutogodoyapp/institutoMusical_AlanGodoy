@@ -1,4 +1,4 @@
-import { StatusAula, TipoAula } from "@/app/models/escola/aula";
+import { TipoAula } from "@/app/models/escola/aula";
 
 export const determinarTipoAula = (status: string): 'regular' | 'reposicao' => {
   const statusUpper = status.toUpperCase();

@@ -16,14 +16,13 @@ export const useAuth = () => {
 
   const checkAuth = useCallback(() => {
     const authenticated = authService.isAuthenticated();
-    setIsAuthenticated(authenticated);
-  console.log("fui chM")
+    setIsAuthenticated(authenticated)
     setIsLoading(false);
   }, []);
 
   const login = useCallback(async (email: string, senha: string) => {
     try {
-       console.log("fui")
+       console.log("fui fbnfbnfn")
       const response = await authService.login({ email, senha });
       authService.setTokens(response.accessToken, response.refreshToken);
       setIsAuthenticated(true);

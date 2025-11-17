@@ -9,7 +9,6 @@ import logoDesktop from '../../../assets/logoDesktop.png';
 import logoMobile from '../../../assets/logoMobiles.png';
 import { CustomButton } from '@/components/common/customButton'
 import { UsuarioLogin } from '@/app/models/usuario'
-import { useUsuarioService } from '@/app/services';
 import { useRouter } from 'next/router';
 import localStorageService from '@/app/services/localStorageService/index'
 import useAuth from '@/app/services/api/useAuth';
@@ -65,6 +64,7 @@ export const LoginPage: React.FC = () => {
 
   const onSubmit = async (dados: UsuarioLogin) => {
     try {
+      console.log("chegyeu")
 
       const result = await login(dados.email, dados.senha);
 

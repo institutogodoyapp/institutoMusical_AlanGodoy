@@ -2,13 +2,15 @@
 import axios from 'axios';
 import { authService } from '@/app/services/api/authSeervice';
 
+
 export const httpClient = axios.create({
-  baseURL: 'http://localhost:8080/',
+  baseURL: process.env.NEXT_PUBLIC_INSTITUTOMUSICAL_GODOY_APP,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
+console.log('BaseURL configurada novo:', process.env.NEXT_PUBLIC_INSTITUTOMUSICAL_GODOY_APP);
 // Adiciona o token JWT no cabeçalho de todas as requisições
 httpClient.interceptors.request.use(
   (config) => {
@@ -44,7 +46,7 @@ httpClient.interceptors.response.use(
           const cleanRefreshToken = refreshToken.replace('Bearer ', '').trim();
           
           // Faz requisição para refresh token
-          const response = await axios.post('http://localhost:8080/usuario/refresh', {}, {
+          const response = await httpClient.post('/usuario/refresh', {}, {
             headers: { 
               'Authorization': `Bearer ${cleanRefreshToken}`
             }

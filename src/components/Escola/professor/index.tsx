@@ -421,7 +421,7 @@ export const GerenciamentoProfessores: React.FC = () => {
               <footer className="modal-card-foot is-flex is-justify-content-flex-end">
                 <button
                   type="button"
-                  className="button is-primary-custom"
+                  className="button "
                   onClick={fecharModal}
                 >
                   <span className="icon">
@@ -431,7 +431,7 @@ export const GerenciamentoProfessores: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="button is-success"
+                  className="button is-primary-custom"
                 >
                   <span>{professorEditando ? 'Atualizar' : 'Salvar'}</span>
                 </button>

@@ -18,22 +18,20 @@ export const authService = {
 
   // Login
   login: async (loginData: LoginData): Promise<AuthResponse> => {
-    console.log(loginData)
+ 
     const response = await httpClient.post('/usuario/login', loginData);
+       console.log(response)
     return response.data;
   },
 
   logout: async (): Promise<void> => {
    
-
-    console.log("fui")
     try {
       const pubi = localStorage.getItem('refreshToken')
       if(!pubi) return
 
 
     await service.logout(pubi);
- console.log("fui sucesso")
     } catch (error) {
       // Não importa se falhar, faz logout local de qualquer forma
       console.log('Logout remoto opcional', error);
