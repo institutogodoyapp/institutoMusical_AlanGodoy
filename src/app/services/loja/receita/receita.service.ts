@@ -1,8 +1,8 @@
-import { httpClient } from '@/app/http/'
-import { Receita } from '@/app/models/loja/receita'
-import { AxiosResponse } from 'axios'
+import { httpClient } from '@/app/http/';
+import { Receita } from '@/app/models/loja/receita';
+import { AxiosResponse } from 'axios';
 
-const resourceURL: string = '/admin/loja/receita'
+const resourceURL: string = '/admin/loja/receita';
 
 export const useReceitaService = () => {
 
@@ -11,70 +11,32 @@ export const useReceitaService = () => {
     // =========================================================================
 
     const getReceitaMes = async (dataInicio: number, dataFim: number): Promise<Receita> => {
-        try {
-            console.log("huhuhu")
-
-            const response: AxiosResponse<Receita> = await httpClient.get(`${resourceURL}/receita-do-mes`, {
+        const response: AxiosResponse<Receita> =
+            await httpClient.get(`${resourceURL}/receita-do-mes`, {
                 params: {
                     inicio: dataInicio,
                     fim: dataFim
                 }
-            })
-
-            return response.data
-        } 
-        catch (error: any) {
-            if (error.response?.data) {
-                console.log(error)
-                throw new Error(error.response.data)
-            } else {
-
-            }
-            throw new Error("Erro de Conexão com o servidor")
-        }
-    }
+            });
+        return response.data;
+    };
 
     const getReceitaDoMes = async (ano: number, mes: number): Promise<Receita> => {
-        try {
-            console.log("huhuhu")
-            
-            const response: AxiosResponse<Receita> = await httpClient.get(`${resourceURL}/mensal/${ano}/${mes}`)
-            return response.data
-        } 
-        catch (error: any) {
-            if (error.response?.data) {
-                console.log(error)
-                throw new Error(error.response.data)
-            } else {
-
-            }
-            throw new Error("Erro de Conexão com o servidor")
-        }
-    }
+        const response: AxiosResponse<Receita> =
+            await httpClient.get(`${resourceURL}/mensal/${ano}/${mes}`);
+        return response.data;
+    };
 
     const getReceitaFiltro = async (dataInicio: string, dataFim: string): Promise<Receita> => {
-        try {
-            console.log('chegueivvvv')
-
-            const response: AxiosResponse<Receita> = await httpClient.get(`${resourceURL}`, {
+        const response: AxiosResponse<Receita> =
+            await httpClient.get(`${resourceURL}`, {
                 params: {
                     inicio: dataInicio,
                     fim: dataFim
                 }
-            })
-
-            return response.data
-        } 
-        catch (error: any) {
-            if (error.response?.data) {
-                console.log(error)
-                throw new Error(error.response.data)
-            } else {
-
-            }
-            throw new Error("Erro de Conexão com o servidor")
-        }
-    }
+            });
+        return response.data;
+    };
 
     // =========================================================================
     // EXPORTAÇÃO DE SERVIÇOS
@@ -84,5 +46,5 @@ export const useReceitaService = () => {
         getReceitaMes,
         getReceitaDoMes,
         getReceitaFiltro
-    }
-}
+    };
+};

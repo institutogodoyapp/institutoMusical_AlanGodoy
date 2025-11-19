@@ -1,11 +1,8 @@
-import { httpClient } from '@/app/http/'
-import { CategoriaServico, CategoriaServicoForm } from '@/app/models/Servicos-musicais/categoria-servico'
-import { Cliente } from '@/app/models/Servicos-musicais/cliente'
-import { Pedido } from '@/app/models/Servicos-musicais/pedido'
-import { MetricasServico, Servico, ServicoForm } from '@/app/models/Servicos-musicais/servico'
-import { AxiosResponse } from 'axios'
+import { httpClient } from '@/app/http/';
+import { Servico, ServicoForm } from '@/app/models/Servicos-musicais/servico';
+import { AxiosResponse } from 'axios';
 
-const resourceURL: string = '/admin/servicos-musicais/servico'
+const resourceURL: string = '/admin/servicos-musicais/servico';
 
 export const useServicoService = () => {
 
@@ -14,90 +11,36 @@ export const useServicoService = () => {
     // =========================================================================
 
     const salvarServico = async (servico: ServicoForm): Promise<ServicoForm> => {
-        try {
-            const response: AxiosResponse<Servico> = await httpClient.post(`${resourceURL}`, servico)
-            return response.data
-        }
-        catch (error: any) {
-            if (error.response?.data) {
-                console.log(error)
-                throw new Error(error.response.data)
-            } else {
-
-            }
-            throw new Error("Erro de Conexão com o servidor")
-        }
-    }
+        const response: AxiosResponse<Servico> =
+            await httpClient.post(`${resourceURL}`, servico);
+        return response.data;
+    };
 
     const atualizarServico = async (servicoId: number, updates: Record<string, any>): Promise<ServicoForm> => {
-        try {
-            const response: AxiosResponse<Servico> = await httpClient.patch(`${resourceURL}/${servicoId}`, updates)
-            return response.data
-        }
-        catch (error: any) {
-            if (error.response?.data) {
-                console.log(error)
-                throw new Error(error.response.data)
-            } else {
-
-            }
-            throw new Error("Erro de Conexão com o servidor")
-        }
-    }
-
+        const response: AxiosResponse<Servico> =
+            await httpClient.patch(`${resourceURL}/${servicoId}`, updates);
+        return response.data;
+    };
 
     const deleteById = async (servicoId: number): Promise<void> => {
-        try {
-            const response: AxiosResponse<void> = await httpClient.delete(`${resourceURL}/${servicoId}`)
-            console.log(response)
-            return response.data
-        }
-        catch (error: any) {
-            if (error.response?.data) {
-                console.log(error)
-                throw new Error(error.response.data)
-            } else {
+        await httpClient.delete(`${resourceURL}/${servicoId}`);
+    };
 
-            }
-            throw new Error("Erro de Conexão com o servidor")
-        }
-    }
     // =========================================================================
     // OPERAÇÕES DE CONSULTA DE SERVIÇOS
     // =========================================================================
 
     const getServicos = async (): Promise<Servico[]> => {
-        try {
-            const response: AxiosResponse<Servico[]> = await httpClient.get(`${resourceURL}`)
-            return response.data
-        }
-        catch (error: any) {
-            if (error.response?.data) {
-                console.log(error)
-                throw new Error(error.response.data)
-            } else {
-
-            }
-            throw new Error("Erro de Conexão com o servidor")
-        }
-    }
+        const response: AxiosResponse<Servico[]> =
+            await httpClient.get(`${resourceURL}`);
+        return response.data;
+    };
 
     const getServicoById = async (servicoId: number): Promise<Servico> => {
-        try {
-            const response: AxiosResponse<Servico> = await httpClient.get(`${resourceURL}/${servicoId}`)
-            console.log(response)
-            return response.data
-        }
-        catch (error: any) {
-            if (error.response?.data) {
-                console.log(error)
-                throw new Error(error.response.data)
-            } else {
-
-            }
-            throw new Error("Erro de Conexão com o servidor")
-        }
-    }
+        const response: AxiosResponse<Servico> =
+            await httpClient.get(`${resourceURL}/${servicoId}`);
+        return response.data;
+    };
 
     // =========================================================================
     // EXPORTAÇÃO DE SERVIÇOS
@@ -109,5 +52,5 @@ export const useServicoService = () => {
         deleteById,
         getServicos,
         getServicoById
-    }
-}
+    };
+};

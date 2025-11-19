@@ -11,106 +11,38 @@ export const useInstrumentoService = () => {
     // =========================================================================
 
     const cadastrarInstrumento = async (instrumento: InstrumentoCadastro): Promise<InstrumentoCadastro> => {
-        try {
-            const response: AxiosResponse<InstrumentoCadastro> = await httpClient.post<InstrumentoCadastro>(resourceURL, instrumento)
-            return response.data
-        }
-        catch (error: any) {
-            if (error.response?.data) {
-                console.log(error)
-                throw new Error(error.response.data)
-            } else {
-
-            }
-            throw new Error("Erro de Conexão com o servidor")
-        }
-    }
+        const response: AxiosResponse<InstrumentoCadastro> =
+            await httpClient.post<InstrumentoCadastro>(resourceURL, instrumento);
+        return response.data;
+    };
 
     const getAllInstrumentos = async (): Promise<Instrumento[]> => {
-        try {
-            const response: AxiosResponse<Instrumento[]> = await httpClient.get<Instrumento[]>(resourceURL)
-            return response.data
-        }
-        catch (error: any) {
-            if (error.response?.data) {
-                console.log(error)
-                throw new Error(error.response.data)
-            } else {
-
-            }
-            throw new Error("Erro de Conexão com o servidor")
-        }
-    }
+        const response: AxiosResponse<Instrumento[]> =
+            await httpClient.get<Instrumento[]>(resourceURL);
+        return response.data;
+    };
 
     const getAllInstrumentosConteudo = async (): Promise<Instrumento[]> => {
-        try {
-            const response: AxiosResponse<Instrumento[]> = await httpClient.get<Instrumento[]>(resourceURL)
-            return response.data
-        }
-        catch (error: any) {
-            if (error.response?.data) {
-                console.log(error)
-                throw new Error(error.response.data)
-            } else {
-
-            }
-            throw new Error("Erro de Conexão com o servidor")
-        }
-    }
+        const response: AxiosResponse<Instrumento[]> =
+            await httpClient.get<Instrumento[]>(resourceURL);
+        return response.data;
+    };
 
     const getInstrumentoByProfessorId = async (professorId: number): Promise<Instrumento[]> => {
-        try {
-            const response: AxiosResponse<Instrumento[]> = await httpClient.get<Instrumento[]>(`${resourceURL}/professorId/${professorId}`)
-            return response.data
-        }
-        catch (error: any) {
-            if (error.response?.data) {
-                console.log(error)
-                throw new Error(error.response.data)
-            } else {
-
-            }
-            throw new Error("Erro de Conexão com o servidor")
-        }
-    }
+        const response: AxiosResponse<Instrumento[]> =
+            await httpClient.get<Instrumento[]>(`${resourceURL}/professorId/${professorId}`);
+        return response.data;
+    };
 
     const AtualizarInstrumentos = async (instrumentoId: number, updates: Record<string, any>): Promise<InstrumentoCadastro> => {
-        try {
-            console.log("sou eu", updates)
-
-            const response: AxiosResponse<InstrumentoCadastro> = await httpClient.patch<InstrumentoCadastro>(
-                `${resourceURL}/${instrumentoId}/parcial`,
-                updates
-            )
-
-            console.log("sou eu", response)
-            return response.data
-        }
-        catch (error: any) {
-            if (error.response?.data) {
-                console.log(error)
-                throw new Error(error.response.data)
-            } else {
-
-            }
-            throw new Error("Erro de Conexão com o servidor")
-        }
-    }
+        const response: AxiosResponse<InstrumentoCadastro> =
+            await httpClient.patch<InstrumentoCadastro>(`${resourceURL}/${instrumentoId}/parcial`, updates);
+        return response.data;
+    };
 
     const removerInstrumento = async (instrumentoId: number): Promise<void> => {
-        try {
-            await httpClient.delete(`${resourceURL}/${instrumentoId}/deletar`)
-        }
-        catch (error: any) {
-            if (error.response?.data) {
-                console.log(error)
-                throw new Error(error.response.data)
-            } else {
-
-            }
-            throw new Error("Erro de Conexão com o servidor")
-        }
-    }
+        await httpClient.delete(`${resourceURL}/${instrumentoId}/deletar`);
+    };
 
     // =========================================================================
     // EXPORTAÇÃO DE SERVIÇOS
@@ -123,5 +55,5 @@ export const useInstrumentoService = () => {
         getInstrumentoByProfessorId,
         AtualizarInstrumentos,
         removerInstrumento
-    }
-}
+    };
+};

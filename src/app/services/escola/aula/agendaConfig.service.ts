@@ -14,46 +14,28 @@ export const useConfigAgendaService = () => {
 
 
     const getConfig = async (): Promise<ConfigAgenda> => {
-        try {
-            const url = BASE_URL;
-            const response: AxiosResponse<ConfigAgenda> = await httpClient.get(url);
-            console.log(response)
-            return response.data;
-        }
-        catch (error: any) {
-            if (error.response?.data) {
-                console.log(error)
-                throw new Error(error.response.data)
-            } else {
 
-            }
-            throw new Error("Erro de Conexão com o servidor")
-        }
+        const url = BASE_URL;
+        const response: AxiosResponse<ConfigAgenda> = await httpClient.get(url);
+
+        return response.data;
+
 
     };
 
     const updateConfig = async (config: ConfigAgenda): Promise<ConfigAgenda> => {
-        console.log("config:", config)
-        try {
-            const url =  BASE_URL;
-            const response: AxiosResponse<ConfigAgenda> = await httpClient.put(url, config);
-            return response.data;
 
-        }
-        catch (error: any) {
-            if (error.response?.data) {
-                console.log(error)
-                throw new Error(error.response.data)
-            } else {
+        const url = BASE_URL;
+        const response: AxiosResponse<ConfigAgenda> = await httpClient.put(url, config);
+        return response.data;
 
-            }
-            throw new Error("Erro de Conexão com o servidor")
-        }
+
+
     };
 
     const getDefaultConfig = (): ConfigAgenda => {
         return {
-           
+
             horaInicio: '08:00',
             horaFim: '18:00',
             duracaoAulaMinutos: 60

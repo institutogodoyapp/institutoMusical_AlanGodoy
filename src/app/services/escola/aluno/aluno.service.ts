@@ -3,7 +3,7 @@ import { Aluno } from '@/app/models/escola/aluno'
 import { AxiosResponse } from 'axios'
 import { aula } from '@/app/models/escola/aula'
 import { ProgressoAluno } from '@/app/models/escola/aluno/progresso'
-import { AxiosError } from 'axios'
+
 
 const resourceURL: string = '/admin/escola-musica/'
 

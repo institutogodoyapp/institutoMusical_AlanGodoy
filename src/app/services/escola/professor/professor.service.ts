@@ -11,86 +11,32 @@ export const useProfessorService = () => {
     // =========================================================================
 
     const cadastrarProfessor = async (professor: ProfessorCadastro): Promise<ProfessorCadastro> => {
-        try {
-            const response: AxiosResponse<ProfessorCadastro> = await httpClient.post<ProfessorCadastro>(resourceURL, professor)
-            return response.data
-        }
-        catch (error: any) {
-            if (error.response?.data) {
-                console.log(error)
-                throw new Error(error.response.data)
-            } else {
-
-            }
-            throw new Error("Erro de Conexão com o servidor")
-        }
-    }
+        const response: AxiosResponse<ProfessorCadastro> =
+            await httpClient.post<ProfessorCadastro>(resourceURL, professor);
+        return response.data;
+    };
 
     const getAllProfessores = async (): Promise<Professor[]> => {
-        try {
-            const response: AxiosResponse<Professor[]> = await httpClient.get<Professor[]>(resourceURL)
-            return response.data
-        }
-        catch (error: any) {
-            if (error.response?.data) {
-                console.log(error)
-                throw new Error(error.response.data)
-            } else {
+        const response: AxiosResponse<Professor[]> =
+            await httpClient.get<Professor[]>(resourceURL);
+        return response.data;
+    };
 
-            }
-            throw new Error("Erro de Conexão com o servidor")
-        }
-    }
-        const getProfessor = async (professorId: number): Promise<Professor> => {
-        try {
-            const response: AxiosResponse<Professor> = await httpClient.get<Professor>(`${resourceURL}/${professorId}/professor`)
-            return response.data
-        }
-        catch (error: any) {
-            if (error.response?.data) {
-                console.log(error)
-                throw new Error(error.response.data)
-            } else {
-
-            }
-            throw new Error("Erro de Conexão com o servidor")
-        }
-    }
+    const getProfessor = async (professorId: number): Promise<Professor> => {
+        const response: AxiosResponse<Professor> =
+            await httpClient.get<Professor>(`${resourceURL}/${professorId}/professor`);
+        return response.data;
+    };
 
     const atualizarProfessor = async (professorId: number, professor: ProfessorCadastro): Promise<ProfessorCadastro> => {
-        try {
-            const response: AxiosResponse<ProfessorCadastro> = await httpClient.put<ProfessorCadastro>(
-                `${resourceURL}/${professorId}/update`,
-                professor
-            )
-            return response.data
-        }
-        catch (error: any) {
-            if (error.response?.data) {
-                console.log(error)
-                throw new Error(error.response.data)
-            } else {
-
-            }
-            throw new Error("Erro de Conexão com o servidor")
-        }
-    }
+        const response: AxiosResponse<ProfessorCadastro> =
+            await httpClient.put<ProfessorCadastro>(`${resourceURL}/${professorId}/update`, professor);
+        return response.data;
+    };
 
     const exluirProfessor = async (professorId: number): Promise<void> => {
-        try {
-            const response: AxiosResponse<Professor> = await httpClient.delete(`${resourceURL}/${professorId}/deletar`)
-            console.log(response)
-        }
-        catch (error: any) {
-            if (error.response?.data) {
-                console.log(error)
-                throw new Error(error.response.data)
-            } else {
-
-            }
-            throw new Error("Erro de Conexão com o servidor")
-        }
-    }
+        await httpClient.delete(`${resourceURL}/${professorId}/deletar`);
+    };
 
     // =========================================================================
     // EXPORTAÇÃO DE SERVIÇOS
@@ -102,5 +48,5 @@ export const useProfessorService = () => {
         getProfessor,
         atualizarProfessor,
         exluirProfessor
-    }
-}
+    };
+};

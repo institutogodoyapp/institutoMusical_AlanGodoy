@@ -8,7 +8,6 @@ class LocalStorageService {
 
     static obterItem(chave: string): string | null {
         const item = localStorage.getItem(chave);
-console.log("obtem")
         return JSON.stringify(item)
 
     }
