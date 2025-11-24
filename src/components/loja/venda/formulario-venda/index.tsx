@@ -69,7 +69,7 @@ export const NovaVenda: React.FC = () => {
 
     setCarregando(true);
     try {
-      console.log(venda);
+  
       await servicoVenda.realizarVenda(venda)
       showSuccess(editando ? 'Venda atualizada com sucesso!' : 'Venda realizada com sucesso!');
     } catch (error) {

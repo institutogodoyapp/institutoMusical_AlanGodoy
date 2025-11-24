@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
 import { authService } from '@/app/services/api/authSeervice';
-import { UsuarioLogin } from '@/app/models/usuario'
 
 export const useAuth = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
@@ -22,7 +21,6 @@ export const useAuth = () => {
 
   const login = useCallback(async (email: string, senha: string) => {
     try {
-       console.log("fui fbnfbnfn")
       const response = await authService.login({ email, senha });
       authService.setTokens(response.accessToken, response.refreshToken);
       setIsAuthenticated(true);
@@ -36,7 +34,6 @@ export const useAuth = () => {
   }, []);
 
   const logout = useCallback(() => {
-    console.log("call") 
     authService.logout();
     
     setIsAuthenticated(false);

@@ -14,6 +14,7 @@ export const useAlunoService = () => {
     // =========================================================================
 
     const cadastrarAluno = async (aluno: Aluno): Promise<Aluno> => {
+        console.log(aluno)
         const response: AxiosResponse<Aluno> = await httpClient.post<Aluno>(
             resourceURL + 'alunos', 
             aluno

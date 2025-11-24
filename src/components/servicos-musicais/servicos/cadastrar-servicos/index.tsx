@@ -92,10 +92,7 @@ export const NovoServicePage: React.FC = () => {
     try {
       setCarregando(true);
 
-      console.log('Dados do serviço:', formData);
-
-
-
+     
       if (formData.id) {
 
         await service.atualizarServico(formData.id, formData);
@@ -134,7 +131,7 @@ export const NovoServicePage: React.FC = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
-    console.log(value)
+  
     setFormData(prev => ({
       ...prev,
       [name]: type === 'number' ? Number(value) : value

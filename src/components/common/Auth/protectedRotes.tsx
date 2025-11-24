@@ -15,7 +15,7 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   useEffect(() => {
     if (!isAuthenticated) {
-      console.log("fui loip")
+   
      router.push('http://localhost:300/instituto-musical/autenticacao/login');
     }
   }, [isAuthenticated, router]);

@@ -105,12 +105,12 @@ export const GerenciamentoProfessores: React.FC = () => {
     try {
       setLoading(true);
       const responseInst = await serviceInstrumento.getAllInstrumentos();
-      console.log(responseInst)
+ 
       setInstrumentos(responseInst);
 
       const responseProf = await serviceProfessor.getAllProfessores();
       setProfessores(responseProf);
-      console.log(responseProf)
+
     } catch (error) {
       showError('Erro ao carregar dados');
     } finally {
@@ -171,7 +171,7 @@ export const GerenciamentoProfessores: React.FC = () => {
   //=========== FUNÇÕES AXILIARES =================
 
   const getColorTag = (professorAtivo: boolean): string => {
-    console.log(professorAtivo)
+  
     if (professorAtivo === true) {
       return 'is-primary'
     } else {
@@ -181,15 +181,6 @@ export const GerenciamentoProfessores: React.FC = () => {
   }
 
 
-  const getTextStatus = (professorAtivo: boolean): string => {
-    console.log(professorAtivo)
-    if (professorAtivo === false) {
-      return 'Inativo'
-    } else {
-      return 'Ativo'
-    }
-
-  }
 
   // ========== MANIPULAÇÃO DO FORMULÁRIO ==========
   const handleFormChange = (field: keyof ProfessorCadastro, value: any) => {

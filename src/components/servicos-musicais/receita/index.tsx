@@ -140,12 +140,12 @@ export const ControleFinanceiroServicos: React.FC = () => {
 
   // ========== FUNÇÕES DE DESPESAS ==========
   const handleBuscarDespesas = () => {
-    console.log("Buscar despesas de", periodoInicio, "até", periodoFim, "categoria:", categoriaFiltro);
+   
   };
 
   const handleAddDespesa = async (dados: DadosModal) => {
     try {
-      console.log("Dados recebidos do modal:", dados);
+     
 
       const formattedData = {
         ...dados,
@@ -182,7 +182,7 @@ export const ControleFinanceiroServicos: React.FC = () => {
   // ========== FUNÇÕES DE CATEGORIAS ==========
   const handleAddCategoria = async (dados: DadosModal) => {
     try {
-      console.log("Dados recebidos do modal categoria:", dados);
+     
 
       if (categoriaEditando?.id) {
         await financasService.atualizarCategoria(categoriaEditando.id, dados);
@@ -234,7 +234,7 @@ export const ControleFinanceiroServicos: React.FC = () => {
       setFormDataDespesas(despesa);
     } else {
       setShowDespesaModal(true);
-      console.log(showDespesaModal);
+     
       setFormDataDespesas({
         id: 0,
         descricao: '',
@@ -247,7 +247,7 @@ export const ControleFinanceiroServicos: React.FC = () => {
 
   const abrirModalCategoria = (categoria: CategoriaDespesaServico | null = null) => {
     if (categoria?.id) {
-      console.log(categoria.id);
+     
       setShowCategoriaModal(true);
       setCategoriaEditando(categoria);
       setFormData(categoria);

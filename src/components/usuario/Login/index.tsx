@@ -64,8 +64,6 @@ export const LoginPage: React.FC = () => {
 
   const onSubmit = async (dados: UsuarioLogin) => {
     try {
-      console.log("chegyeu")
-
       const result = await login(dados.email, dados.senha);
 
       if (result.success) {

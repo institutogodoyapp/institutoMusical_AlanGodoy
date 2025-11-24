@@ -74,7 +74,7 @@ export const CadastroCliente: React.FC = () => {
       if (editando) {
         const response = await service.atualizarCliente(cliente.id, cliente);
       } else {
-        console.log(cliente);
+   
         const response = await service.salvarCliente(cliente);
       }
     } catch (error) {

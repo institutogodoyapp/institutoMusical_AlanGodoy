@@ -48,7 +48,7 @@ export const DashboardServicosMusicais: React.FC = () => {
         servicosPedido.getMetricas()
       ]);
       setServicos(responseServicos);
-      console.log(responseServicos)
+  
       setMetrica(responseMetricas);
     } catch (error) {
       showError('Erro ao carregar dados');

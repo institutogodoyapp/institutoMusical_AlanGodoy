@@ -80,7 +80,7 @@ export const GerenciamentoMensalidades: React.FC<MensalidadesTabProps> = () => {
       const responseAlunos: Aluno[] = await alunoService.getAlunos()
       const mensalidades: Mensalidades[] = await mensalidadeService.listarMensalidadesAberto();
       
-      console.log(mensalidades)
+  
       setMensalidadesEmAberto(mensalidades)
       setAlunos(responseAlunos);
     } catch (error) {
@@ -95,7 +95,7 @@ export const GerenciamentoMensalidades: React.FC<MensalidadesTabProps> = () => {
     if (alunoSelecionado?.id == null) {
       return
     }
-    console.log("fui chamada")
+   
     const responseMensalidades: Mensalidades[] = await mensalidadeService.listarMensalidadePorAluno(alunoSelecionado?.id)
     console.log(responseMensalidades)
     setMensalidades(responseMensalidades)

@@ -98,7 +98,7 @@ export const GerenciamentoConteudo: React.FC = () => {
 
   useEffect(() => {
     if (instrumentoSelecionado) {
-console.log(InstrumentoIdConvert, "bgygy")
+
       buscarConteudoInstrumento(instrumentoSelecionado.id);
     }
   }, [instrumentoSelecionado?.id]);
@@ -120,10 +120,10 @@ console.log(InstrumentoIdConvert, "bgygy")
     try {
       setLoading(true);
      const response = await instrumentoService.getAllInstrumentosConteudo();
-      console.log(response)
+
 
       const instrumentoIdNum = InstrumentoIdConvert;
-      console.log(id)
+
       const instrumentoEncontrado = response.find(i => i.id === instrumentoIdNum);
       const instrumentoParaSelecionar = instrumentoEncontrado || response[0];
 
@@ -165,7 +165,6 @@ console.log(InstrumentoIdConvert, "bgygy")
       setShowDisciplinaForm(true)
     }
 
-    console.log("abrir modal" + disciplina?.id)
   }
 
   const fecharModal = () => {
@@ -262,15 +261,13 @@ console.log(InstrumentoIdConvert, "bgygy")
   }
 
   const adicionarTopico = async (dados: DadosModal) => {
-    console.log(formDataTopico.ordem)
-    console.log("fui chamada")
-
+ 
     const dadosCompletos = {
       ...dados as TopicoCadastro,
       disciplinaId: Number(disciplinaParaTopico)
     }
 
-    console.log(dadosCompletos.disciplinaId)
+   
     try {
       await gradeService.adicionarTopicos(dadosCompletos)
     } catch (error) {
@@ -308,7 +305,7 @@ console.log(InstrumentoIdConvert, "bgygy")
   }
 
   const excluirTopico = async (topicoId: number) => {
-    console.log(topicoId)
+
     if (confirm('Tem certeza que deseja excluir este topico?')) {
       try {
         await gradeService.deletarTopico(topicoId)

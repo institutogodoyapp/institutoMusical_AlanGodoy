@@ -85,7 +85,7 @@ export const GerenciamentoInstrumentos: React.FC = () => {
     try {
       setLoading(true);
       const response = await instrumentoService.getAllInstrumentos();
-      console.log(response)
+    
       setInstrumentos(Array.isArray(response) ? response : [response]);
     } catch (err) {
       showError('Erro ao buscar instrumentos');
@@ -118,7 +118,7 @@ export const GerenciamentoInstrumentos: React.FC = () => {
   };
 
   const abrirModal = (instrumento: Instrumento | null = null) => {
-    console.log("fui")
+    
     if (instrumento?.id) {
       setInstrumentoEditando(instrumento);
       setFormData(instrumento);
@@ -159,10 +159,10 @@ export const GerenciamentoInstrumentos: React.FC = () => {
   // ========== FUNÇÕES DE CRUD ==========
   const salvarInstrumento = async (dados: DadosModal) => {
     try {
-      console.log(formData)
+      
       let response;
       if (instrumentoEditando?.id) {
-        console.log("editando", formData, instrumentoEditando.id)
+      
         response = await instrumentoService.AtualizarInstrumentos(instrumentoEditando.id, dados);
         showSuccess("Instrumento atualizado com sucesso!");
       } else {
@@ -191,7 +191,7 @@ export const GerenciamentoInstrumentos: React.FC = () => {
 
   // ========== FUNÇÕES DE NAVEGAÇÃO ==========
   const irParaConteudo = (id: number) => {
-    console.log("instrumentoId", id)
+ 
     router.push(`/instituto-musical/escola/instrumento/conteudo?id=${id}`)
   }
 

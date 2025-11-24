@@ -55,7 +55,7 @@ export const GerenciamentoUsuarios: React.FC = () => {
     try {
       setCarregando(true);
       const resposta = await service.getUser();
-      console.log(resposta)
+  
       setUsuarios(Array.isArray(resposta) ? resposta : [resposta]);
     } catch (error) {
       showError("Erro ao carregar usuários");
@@ -137,14 +137,7 @@ export const GerenciamentoUsuarios: React.FC = () => {
                 </span>
               </div>
               <div className="level-right">
-                <CustomButton
-                  icon={<FiUserPlus />}
-                  text="Adicionar Usuário"
-                  isMobile={isMobile}
-                  onClick={() => router.push('/instituto-musical/autenticacao/cadastro-usuario/cadastroUsuarios')}
-                  className="my-custom-class"
-                  style={{ padding: '10px 20px' }}
-                />
+               
               </div>
             </div>
 

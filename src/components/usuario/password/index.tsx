@@ -44,7 +44,7 @@ export const AtualizarSenhaModal: React.FC<AtualizarSenhaModalProps> = ({
 
   // DEBUG: Verificar se o email está chegando
   useEffect(() => {
-    console.log('Email recebido no modal:', email);
+   
   }, [email]);
 
   // Limpar erros quando o modal abrir/fechar
@@ -128,11 +128,9 @@ export const AtualizarSenhaModal: React.FC<AtualizarSenhaModalProps> = ({
   };
 
   const handleSave = async (dados: DadosModal) => {
-    console.log('Dados do formulário recebidos no handleSave:', dados);
-    console.log('Email disponível no handleSave:', email);
-
+    
     if (!validarFormulario(dados)) {
-      console.log('Validação falhou');
+      
       return;
     }
 
@@ -152,8 +150,6 @@ export const AtualizarSenhaModal: React.FC<AtualizarSenhaModalProps> = ({
         novaSenha: dados.novaSenha,
         confirmacaoNovaSenha: dados.confirmarSenha
       };
-
-      console.log('Dados enviados para a API:', dadosMudancaSenha);
 
       // Chama o serviço real
       await atualizarSenha(dadosMudancaSenha);

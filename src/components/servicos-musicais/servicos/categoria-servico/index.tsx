@@ -72,13 +72,13 @@ export const GerenciamentoCategoriasPage: React.FC = () => {
   const fecharModal = () => {
     setModalAberto(false);
     setCategoriaEditando(null);
-    console.log(categoriaEditando);
+  
   };
 
   // ========== FUNÇÕES DE CRUD ==========
   const salvarCategoria = async (dados: DadosModal) => {
     try {
-      console.log(dados);
+      
       let response;
 
       if (categoriaEditando?.id) {
@@ -147,8 +147,7 @@ export const GerenciamentoCategoriasPage: React.FC = () => {
     categoria.nome.toLowerCase().includes(filtroNome.toLowerCase())
 
   );
-console.log("filtrada", categoriasFiltradas)
-console.log("carre", categorias)
+
   // ========== RENDERIZAÇÃO DE CARREGAMENTO ==========
   if (carregando) {
     return (

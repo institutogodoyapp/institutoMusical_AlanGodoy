@@ -19,7 +19,7 @@ export const HomeEscolaMusica = () => {
             try {
                 const responseAulas = await service.getAulasSemana();
                 setAulasAgendadas(Array.isArray(responseAulas) ? responseAulas : [responseAulas]);
-                console.log(responseAulas);
+              
             } catch (error) {
                 console.error('Erro ao buscar os dados da API:', error);
             } finally {

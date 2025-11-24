@@ -96,7 +96,7 @@ export const CadastroAlunos: React.FC = () => {
     useEffect(() => {
     if (formData.professorId) {
        const instrumentos = fetchInstrumentos(Number(formData.professorId));
-           console.log(instrumentos)
+       
     }
 
 
@@ -152,6 +152,7 @@ export const CadastroAlunos: React.FC = () => {
 
     // ========== FUNÇÕES DE MANIPULAÇÃO DE FORMULÁRIO ==========
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+       
         const { name, value } = e.target;
 
         setFormData(prev => ({
@@ -175,25 +176,20 @@ export const CadastroAlunos: React.FC = () => {
         try {
             setLoading(true);
 
-            console.log(formData.cpf)
+           
 
             if (alunoId) {
                 const response = await service.atualizarAluno(alunoId, formData);
                 setFormData(response);
             } else {
-                console.log(formData)
+               
                 const response = await service.cadastrarAluno(formData);
                 setFormData(response);
             }
 
             showSuccess(successMsg);
-        } catch (err: any) {
-            console.error('Erro no cadastro:', err);
-            let errorMsg = 'Erro ao cadastrar aluno';
-            showError(errorMsg);
-        } finally {
-            setLoading(false);
 
+            
             setFormData({
                 id: 0,
                 nome: '',
@@ -206,6 +202,14 @@ export const CadastroAlunos: React.FC = () => {
                 professorId: 0,
                 ativo: true
             });
+            
+        } catch (err: any) {
+            console.error('Erro no cadastro:', err);
+            let errorMsg = 'Erro ao cadastrar aluno';
+            showError(errorMsg + ": " + err.message);
+        } finally {
+            setLoading(false);
+
         }
     };
 

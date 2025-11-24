@@ -69,7 +69,7 @@ export const ConfiguraçãoGlobal: React.FC<ConfiguraçãoGlobalProps> = () => {
 
     // ========== FUNÇÕES DE CRUD ==========
     const handleAtualizarConfiguracao = async (dados: DadosModal) => {
-        console.log("chamei", configuracao?.valorMensalidade)
+     
         if (dados)
             await mensalidadeService.postConfig(dados as Config)
         showSuccess("Configuração atualizada com sucesso!");

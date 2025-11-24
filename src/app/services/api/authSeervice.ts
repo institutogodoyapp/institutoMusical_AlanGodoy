@@ -18,9 +18,9 @@ export const authService = {
 
   // Login
   login: async (loginData: LoginData): Promise<AuthResponse> => {
- 
+ console.log(loginData)
     const response = await httpClient.post('/usuario/login', loginData);
-       console.log(response)
+       
     return response.data;
   },
 

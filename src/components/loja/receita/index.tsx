@@ -118,7 +118,7 @@ export const ControleFinanceiroLoja: React.FC = () => {
         Number(filtroDashboard.mes)
       );
       
-      console.log(resumoPeriodo);
+   
       setResumo(resumoPeriodo);
     } catch (error) {
       console.error("Erro ao carregar dados:", error);
@@ -151,7 +151,7 @@ export const ControleFinanceiroLoja: React.FC = () => {
             Number(filtroDashboard.mes)
           );
           
-          console.log(resumoPeriodo);
+      
           setResumo(resumoPeriodo);
         } else {
           showError("Selecione um periodo ou um mês para prosseguir com a busca");

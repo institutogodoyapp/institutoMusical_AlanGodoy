@@ -50,7 +50,7 @@ export const GerenciamentoClientesPage: React.FC = () => {
   const carregarDadosCliente = async () => {
     try {
       const response = await serviceCliente.getClient();
-      console.log(response);
+    
       setClientes(response);
     } catch (error) {
       showError('Erro ao carregar clientes');

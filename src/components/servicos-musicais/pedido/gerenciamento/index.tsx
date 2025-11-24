@@ -45,7 +45,7 @@ export const GerenciamentoPedidosPage: React.FC = () => {
   const carregarPedidos = async () => {
     try {
       const pedidosResponse = await servicosPedido.getPedidos();
-      console.log(pedidosResponse);
+
       setPedidos(pedidosResponse);
     } catch (error) {
       showError('Erro ao carregar pedidos');
@@ -106,7 +106,7 @@ export const GerenciamentoPedidosPage: React.FC = () => {
 
   // ========== FUNÇÕES AUXILIARES ==========
   const getStatusColor = (status: string) => {
-    console.log('fuichamasa', status);
+  
     const cores = {
       AGENDADO: 'is-warning',
       PROCESSANDO: 'is-primary',
