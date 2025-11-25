@@ -48,6 +48,7 @@ interface AulaAgendadaProps {
 interface HomePageProps {
     title: string;
     subtitle: string;
+    isMobile: boolean;
     main: string;
     icon?: ReactNode;
     image?: ReactNode;
@@ -61,6 +62,7 @@ interface HomePageProps {
 export const HomePage: FC<HomePageProps> = ({
     layout,
     title,
+    isMobile,
     subtitle,
     main,
     icon,
@@ -83,7 +85,7 @@ export const HomePage: FC<HomePageProps> = ({
                                 {title}
                             </h1>
                             <p className="subtitle is-5 mt-9" style={{fontStyle:'italic'}}>
-                                {subtitle}
+                                {isMobile ? '' : subtitle}
                             </p>
                         </div>
                     </div>
@@ -106,7 +108,7 @@ export const HomePage: FC<HomePageProps> = ({
                                             {op.title}
                                         </h3>
                                         <p className="subtitle is-6 has-text-grey has-text-centered mt-2 mb-2">
-                                            {op.description}
+                                            {isMobile ? '' : op.description}
                                         </p>
                                     </Link>
                                 </div>
@@ -137,8 +139,8 @@ export const HomePage: FC<HomePageProps> = ({
                     padding: 1.5rem;
                     background: #ffffff;
                     transition: all 0.3s ease;
-                    min-height: 180px;
-                    max-height: 180px;
+                    min-height: 60px;
+                    max-height: 120px;
                     text-decoration: none;
                 }
                 .box-card-custom:hover {

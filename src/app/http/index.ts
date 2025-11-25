@@ -26,6 +26,8 @@ httpClient.interceptors.request.use(
       if (accessToken) {
         config.headers['Authorization'] = `${accessToken.trim()}`;
       }
+
+      
     }
     return config;
   },
@@ -46,7 +48,7 @@ httpClient.interceptors.response.use(
     if ((status === 401 || status === 403)
       && !originalRequest._retry
       && !isRefreshRequest) {
-
+console.log("hamei")
       originalRequest._retry = true;
 
       const { refreshToken } = authService.getTokens();

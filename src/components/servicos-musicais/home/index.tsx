@@ -17,22 +17,35 @@ import { useNotifications } from '@/components/common/notificacao/hookNotify/uso
 export const HomeServicos = () => {
     const [aulasAgendadas, setAulasAgendadas] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [isMobileView, setIsMobileView] = useState(false)
     const service = useAlunoService();
-       const {
-            notifications,
-            showSuccess,
-            showError,
-            removeNotification
-        } = useNotifications();
+    const {
+        notifications,
+        showSuccess,
+        showError,
+        removeNotification
+    } = useNotifications();
+
+
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobileView(window.innerWidth < 768);
+        };
+
+        handleResize();
+        window.addEventListener('resize', handleResize);
+
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const responseAulas = await service.getAulasSemana();
                 setAulasAgendadas(Array.isArray(responseAulas) ? responseAulas : [responseAulas]);
-               
+
             } catch (error) {
-                 showError(`Erro ao buscar os dados: ${error}`);
+                showError(`Erro ao buscar os dados`);
             } finally {
                 setLoading(false);
             }
@@ -53,19 +66,20 @@ export const HomeServicos = () => {
             <HomePage
                 title="Serviços Musicais"
                 subtitle="Gerenciamento de Trabalho e prestação de serviços"
+                isMobile={isMobileView}
                 icon={<FaHome size={56} />}
                 useLayout={true}
                 main=''
                 operacoesPrincipais={[
                     { title: 'Serviços', icon: <FaShoppingCart size={28} />, route: '/instituto-musical/servicos-musicais/dashboard', description: 'Gerencie e crie projetos' },
-                    { title: 'Pedido', icon: <FaBox  size={28} />, route: '/instituto-musical/servicos-musicais/pedido/gerenciamento', description: 'Gerencie e faça pedidos' },
+                    { title: 'Pedido', icon: <FaBox size={28} />, route: '/instituto-musical/servicos-musicais/pedido/gerenciamento', description: 'Gerencie e faça pedidos' },
                     { title: 'Clientes', icon: <FaUserTie size={28} />, route: '/instituto-musical/servicos-musicais/cliente/gerenciamento', description: 'Gerencie o os seus clientes' },
-            // { title: 'Projetos', icon: <FaFileInvoiceDollar size={28} />, route: '/servicos-musicais/dashboard', description: ' projeto' },
+                    // { title: 'Projetos', icon: <FaFileInvoiceDollar size={28} />, route: '/servicos-musicais/dashboard', description: ' projeto' },
                     { title: 'Financeiro', icon: <FaFileInvoiceDollar size={28} />, route: '/instituto-musical/servicos-musicais/receita', description: 'Cuide da saúde financeira do seu negocio' },
                 ]}
             >
                 <div className="columns is-multiline">
-                   
+
 
                     <div className="column is-6-mobile is-4-tablet is-5-desktop">
                         {/* <CardsAvisos

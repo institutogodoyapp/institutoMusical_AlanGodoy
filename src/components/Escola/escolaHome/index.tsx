@@ -20,7 +20,19 @@ export const HomeEscolaMusica = () => {
     } = useNotifications();
     const [aulasAgendadas, setAulasAgendadas] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [isMobileView, setIsMobileView] = useState(false)
     const service = useAlunoService();
+
+      useEffect(() => {
+    const handleResize = () => {
+      setIsMobileView(window.innerWidth < 768);
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -29,7 +41,7 @@ export const HomeEscolaMusica = () => {
                 setAulasAgendadas(Array.isArray(responseAulas) ? responseAulas : [responseAulas]);
 
             } catch (error) {
-                 showError(`Erro ao buscar os dados: ${error}`);
+                 showError(`Erro ao buscar os dados`);
             } finally {
                 setLoading(false);
             }
@@ -54,6 +66,7 @@ export const HomeEscolaMusica = () => {
                 title="Escola de Música"
                 subtitle="Gerenciamento simplificado para sua escola musical"
                 icon={<FaHome size={56} />}
+                isMobile= {isMobileView}
                 main={""}
                 operacoesPrincipais={[
                     { title: 'Alunos', icon: <FaUser size={28} />, route: '/instituto-musical/escola/aluno/gerenciamento-aluno', description: 'Gerencie seus alunos' },

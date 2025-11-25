@@ -31,6 +31,7 @@ export const HomeInstitutoMusica = () => {
         <div style={{ margin: '100px' }}>
             <HomePage
                 title={`${isMobile ? '' : 'Instituto Musical Alan Godoy'} `}
+                isMobile={isMobile}
                 subtitle="Primeiro, minha casa para a musica. Hoje, somos casa da música!"
                 image={
 
