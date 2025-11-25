@@ -121,7 +121,7 @@ export const ControleFinanceiroLoja: React.FC = () => {
    
       setResumo(resumoPeriodo);
     } catch (error) {
-      console.error("Erro ao carregar dados:", error);
+        showError(`Erro ao buscar os dados: ${error}`);
     } finally {
       setLoading(false);
     }
@@ -161,7 +161,7 @@ export const ControleFinanceiroLoja: React.FC = () => {
       }
     } catch (error) {
       showError('Falha ao salvar dados. Tente novamente.');
-      console.error("Erro ao buscar resumo por período:", error);
+     
     } finally {
       setCarregandoResumo(false);
       setLoading(false);

@@ -62,7 +62,7 @@ export const VisualizarReposicoes: React.FC = () => {
             setLoading(true);
             const response = await service.getAllReposições();
             setReposicoes(response);
-            console.log(response)
+          
         } catch (err) {
             showError('Erro ao buscar reposições');
         } finally {
@@ -121,7 +121,7 @@ export const VisualizarReposicoes: React.FC = () => {
                 return true; // Já filtramos por mês/ano e aluno
         }
     });
-    console.log(reposicoes)
+ 
 
     const anosDisponiveis = Array.from({ length: 11 }, (_, i) => new Date().getFullYear() - 5 + i);
 

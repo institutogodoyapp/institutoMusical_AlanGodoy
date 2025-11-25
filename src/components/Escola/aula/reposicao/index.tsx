@@ -182,7 +182,7 @@ export const MarcarReposicao: React.FC = () => {
             showError('Selecione um aluno primeiro');
             return;
         }
-        console.log(alunoSelecionado)
+     
 
         router.push({
             pathname: '/instituto-musical/escola/aula/agenda',
@@ -236,7 +236,7 @@ export const MarcarReposicao: React.FC = () => {
         setLoading(true);
 
         try {
-            console.log("dados enviados : ", formData)
+          
 
             const response = await serviceAula.marcarReposicao(formData)
 

@@ -1,4 +1,4 @@
-import { CustomButton, Layout } from '@/components';
+import { CustomButton, Layout, useNotifications } from '@/components';
 import { useState, useEffect } from 'react';
 import {
   FaMoneyBillWave,
@@ -18,6 +18,7 @@ import { Mensalidades, Config } from '@/app/models/escola/financeiro/mensalidade
 import { useAlunoService } from '@/app/services';
 import { useMensalidadeService } from '@/app/services/escola/finanças/mensalidade.service';
 import { useRouter } from 'next/router';
+import NotificationContainer from '@/components/common/notificacao/mutiplasNotifacoes';
 
 // type Aluno = {
 //   id: number;
@@ -49,6 +50,12 @@ interface MensalidadesTabProps { }
 export const GerenciamentoMensalidades: React.FC<MensalidadesTabProps> = () => {
   // ========== SERVICES E HOOKS ==========
   const router = useRouter();
+    const {
+      notifications,
+      showSuccess,
+      showError,
+      removeNotification
+    } = useNotifications();
   const alunoService = useAlunoService()
   const mensalidadeService = useMensalidadeService()
 
@@ -84,7 +91,7 @@ export const GerenciamentoMensalidades: React.FC<MensalidadesTabProps> = () => {
       setMensalidadesEmAberto(mensalidades)
       setAlunos(responseAlunos);
     } catch (error) {
-      console.error("Erro ao carregar dados:", error);
+       showError(`Erro ao buscar os dados: ${error}`);
     } finally {
       setLoading(false);
     }
@@ -97,7 +104,7 @@ export const GerenciamentoMensalidades: React.FC<MensalidadesTabProps> = () => {
     }
    
     const responseMensalidades: Mensalidades[] = await mensalidadeService.listarMensalidadePorAluno(alunoSelecionado?.id)
-    console.log(responseMensalidades)
+    
     setMensalidades(responseMensalidades)
   };
 
@@ -156,6 +163,10 @@ export const GerenciamentoMensalidades: React.FC<MensalidadesTabProps> = () => {
   return (
     <section className="section">
       <div className="container">
+            <NotificationContainer
+                notifications={notifications}
+                onRemove={removeNotification}
+            />
         {/* Botão de Filtros para Mobile */}
         <div className="is-hidden-tablet mb-4">
           <button

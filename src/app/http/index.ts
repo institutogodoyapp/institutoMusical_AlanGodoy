@@ -18,7 +18,6 @@ export const refreshHttpClient = axios.create({
   },
 });
 
-console.log('BaseURL configurada novo:', process.env.NEXT_PUBLIC_INSTITUTOMUSICAL_GODOY_APP);
 // Adiciona o token JWT no cabeçalho de todas as requisições
 httpClient.interceptors.request.use(
   (config) => {

@@ -18,7 +18,7 @@ export const authService = {
 
   // Login
   login: async (loginData: LoginData): Promise<AuthResponse> => {
- console.log(loginData)
+
     const response = await httpClient.post('/usuario/login', loginData);
        
     return response.data;
@@ -34,7 +34,7 @@ export const authService = {
     await service.logout(pubi);
     } catch (error) {
       // Não importa se falhar, faz logout local de qualquer forma
-      console.log('Logout remoto opcional', error);
+      
     }
 
     // Limpeza local (ESSENCIAL)

@@ -82,7 +82,6 @@ export const useFinancasService = () => {
     const receita = async (): Promise<ResumoFinanceiro> => {
  
             const response: AxiosResponse<ResumoFinanceiro> = await httpClient.get<ResumoFinanceiro>(resourceURL + 'receita' + '/receita-do-mes')
-            console.log(response)
             return response.data
     
     }

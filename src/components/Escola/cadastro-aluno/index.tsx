@@ -204,7 +204,6 @@ export const CadastroAlunos: React.FC = () => {
             });
             
         } catch (err: any) {
-            console.error('Erro no cadastro:', err);
             let errorMsg = 'Erro ao cadastrar aluno';
             showError(errorMsg + ": " + err.message);
         } finally {

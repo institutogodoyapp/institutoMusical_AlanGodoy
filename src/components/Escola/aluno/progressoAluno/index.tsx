@@ -100,7 +100,7 @@ export const ProgressoAlunos: React.FC = () => {
         ? serviceProgresso.concluirTopico(topicoId)
         : serviceProgresso.IniciarTopico(topicoId, parseId));
     } catch (error) {
-      console.error("Erro na atualização:", error);
+      showError(`Erro na atualização: ${error}`);
       setProgresso(prev => prev ? { ...prev } : null);
     } finally {
       setUpdating(false);

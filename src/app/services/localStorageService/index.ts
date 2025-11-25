@@ -1,7 +1,7 @@
 class LocalStorageService {
     static adicionarItem(chave: string, valor: string): void {
         if (typeof window !== "undefined") {
-            console.log("adiciona")
+
             localStorage.setItem(chave, JSON.stringify(valor));
         }
     }

@@ -104,6 +104,7 @@ export const GerenciamentoClientesPage: React.FC = () => {
     }
     setClientesExpandidos(novosExpandidos);
   };
+  
 
   // ========== FUNÇÕES DE NAVEGAÇÃO ==========
   const editarCliente = (clienteId: number) => {

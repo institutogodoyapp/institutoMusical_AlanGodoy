@@ -5,6 +5,8 @@ import {
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useAlunoService } from '@/app/services';
+import { useNotifications } from '@/components/common/notificacao/hookNotify/usoSimples';
+import NotificationContainer from '@/components/common/notificacao/mutiplasNotifacoes';
 
 interface ProximasAulasProps {
   id: number;
@@ -28,6 +30,12 @@ export const CardsAvisos: React.FC<CardsAvisosProps> = ({
   icon,
   proximasAulas
 }) => {
+  const {
+    notifications,
+    showSuccess,
+    showError,
+    removeNotification
+  } = useNotifications();
   const [isMobile, setIsMobile] = useState(false);
   const [aulasAgendadas, setAulasAgendadas] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -96,7 +104,7 @@ export const CardsAvisos: React.FC<CardsAvisosProps> = ({
             .slice(0, 3);
         setAulasAgendadas(aulasOrdenadas);
       } catch (error) {
-        console.error('Erro ao buscar os dados da API:', error);
+        showError(`Erro ao buscar os dados: ${error}`);
       } finally {
         setLoading(false);
       }
@@ -114,6 +122,10 @@ export const CardsAvisos: React.FC<CardsAvisosProps> = ({
 
   return (
     <div className="column is-8-mobile is-4-tablet" style={{ minWidth: isMobile ? '70vw' : '30vw' }}>
+      <NotificationContainer
+        notifications={notifications}
+        onRemove={removeNotification}
+      />
       <div className="box" style={{ borderRadius: '10px', padding: isMobile ? '.8rem' : '1.5rem', boxShadow: isMobile ? 'none' : '0 2px 5px rgba(0, 0, 0, 0.15)' }}>
         <div className="mb-5">
           <h2 className="title is-4 has-text-weight-bold mb-5">
@@ -150,7 +162,7 @@ export const CardsAvisos: React.FC<CardsAvisosProps> = ({
               <p>Nenhuma aula agendada.</p>
             )}
           </div>
-          
+
         </div>
       </div>
     </div>

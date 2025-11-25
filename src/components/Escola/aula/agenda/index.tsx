@@ -88,9 +88,9 @@ export const AgendaPage = () => {
         setLoadingConfig(true)
         const config = await configAgendaService.getConfig();
         setConfigAgenda(config);
-        console.log(config)
+
       } catch (error) {
-        console.error('Erro ao carregar configuração da agenda:', error);
+        showError(`Erro ao carregar configuração da agenda: ${error}`);
         // Usa configuração padrão se não conseguir carregar
         setConfigAgenda(configAgendaService.getDefaultConfig());
 
@@ -242,7 +242,6 @@ export const AgendaPage = () => {
 
     while (currentDate <= endDate) {
       const dia = currentDate.toISOString().split('T')[0];
-      console.log(dia)
       diasArray.push(dia);
       currentDate.setDate(currentDate.getDate() + 1);
     }
@@ -434,7 +433,6 @@ export const AgendaPage = () => {
         return;
       }
 
-      console.log(alunoId)
 
       router.push({
         pathname,

@@ -1,9 +1,10 @@
 // @/components/agenda/ConfigAgendaModal.tsx
 import { useState, useEffect } from 'react';
 import { FaTimes, FaSave, FaClock, FaCalendarDay, FaSpinner, FaCog } from 'react-icons/fa';
-import { CustomButton } from '@/components';
+import { CustomButton, useNotifications } from '@/components';
 import { ConfigAgenda, DIAS_SEMANA, DiaSemana } from '@/app/models/escola/aula/configAgenda';
 import { useConfigAgendaService } from '@/app/services/escola/aula/agendaConfig.service';
+import NotificationContainer from '../../notificacao/mutiplasNotifacoes';
 
 interface ConfigAgendaModalProps {
   isOpen: boolean;
@@ -21,6 +22,12 @@ export const ConfigAgendaModal: React.FC<ConfigAgendaModalProps> = ({
   const configService = useConfigAgendaService();
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+      const {
+          notifications,
+          showSuccess,
+          showError,
+          removeNotification
+      } = useNotifications();
   
   const [config, setConfig] = useState<ConfigAgenda>(configService.getDefaultConfig());
 
@@ -36,7 +43,7 @@ export const ConfigAgendaModal: React.FC<ConfigAgendaModalProps> = ({
       const configData = await configService.getConfig();
       setConfig(configData);
     } catch (error) {
-      console.error('Erro ao carregar configuração:', error);
+       showError(`Erro ao buscar os dados: ${error}`);
       setConfig(configService.getDefaultConfig());
     } finally {
       setLoading(false);
@@ -49,10 +56,11 @@ export const ConfigAgendaModal: React.FC<ConfigAgendaModalProps> = ({
       const updatedConfig = await configService.updateConfig(config);
       setConfig(updatedConfig);
       onConfigUpdate?.(updatedConfig);
+
       onClose();
+      showSuccess('Configuração salva com sucesso!')
     } catch (error) {
-      console.error('Erro ao salvar configuração:', error);
-      alert('Erro ao salvar configuração');
+      showError(`Erro ao salvar configuração: ${error}`, );
     } finally {
       setSaving(false);
     }
@@ -78,6 +86,10 @@ export const ConfigAgendaModal: React.FC<ConfigAgendaModalProps> = ({
 
   return (
     <div className="modal is-active">
+        <NotificationContainer
+                notifications={notifications}
+                onRemove={removeNotification}
+            />
       <div className="modal-background" onClick={onClose}></div>
       <div className="modal-card" style={{ maxWidth: '600px' }}>
         <header className="modal-card-head">
