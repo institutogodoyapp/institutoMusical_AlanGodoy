@@ -139,8 +139,8 @@ export const HomePage: FC<HomePageProps> = ({
                     padding: 1.5rem;
                     background: #ffffff;
                     transition: all 0.3s ease;
-                    min-height: 60px;
-                    max-height: 120px;
+                    min-height: 180px;
+                    max-height: 180px;
                     text-decoration: none;
                 }
                 .box-card-custom:hover {
@@ -164,6 +164,15 @@ export const HomePage: FC<HomePageProps> = ({
                     .subtitle.is-5 {
                         font-size: 1rem !important;
                     }
+                             .box-card-custom {
+                    border-radius: 10px;
+                    padding: 1.5rem;
+                    background: #ffffff;
+                    transition: all 0.3s ease;
+                    min-height: 60px;
+                    max-height: 120px;
+                    text-decoration: none;
+                }
                 }
             `}</style>
 
