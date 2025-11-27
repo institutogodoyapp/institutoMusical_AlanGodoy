@@ -4,7 +4,7 @@ import { authService } from '@/app/services/api/authSeervice';
 
 
 export const httpClient = axios.create({
-  baseURL: 'http://localhost:8080',
+  baseURL: process.env.NEXT_PUBLIC_INSTITUTOMUSICAL_GODOY_APP,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -12,7 +12,7 @@ export const httpClient = axios.create({
 process.env.NEXT_PUBLIC_INSTITUTOMUSICAL_GODOY_APP
 // INSTÂNCIA SEPARADA para refresh token (SEM interceptors)
 export const refreshHttpClient = axios.create({
-  baseURL: 'http://localhost:8080',
+  baseURL: process.env.NEXT_PUBLIC_INSTITUTOMUSICAL_GODOY_APP,
   headers: {
     'Content-Type': 'application/json',
   },
