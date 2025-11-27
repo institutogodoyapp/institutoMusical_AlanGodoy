@@ -54,7 +54,6 @@ export const ProgressoAlunos: React.FC = () => {
         setLoading(true);
         try {
           const response = await service.getAlunoProgresso(parseId);
-console.log(response)
           if (response && Array.isArray(response) && response.length > 0) {
             setProgresso({
               ...response[0]
