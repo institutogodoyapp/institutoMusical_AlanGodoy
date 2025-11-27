@@ -54,6 +54,7 @@ export interface DisciplinaProgresso {
   progresso: number;
   status: StatusProgresso;
   topicos: TopicoProgresso[];
+  ativo: boolean;
   total: number;
 }
 
@@ -62,6 +63,7 @@ export interface TopicoProgresso {
   concluido: boolean;
   dataConclusao: string | null;
   dataInicio: string | null;
+   ativo: boolean;
   ordem: number;
   progresso: number;
   status: StatusTopico;

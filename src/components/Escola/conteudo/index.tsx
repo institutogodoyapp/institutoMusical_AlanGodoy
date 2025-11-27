@@ -119,7 +119,7 @@ export const GerenciamentoConteudo: React.FC = () => {
   const fetchConteudo = async () => {
     try {
       setLoading(true);
-     const response = await instrumentoService.getAllInstrumentosConteudo();
+      const response = await instrumentoService.getAllInstrumentosConteudo();
 
 
       const instrumentoIdNum = InstrumentoIdConvert;
@@ -205,7 +205,7 @@ export const GerenciamentoConteudo: React.FC = () => {
     };
 
     await gradeService.atualizarDisciplina(disciplinaEditando.id, dadosCompletosAtualização);
-
+    showSuccess('Atualizado com sucesso!')
     setShowDisciplinaForm(false);
     setShowEditDisciplinaForm(false);
     setFormData({
@@ -229,7 +229,6 @@ export const GerenciamentoConteudo: React.FC = () => {
 
     try {
       await gradeService.adicionarDiciplinas(dadosCompletos);
-
       setShowDisciplinaForm(false);
       setShowEditDisciplinaForm(false);
       setFormData({
@@ -248,11 +247,12 @@ export const GerenciamentoConteudo: React.FC = () => {
   }
 
   const excluirDisciplina = async (disciplinaId: number) => {
-    if (confirm('Tem certeza que deseja excluir este instrumento?')) {
+    if (confirm('Tem certeza que deseja excluir este disciplina?')) {
       try {
         await gradeService.deletarDisciplina(disciplinaId)
+        showSuccess('Excluída com sucesso!')
       } catch (err) {
-        showError('Erro ao excluir instrumento');
+        showError('Erro ao excluir disciplina');
       }
     }
 
@@ -261,17 +261,17 @@ export const GerenciamentoConteudo: React.FC = () => {
   }
 
   const adicionarTopico = async (dados: DadosModal) => {
- 
+
     const dadosCompletos = {
       ...dados as TopicoCadastro,
       disciplinaId: Number(disciplinaParaTopico)
     }
 
-   
+
     try {
       await gradeService.adicionarTopicos(dadosCompletos)
     } catch (error) {
-      showError("erro ao adicionar topicos")
+      showError("erro ao adicionar topicos!")
     }
     setShowTopicoForm(false);
     setFormDataTopico({
@@ -292,7 +292,7 @@ export const GerenciamentoConteudo: React.FC = () => {
     };
 
     await gradeService.atualizaTopicos(topicoEditando.id, dadosCompletosAtualização);
-
+    showSuccess('Topico Atualizado com sucesso!')
     setShowEditTopicoForm(false);
     setFormDataTopico({
       nome: '',
@@ -309,8 +309,9 @@ export const GerenciamentoConteudo: React.FC = () => {
     if (confirm('Tem certeza que deseja excluir este topico?')) {
       try {
         await gradeService.deletarTopico(topicoId)
+        showSuccess('Excluído com sucesso!')
       } catch (err) {
-        showError('Erro ao excluir topico');
+        showError('Erro ao excluir topico!');
       }
     }
 
@@ -526,7 +527,7 @@ export const GerenciamentoConteudo: React.FC = () => {
                                                 border-primary
                                                 pl-3
                                                 py-2`}>{disciplina.descricao} </p>
-                                                
+
                           <div className="level is-mobile">
                             <div className="level-left">
                               <h3 className={`title ${isMobile ? 'is-7' : 'is-6'}`}>Tópicos</h3>

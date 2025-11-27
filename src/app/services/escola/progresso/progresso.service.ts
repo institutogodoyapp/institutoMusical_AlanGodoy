@@ -13,6 +13,7 @@ export const useProgressoService = () => {
     const getAlunoProgresso = async (alunoId: number): Promise<ProgressoAluno> => {
         const response: AxiosResponse<ProgressoAluno> =
             await httpClient.get(`${urlOfProgress}/aluno/${alunoId}/resumo`);
+            
         return response.data;
     };
 
