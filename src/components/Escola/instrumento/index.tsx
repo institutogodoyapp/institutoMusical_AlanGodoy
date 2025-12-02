@@ -463,6 +463,7 @@ export const GerenciamentoInstrumentos: React.FC = () => {
         onSave={salvarInstrumento}
         titulo={instrumentoEditando?.id ? 'Editar Instrumento' : 'Novo Instrumento'}
         campos={camposInstrumento}
+        isEdit={instrumentoEditando?.id ? true : false}
         textoBotaoSalvar="Salvar"
       />
      

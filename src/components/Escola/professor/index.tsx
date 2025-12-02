@@ -105,7 +105,7 @@ export const GerenciamentoProfessores: React.FC = () => {
     try {
       setLoading(true);
       const responseInst = await serviceInstrumento.getAllInstrumentos();
- 
+ console.log(responseInst)
       setInstrumentos(responseInst);
 
       const responseProf = await serviceProfessor.getAllProfessores();

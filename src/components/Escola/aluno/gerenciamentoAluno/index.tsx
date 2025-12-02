@@ -32,7 +32,7 @@ export const GerenciamentoAlunos: React.FC = () => {
   const [filtroNome, setFiltroNome] = useState<string>('');
   const [filtroCPF, setFiltroCPF] = useState<string>('');
   const [filtroInstrumento, setFiltroInstrumento] = useState<string>('todos');
-  const [filtroStatus, setFiltroStatus] = useState<string>('todos');
+  const [filtroStatus, setFiltroStatus] = useState<string>('ativo');
   const [ordem, setOrdem] = useState<{ campo: keyof Aluno; direcao: 'asc' | 'desc' }>({ campo: 'nome', direcao: 'asc' });
 
   // ========== EFEITOS ==========
@@ -41,6 +41,7 @@ export const GerenciamentoAlunos: React.FC = () => {
       try {
         setCarregando(true);
         const resposta = await service.getAlunos();
+        console.log(resposta)
         setAlunos(Array.isArray(resposta) ? resposta : [resposta]);
       } catch (error) {
         showError('Falha ao carregar dados.');
@@ -52,6 +53,16 @@ export const GerenciamentoAlunos: React.FC = () => {
   }, []);
 
   // ========== FUNÇÕES DE CONTROLE DE UI ==========
+
+  const getColorTag = (professorAtivo: boolean): string => {
+
+    if (professorAtivo === true) {
+      return 'is-primary'
+    } else {
+      return 'is-danger'
+    }
+
+  }
 
   const toggleExpandirAluno = (id: number) => {
     const novosExpandidos = new Set(alunosExpandidos);
@@ -175,9 +186,9 @@ export const GerenciamentoAlunos: React.FC = () => {
                 <div className="control">
                   <div className="select is-fullwidth">
                     <select value={filtroStatus} onChange={e => setFiltroStatus(e.target.value)}>
-                      <option value="todos">Todos status</option>
                       <option value="ativo">Ativos</option>
                       <option value="inativo">Inativos</option>
+                      <option value="todos">Todos status</option>
                     </select>
                   </div>
                 </div>
@@ -249,6 +260,7 @@ export const GerenciamentoAlunos: React.FC = () => {
                       {getIconeOrdenacao('instrumento')}
                     </div>
                   </th>
+                  <th>Status</th>
                   <th>Ações</th>
                 </tr>
               </thead>
@@ -261,6 +273,7 @@ export const GerenciamentoAlunos: React.FC = () => {
                       <td>{aluno.cpf}</td>
                       <td>{aluno.email}</td>
                       <td>{aluno.instrumento ? aluno.instrumento.nome : 'Não especificado'}</td>
+                      <td>{<div className={`tag ${getColorTag(aluno.ativo)}`}>{`${aluno.ativo === false ? 'Inativo' : 'Ativo'}`}</div>}</td>
                       <td>
                         <div className="buttons are-small">
                           <button className="button is-info is-light" title="Editar aluno" onClick={(e) => { e.stopPropagation(); editar(aluno); }}><span className="icon"><FiEdit /></span></button>
@@ -312,7 +325,7 @@ export const GerenciamentoAlunos: React.FC = () => {
               <CardList
                 data={alunosFiltradosOrdenados}
                 titleField='nome'
-                icon={<FaUserGraduate/>}
+                icon={<FaUserGraduate />}
                 iconColor='is-primary-custom'
                 subtitleField='instrumentoNome'
                 fields={[
@@ -321,7 +334,15 @@ export const GerenciamentoAlunos: React.FC = () => {
                   { label: 'Contato:', key: 'telefone' }
                 ]}
                 tags={[
-                  { label: 'Cadastro', key: 'dataCadastro', color: 'has-primary-custom' }
+                  { label: 'Cadastro', key: 'dataCadastro', color: 'has-primary-custom' },
+
+                  {
+                    label: 'Status', key: 'ativo',
+                    color: (item: any) => getColorTag(item.ativo),
+                    format: (ativo: boolean) => ativo ? 'Ativo' : 'Inativo'
+                  }
+
+
                 ]}
                 actions={[
                   {

@@ -38,6 +38,6 @@ export {HomeServicos} from './servicos-musicais/home'
 export { GerenciamentoFornecedores} from './loja/produto/fornecedor'
 export { Card } from '../components/common/metricaComponent'
 export {ModalGenerico} from '../components/common/modal/modal-generico'
-export { } from './common'
-export { } from './usuario'
+
+
 

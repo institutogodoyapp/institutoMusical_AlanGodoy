@@ -30,6 +30,7 @@ interface ModalGenericoProps {
   dados?: DadosModal | null;
   onSave: (dados: DadosModal) => void;
   titulo: string;
+  isEdit?: boolean;
   campos: CampoModal[];
   textoBotaoSalvar?: string;
   textoBotaoCancelar?: string;
@@ -41,6 +42,7 @@ interface ModalGenericoProps {
 export const ModalGenerico: React.FC<ModalGenericoProps> = ({
   isOpen,
   onClose,
+  isEdit,
   dados,
   onSave,
   titulo,
@@ -114,6 +116,7 @@ export const ModalGenerico: React.FC<ModalGenericoProps> = ({
               value={valor}
               onChange={(e) => handleInputChange(campo.nome, e.target.value)}
               required={campo.required}
+              disabled={isEdit}
             >
               {campo.opcoes?.map(opcao => (
                 <option key={opcao.valor} value={opcao.valor}>
