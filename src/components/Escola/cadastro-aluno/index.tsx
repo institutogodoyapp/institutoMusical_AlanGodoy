@@ -180,7 +180,7 @@ export const CadastroAlunos: React.FC = () => {
 
 
             if (alunoId) {
-                console.log(formData)
+        
                 const response = await service.atualizarAluno(alunoId, formData);
                 setFormData(response);
             } else {

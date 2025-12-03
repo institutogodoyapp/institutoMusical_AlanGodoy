@@ -110,7 +110,7 @@ export const GerenciamentoProfessores: React.FC = () => {
       setInstrumentos(responseInst);
 
       const responseProf = await serviceProfessor.getAllProfessores();
-      console.log(responseProf)
+   
       setProfessores(responseProf);
 
     } catch (error) {
@@ -142,7 +142,7 @@ export const GerenciamentoProfessores: React.FC = () => {
 
   const handleDelete = async (prof: Professor) => {
     if (confirm('Tem certeza que deseja excluir este professor?')) {
-      console.log(prof.id)
+ 
       if (!prof.alunos) return
       if (prof.alunos.length === 0) {
         try {

@@ -41,7 +41,7 @@ export const GerenciamentoAlunos: React.FC = () => {
       try {
         setCarregando(true);
         const resposta = await service.getAlunos();
-        console.log(resposta)
+    
         setAlunos(Array.isArray(resposta) ? resposta : [resposta]);
       } catch (error) {
         showError('Falha ao carregar dados.');
