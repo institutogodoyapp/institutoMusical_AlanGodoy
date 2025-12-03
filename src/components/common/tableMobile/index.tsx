@@ -24,6 +24,7 @@ interface TagConfig<T> {
 }
 
 interface ActionConfig {
+ itemAtivo?: boolean
   label?: string;
   color: string;
   onClick: (item: any) => void;
@@ -43,7 +44,7 @@ interface CardListProps {
   icon?: React.ReactNode;
   iconColor?: string;
 
-   hiddenBreakpoint?: 'mobile' | 'tablet' | 'desktop' | 'widescreen' | 'fullhd' | 'none';
+  hiddenBreakpoint?: 'mobile' | 'tablet' | 'desktop' | 'widescreen' | 'fullhd' | 'none';
 }
 
 const CardList: React.FC<CardListProps> = ({
@@ -65,28 +66,34 @@ const CardList: React.FC<CardListProps> = ({
     { label: 'Total', key: 'totalGasto', color: 'is-success', defaultValue: 0, prefix: 'R$ ' }
   ],
   actions = [
-    { 
-      label: 'Todos Pedidos', 
-      color: 'is-info is-light', 
-      onClick: (item: any) => {},
-      icon: null
+    {
+      label: 'Todos Pedidos',
+      color: 'is-info is-light',
+      onClick: (item: any) => { },
+      icon: null,
+      itemAtivo: true
+   
+
+    },
+    {
+      label: '',
+      color: 'is-warning is-light',
+      onClick: (item: any) => { },
+      icon: <FiEdit />,
+            itemAtivo: true
     
     },
-    { 
-      label: '', 
-      color: 'is-warning is-light', 
-      onClick: (item: any) => {},
-      icon: <FiEdit />
-    },
-    { 
-      label: '', 
-      color: 'is-danger is-light', 
-      onClick: (item: any) => {},
+    {
+      label: '',
+      color: 'is-danger is-light',
+      onClick: (item: any) => { },
       disabled: false,
-      icon: <FiTrash2 />
+      icon: <FiTrash2 />,
+            itemAtivo: true
+
     }
   ],
-    hiddenBreakpoint = 'tablet',
+  hiddenBreakpoint = 'tablet',
   emptyMessage = 'Nenhum item encontrado',
   icon = <FiUser />,
   iconColor = 'has-text-primary'
@@ -97,7 +104,7 @@ const CardList: React.FC<CardListProps> = ({
     return `column is-${config.mobile}-mobile is-${config.tablet}-tablet is-${config.desktop}-desktop`;
   };
 
-    // Função para gerar a classe de visibilidade
+  // Função para gerar a classe de visibilidade
   const getVisibilityClass = (): string => {
     if (hiddenBreakpoint === 'none') return '';
     return `is-hidden-${hiddenBreakpoint}`;
@@ -136,7 +143,7 @@ const CardList: React.FC<CardListProps> = ({
     <div className={`columns is-multiline ${getVisibilityClass()}`}>
       {data.length > 0 ? data.map(item => (
         <div key={item.id} className={getColumnClass(columnsConfig)}>
-          <div className="card" style={{paddingTop: '1rem'}}>
+          <div className="card" style={{ paddingTop: '1rem' }}>
             <div className="card-content">
               <div className="media">
                 <div className="media-left">
@@ -167,7 +174,7 @@ const CardList: React.FC<CardListProps> = ({
                       {tags.map((tag: TagConfig<any>, index: number) => {
                         const tagColor = resolveTagColor(tag, item);
                         const tagValue = formatTagValue(tag, item);
-                        
+
                         return (
                           <div key={index} className="control">
                             <div className="tags has-addons">
@@ -183,9 +190,10 @@ const CardList: React.FC<CardListProps> = ({
                   </>
                 )}
 
-                {actions.length > 0 && (
+                {actions.length > 0 &&  (
                   <div className="buttons are-small mt-3">
                     {actions.map((action: ActionConfig, index: number) => (
+                      action.itemAtivo && 
                       <button
                         key={index}
                         className={`button ${action.color}`}

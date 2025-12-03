@@ -277,8 +277,18 @@ export const GerenciamentoAlunos: React.FC = () => {
                       <td>
                         <div className="buttons are-small">
                           <button className="button is-info is-light" title="Editar aluno" onClick={(e) => { e.stopPropagation(); editar(aluno); }}><span className="icon"><FiEdit /></span></button>
-                          <button className="button is-primary is-light" title="Ver progresso" onClick={(e) => { e.stopPropagation(); acessarProgressoAluno(aluno.id); }}><span className="icon"><FiBarChart2 /></span></button>
-                          <button className="button is-danger is-light" title="Excluir aluno" onClick={(e) => { e.stopPropagation(); handleExcluirAluno(aluno.id); }}><span className="icon"><FiTrash2 /></span></button>
+                          {aluno.ativo === true ? <button className="button is-primary is-light" 
+                                                          title="Ver progresso" 
+                                                          onClick={(e) => { 
+                                                          e.stopPropagation(); 
+                                                          acessarProgressoAluno(aluno.id); 
+                                                          }}><span className="icon"><FiBarChart2 /></span></button> : ''}
+                          {aluno.ativo === true ? <button className="button is-danger is-light" 
+                                                          title="Excluir aluno" 
+                                                          onClick={(e) => { 
+                                                            e.stopPropagation(); 
+                                                            handleExcluirAluno(aluno.id); 
+                                                            }}><span className="icon"><FiTrash2 /></span></button> : ''}
                         </div>
                       </td>
                     </tr>
@@ -290,18 +300,18 @@ export const GerenciamentoAlunos: React.FC = () => {
                               <div className="column is-6">
                                 <p><strong>Telefone:</strong> {aluno.telefone}</p>
                                 <p><strong>Data de Cadastro:</strong> {aluno.dataCadastro || ''}</p>
-                                <p><strong>Dia da Aula:</strong> {traduzirDiaSemana(aluno.diaSemanaAula)}</p>
+                                {aluno.ativo && <p><strong>Dia da Aula:</strong> {traduzirDiaSemana(aluno.diaSemanaAula)}</p>}
                               </div>
                               <div className="column is-4">
-                                <p><strong>Horário da Aula:</strong> {aluno.horarioAula}</p>
-                                <p><strong>Professor:</strong> {aluno.professor?.nome}</p>
-                                <p><strong>Mensalidade:</strong> {formatarMoeda(aluno.mensalidades?.[0]?.valor || 0)}</p>
+                               {aluno.ativo &&  <p><strong>Horário da Aula:</strong> {aluno.horarioAula}</p>}
+                               {aluno.ativo &&  <p><strong>Professor:</strong> {aluno.professor?.nome}</p>}
+                               {aluno.ativo && <p><strong>Mensalidade:</strong> {formatarMoeda(aluno.mensalidades?.[0]?.valor || 0)}</p>}
                               </div>
                               <div className="column is-4">
-                                <button className="button is-primary-custom is-small mt-5" onClick={() => acessarProgressoAluno(aluno.id)}>
+                               {aluno.ativo &&  <button className="button is-primary-custom is-small mt-5" onClick={() => acessarProgressoAluno(aluno.id)}>
                                   <span className="icon"><FiBarChart2 /></span>
                                   <span>Ver Progresso Completo</span>
-                                </button>
+                                </button>}
                               </div>
                             </div>
                           </div>
@@ -345,23 +355,26 @@ export const GerenciamentoAlunos: React.FC = () => {
 
                 ]}
                 actions={[
-                  {
+                 {
                     label: '',
                     color: 'is-success is-light',
                     onClick: (item) => acessarProgressoAluno(item.id),
-                    icon: <FiBarChart2 />
+                    icon: <FiBarChart2 />,
+                    itemAtivo: alunosFiltradosOrdenados.some(aluno => aluno.ativo)
                   },
                   {
                     label: '',
                     color: 'is-info is-light',
                     onClick: (item) => editar(item),
-                    icon: <FiEdit />
+                    icon: <FiEdit />,
+                    itemAtivo: true
                   },
                   {
                     label: '',
                     color: 'is-danger is-light',
                     onClick: (item) => handleExcluirAluno(item.id),
-                    icon: <FiTrash2 />
+                    icon: <FiTrash2 />,
+                    itemAtivo: alunosFiltradosOrdenados.some(aluno => aluno.ativo)
                   }
                 ]}
               />

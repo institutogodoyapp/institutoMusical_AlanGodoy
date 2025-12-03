@@ -1,6 +1,6 @@
 import { Instrumento  } from '@/app/models/escola/instrumentos'
 import { aula } from '../aula';
-import { StatusSoft } from '../aluno'
+import { Aluno, StatusSoft } from '../aluno'
 // Define the Professor interface
 export interface Professor {
   id?: number;
@@ -11,6 +11,7 @@ export interface Professor {
   telefone: string;
   instrumentoId?: number;
   instrumentos?: Instrumento[];
+  alunos?: Aluno[];
  instrumentosIds: number[];
   aulas?: aula[]; // One-to-many relationship
   statusEntity?: StatusSoft;

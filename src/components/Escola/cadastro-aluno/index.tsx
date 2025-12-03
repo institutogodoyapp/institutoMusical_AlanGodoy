@@ -94,13 +94,13 @@ export const CadastroAlunos: React.FC = () => {
 
 
     useEffect(() => {
-    if (formData.professorId) {
-       const instrumentos = fetchInstrumentos(Number(formData.professorId));
-       
-    }
+        if (formData.professorId) {
+            const instrumentos = fetchInstrumentos(Number(formData.professorId));
+
+        }
 
 
-}, [formData.professorId]);
+    }, [formData.professorId]);
 
     useEffect(() => {
         const fetchAllData = async () => {
@@ -149,10 +149,11 @@ export const CadastroAlunos: React.FC = () => {
             showError('Não foi possível carregar os professores');
         }
     };
+    const professoresAtivos = professores.filter(prof => prof.ativo);
 
     // ========== FUNÇÕES DE MANIPULAÇÃO DE FORMULÁRIO ==========
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-       
+
         const { name, value } = e.target;
 
         setFormData(prev => ({
@@ -176,20 +177,21 @@ export const CadastroAlunos: React.FC = () => {
         try {
             setLoading(true);
 
-           
+
 
             if (alunoId) {
+                console.log(formData)
                 const response = await service.atualizarAluno(alunoId, formData);
                 setFormData(response);
             } else {
-               
+
                 const response = await service.cadastrarAluno(formData);
                 setFormData(response);
             }
 
             showSuccess(successMsg);
 
-            
+
             setFormData({
                 id: 0,
                 nome: '',
@@ -202,7 +204,7 @@ export const CadastroAlunos: React.FC = () => {
                 professorId: 0,
                 ativo: true
             });
-            
+
         } catch (err: any) {
             let errorMsg = 'Erro ao cadastrar aluno';
             showError(errorMsg + ": " + err.message);
@@ -304,7 +306,33 @@ export const CadastroAlunos: React.FC = () => {
                                         required
                                         placeholder="(00) 00000-0000" />
                                 </div>
+
+                                {id && <div className="column">
+                                    <div className="field">
+                                        <label className="label">
+                                            <span className="icon-text has-text-descrition-cinza-custom has-text-bold-normal">
+                                                <span>Status</span>
+                                            </span>
+                                        </label>
+                                        <div className="control">
+                                            <div className="select is-fullwidth">
+                                                <select
+                                                    name="ativo"
+                                                    value={formData.ativo ? "true" : "false"}
+                                                    onChange={e => setFormData(prev => ({
+                                                        ...prev,
+                                                        ativo: e.target.value === "true"
+                                                    }))}
+                                                >
+                                                    <option value="true">Ativo</option>
+                                                    <option value="false">Inativo</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>}
                             </div>
+
 
                             {/* Dados Musicais */}
                             <h2 className="title is-5 has-primary-custom">Dados Musicais</h2>
@@ -328,7 +356,7 @@ export const CadastroAlunos: React.FC = () => {
                                                     required
                                                 >
                                                     <option value="">Selecione um professor</option>
-                                                    {professores.map(professor => (
+                                                    {professoresAtivos.map(professor => (
                                                         <option key={professor.id} value={professor.id}>
                                                             {professor.nome}
                                                         </option>

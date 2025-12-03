@@ -32,6 +32,7 @@ export const GerenciamentoProfessores: React.FC = () => {
     notifications,
     showSuccess,
     showError,
+    showWarning,
     removeNotification
   } = useNotifications();
   const router = useRouter()
@@ -105,10 +106,11 @@ export const GerenciamentoProfessores: React.FC = () => {
     try {
       setLoading(true);
       const responseInst = await serviceInstrumento.getAllInstrumentos();
- console.log(responseInst)
+
       setInstrumentos(responseInst);
 
       const responseProf = await serviceProfessor.getAllProfessores();
+      console.log(responseProf)
       setProfessores(responseProf);
 
     } catch (error) {
@@ -138,15 +140,23 @@ export const GerenciamentoProfessores: React.FC = () => {
     }
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (prof: Professor) => {
     if (confirm('Tem certeza que deseja excluir este professor?')) {
-      try {
-        await serviceProfessor.exluirProfessor(id);
-        showSuccess("Professor excluído com sucesso!");
-        await fetchData();
-      } catch (err) {
-        showError('Erro ao excluir professor');
+      console.log(prof.id)
+      if (!prof.alunos) return
+      if (prof.alunos.length === 0) {
+        try {
+          if (!prof.id) return
+          await serviceProfessor.exluirProfessor(prof.id);
+          showSuccess("Professor excluído com sucesso!");
+          await fetchData();
+        } catch (err) {
+          showError('Erro ao excluir professor');
+        }
+      } else {
+        showWarning('Não é possivel desativar: professor tem alunos cadastrados!')
       }
+
     }
   };
 
@@ -171,7 +181,7 @@ export const GerenciamentoProfessores: React.FC = () => {
   //=========== FUNÇÕES AXILIARES =================
 
   const getColorTag = (professorAtivo: boolean): string => {
-  
+
     if (professorAtivo === true) {
       return 'is-primary'
     } else {
@@ -280,7 +290,7 @@ export const GerenciamentoProfessores: React.FC = () => {
                 tags={[
                   {
                     label: 'Status', key: 'ativo',
-                    color: (item: any) => getColorTag(item.ativo), 
+                    color: (item: any) => getColorTag(item.ativo),
                     format: (ativo: boolean) => ativo ? 'Ativo' : 'Inativo'
                   },
 
@@ -290,33 +300,37 @@ export const GerenciamentoProfessores: React.FC = () => {
                     label: '',
                     color: 'is-info is-light',
                     onClick: (item) => abrirModal(item),
-                    icon: <FiEdit />
+                    icon: <FiEdit />,
+                    itemAtivo: professoresFiltrados.some(prof => prof.ativo)
+
                   },
-                    {
+                  {
                     label: '',
                     color: 'is-primary-custom is-light',
                     onClick: (item) => irParaAgenda(item.id),
-                    icon: <TfiAgenda />
+                    icon: <TfiAgenda />,
+                    itemAtivo: professoresFiltrados.some(prof => prof.ativo)
                   },
                   {
                     label: '',
                     color: 'is-danger is-light',
-                    onClick: (item) => handleDelete(item.id),
-                    icon: <FiTrash2 />
+                    onClick: (item) => handleDelete(item),
+                    icon: <FiTrash2 />,
+                    itemAtivo: professoresFiltrados.some(prof => prof.ativo)
                   }
                 ]}
               />
 
-        
+
             ) : (
-            <ListaProfessoresDesktop
-              professores={professoresFiltrados}
-              setProfessorEditando={setProfessorEditando}
-              irParaAgenda={irParaAgenda}
-              setShowModal={setShowModal}
-              handleDelete={handleDelete}
-              getColorTag={getColorTag}
-            />
+              <ListaProfessoresDesktop
+                professores={professoresFiltrados}
+                setProfessorEditando={setProfessorEditando}
+                irParaAgenda={irParaAgenda}
+                setShowModal={setShowModal}
+                handleDelete={handleDelete}
+                getColorTag={getColorTag}
+              />
             )}
           </div>
         </div>
@@ -374,6 +388,30 @@ export const GerenciamentoProfessores: React.FC = () => {
                       required
                     />
                   </div>
+                  {professorEditando && <div className="column">
+                    <div className="field">
+                      <label className="label">
+                        <span className="icon-text has-text-descrition-cinza-custom has-text-bold-normal">
+                          <span>Status</span>
+                        </span>
+                      </label>
+                      <div className="control">
+                        <div className="select is-fullwidth">
+                          <select
+                            name="ativo"
+                            value={formData.ativo ? "true" : "false"}
+                            onChange={e => setFormData(prev => ({
+                              ...prev,
+                              ativo: e.target.value === "true"
+                            }))}
+                          >
+                            <option value="true">Ativo</option>
+                            <option value="false">Inativo</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  </div>}
                 </div>
 
                 <Input
@@ -385,6 +423,8 @@ export const GerenciamentoProfessores: React.FC = () => {
                   onChange={(e) => handleFormChange('email', e.target.value)}
                   required
                 />
+
+
 
                 <div className="field">
                   <label className="label">Instrumentos Lecionados</label>
@@ -438,7 +478,7 @@ export const GerenciamentoProfessores: React.FC = () => {
 
 // ========== COMPONENTES AUXILIARES ==========
 
-export const ListaProfessoresDesktop = ({ professores, setProfessorEditando, setShowModal, handleDelete, getColorTag, irParaAgenda}: any) => (
+export const ListaProfessoresDesktop = ({ professores, setProfessorEditando, setShowModal, handleDelete, getColorTag, irParaAgenda }: any) => (
   <div className="table-container">
     <table className="table is-fullwidth is-striped is-hoverable">
       <thead>
@@ -468,9 +508,9 @@ export const ListaProfessoresDesktop = ({ professores, setProfessorEditando, set
             <td>{<div className={`tag ${getColorTag(professor.ativo)}`}>{`${professor.ativo === false ? 'Inativo' : 'Ativo'}`}</div>}</td>
             <td>
               <div className="buttons">
-                <button
+                {professor.ativo && <button
                   className="button is-primary-custom is-small"
-                  onClick={() => 
+                  onClick={() =>
                     irParaAgenda(professor.id)
                   }
                   aria-label={`Editar ${professor.nome}`}
@@ -478,7 +518,8 @@ export const ListaProfessoresDesktop = ({ professores, setProfessorEditando, set
                   <span className="icon">
                     <TfiAgenda />
                   </span>
-                </button>
+                </button>}
+
                 <button
                   className="button is-info is-small"
                   onClick={() => {
@@ -491,16 +532,16 @@ export const ListaProfessoresDesktop = ({ professores, setProfessorEditando, set
                     <FaEdit />
                   </span>
                 </button>
-                <button
+                {professor.ativo && <button
                   className="button is-danger is-small"
-                  onClick={() => handleDelete(professor.id)}
+                  onClick={() => handleDelete(professor)}
                   aria-label={`Excluir ${professor.nome}`}
                 >
                   <span className="icon">
                     <FaTrash />
                   </span>
                 </button>
-              </div>
+                }</div>
             </td>
           </tr>
         ))}
