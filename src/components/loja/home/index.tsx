@@ -18,7 +18,7 @@ import NotificationContainer from '@/components/common/notificacao/mutiplasNotif
 export const HomeLoja = () => {
     const [aulasAgendadas, setAulasAgendadas] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
-     const [isMobileView, setIsMobileView] = useState(false)
+    const [isMobileView, setIsMobileView] = useState(false)
     const service = useAlunoService();
     const {
         notifications,
@@ -28,16 +28,16 @@ export const HomeLoja = () => {
     } = useNotifications();
 
 
-          useEffect(() => {
-    const handleResize = () => {
-      setIsMobileView(window.innerWidth < 768);
-    };
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobileView(window.innerWidth < 768);
+        };
 
-    handleResize();
-    window.addEventListener('resize', handleResize);
+        handleResize();
+        window.addEventListener('resize', handleResize);
 
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
 
     useEffect(() => {
@@ -73,7 +73,7 @@ export const HomeLoja = () => {
             <HomePage
                 title="Loja"
                 isMobile={isMobileView}
-                subtitle="Gerenciamento simplificado para sua escola musical"
+                subtitle="Gerenciamento simplificado para sua Loja"
                 icon={<FaHome size={56} />}
                 useLayout={true}
                 main=''

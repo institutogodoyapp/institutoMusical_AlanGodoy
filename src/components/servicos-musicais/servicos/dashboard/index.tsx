@@ -96,6 +96,10 @@ export const DashboardServicosMusicais: React.FC = () => {
     router.push('/instituto-musical/servicos-musicais/categoria-servico');
   };
 
+  const navegarEditServico = (id: Number) => {
+    router.push(`/servicos-musicais/cadastrar-servico?id=${id}`)
+  }
+
 
 
   // ========== FILTROS E DERIVAÇÕES ==========
@@ -253,7 +257,7 @@ export const DashboardServicosMusicais: React.FC = () => {
                         <button
                           className="button is-info is-light"
                           title="Editar serviço"
-                          onClick={() => router.push(`/servicos-musicais/cadastrar-servico?id=${servico.id}`)}
+                          onClick={() => navegarEditServico(servico.id)}
                         >
                           <span className="icon"><FiPlus /></span>
                         </button>
