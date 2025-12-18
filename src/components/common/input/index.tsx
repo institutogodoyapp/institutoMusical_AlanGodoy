@@ -115,7 +115,7 @@ format,
                     className="input"
                     {...props}
                      onChange={handleInputChange}
-                    required
+                    required={false}
 
                 />
 

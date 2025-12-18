@@ -40,20 +40,30 @@ export const ProgressoAlunos: React.FC = () => {
 
   // ========== ESTADOS DE DADOS ==========
   const [progresso, setProgresso] = useState<ProgressoAluno | null>(null);
+    const [progressos, setProgressos] = useState<ProgressoAluno[] | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [updating, setUpdating] = useState<boolean>(false);
 
   // ========== ESTADOS DE CONTROLE DE UI ==========
   const [expandedDisciplinas, setExpandedDisciplinas] = useState<number[]>([]);
-  const [activeTab, setActiveTab] = useState<'resumo' | 'detalhes'>('resumo');
+const [activeTab, setActiveTab] = useState<number | null>(null);
 
   // ========== EFEITOS ==========
+
+  useEffect(() => {
+  if (progressos && progressos.length > 0) {
+    setActiveTab(progressos[0].instrumentoId);
+  }
+}, [progressos]);
+
+
   useEffect(() => {
     if (parseId > 0) {
       const fetchProgresso = async () => {
         setLoading(true);
         try {
           const response = await service.getAlunoProgresso(parseId);
+          setProgressos(response)
           if (response && Array.isArray(response) && response.length > 0) {
             setProgresso({
               ...response[0]
@@ -142,6 +152,11 @@ export const ProgressoAlunos: React.FC = () => {
     );
   };
 
+  const progressoAtivo = progressos?.find(
+  (p) => p.instrumentoId === activeTab
+);
+if(!progressoAtivo) return;
+
   // ========== RENDERIZAÇÃO DE CARREGAMENTO ==========
   if (loading) {
     return (
@@ -202,11 +217,11 @@ export const ProgressoAlunos: React.FC = () => {
                 <div className="tags is-justify-content-center-mobile is-flex-wrap-wrap">
                   <span className="tag has-primary-custom is-medium">
                     <FaMusic className="mr-2" />
-                    {progresso.instrumentoNome}
+                    {progressoAtivo.instrumentoNome}
                   </span>
                   <span className="tag has-primary-custom is-medium">
                     <FaCalendarAlt className="mr-2" />
-                    Iniciado em: {progresso.dataInicio}
+                    Iniciado em: {progressoAtivo.dataInicio}
                   </span>
                 </div>
               </div>
@@ -214,16 +229,22 @@ export const ProgressoAlunos: React.FC = () => {
           </div>
 
           {/* Tabs de Navegação */}
-          {/* <div className="tabs is-boxed is-medium">
-            <ul>
-              <li className={activeTab === 'resumo' ? 'is-active' : ''}>
-                <a onClick={() => setActiveTab('resumo')}>
-                  <span className="icon is-small has-primary-custom"><FaChartLine /></span>
-                  <span className="is-hidden-mobile">Resumo</span>
-                </a>
-              </li>
-            </ul>
-          </div> */}
+        <div className="tabs is-boxed">
+  <ul>
+    {progressos?.map((p) => (
+      <li
+        key={p.instrumentoId}
+        className={activeTab === p.instrumentoId ? "is-active" : ""}
+        onClick={() => setActiveTab(p.instrumentoId)}
+      >
+        <a>
+          <span className="icon is-small"><FaMusic /></span>
+          <span>{p.instrumentoNome}</span>
+        </a>
+      </li>
+    ))}
+  </ul>
+</div>
 {/* <DividerGradient /> */}
           {/* Conteúdo das Tabs */}
         
@@ -235,8 +256,8 @@ export const ProgressoAlunos: React.FC = () => {
                       <div className="media-content">
                         <div className="content">
                           <h3 className="title is-5 has-text-grey-dark">Progresso Geral</h3>
-                          <p className="subtitle is-6 has-text-grey">{(progresso.percentualConclusao)}% completo</p>
-                          <progress className="progress is-success is-medium" value={progresso.percentualConclusao} max="100"></progress>
+                          <p className="subtitle is-6 has-text-grey">{(progressoAtivo.percentualConclusao)}% completo</p>
+                          <progress className="progress is-success is-medium" value={progressoAtivo.percentualConclusao} max="100"></progress>
                         </div>
                       </div>
                     </article>
@@ -254,10 +275,10 @@ export const ProgressoAlunos: React.FC = () => {
                         <div className="content">
                           <h3 className="title is-5 has-text-grey-dark">Disciplinas Concluídas</h3>
                           <p className="subtitle is-6 has-text-grey">
-                            {progresso.disciplinas.filter(d => d.status === StatusProgresso.DISCIPLINA_CONCLUIDA).length} de {progresso.disciplinas.length}
+                            {progressoAtivo.disciplinas.filter(d => d.status === StatusProgresso.DISCIPLINA_CONCLUIDA).length} de {progresso.disciplinas.length}
                           </p>
                           <div className="tags are-medium is-flex-wrap-wrap">
-                            {progresso.disciplinas.filter(d => d.status === StatusProgresso.DISCIPLINA_CONCLUIDA).length === 0 && (
+                            {progressoAtivo.disciplinas.filter(d => d.status === StatusProgresso.DISCIPLINA_CONCLUIDA).length === 0 && (
                               <span className="tag is-light">Nenhuma</span>
                             )}
                           </div>
@@ -269,9 +290,9 @@ export const ProgressoAlunos: React.FC = () => {
               </div>
             </div>
            <DividerGradient />
-            <div className="box" style={{boxShadow: 'none'}}>
+       <div className="box" style={{boxShadow: 'none'}}>
 
-              {progresso.disciplinas.map(disciplina => (
+              {progressoAtivo.disciplinas.map(disciplina => (
                 <div key={disciplina.id} className="card mb-4" style={{boxShadow: 'none'}}>
                   <header
                     className="card-header is-clickable"

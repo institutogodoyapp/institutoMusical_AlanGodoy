@@ -3,6 +3,7 @@ import { Professor } from '@/app/models/escola/professor'
 import { Mensalidades  } from '@/app/models/escola/financeiro/mensalidade'
 
 import { aula } from '../aula';
+import { Matricula } from './matricula';
 
 export enum StatusSoft {
     CRIADO = 'CRIADO',
@@ -15,17 +16,13 @@ export interface Aluno {
     cpf: string;
     email: string;
     telefone: string;
+    telefoneResponsavel: string;
+    valorMensalidade: number;
+    vencimentoMensalidade: number;
     dataCadastro?: string;
-     diaSemanaAula: 'MONDAY' | 'TUESDAY' | 'WEDNESDAY' | 'THURSDAY' | 'FRIDAY' | 'SATURDAY'; // Representando os dias da semana como string
-    horarioAula: string;
-    instrumento?: Instrumento;
-    instrumentoNome?: string;
-    aulas?: aula[];
-    instrumentoId: number;
-    professor?: Professor;
-    professorId: number;
     mensalidades?: Mensalidades[];
-    ativo: boolean;
+    ativo?: boolean;
     statusEntity?: StatusSoft;
+    instrumentos: Matricula[];
 
 }

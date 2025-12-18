@@ -97,7 +97,7 @@ export const DashboardServicosMusicais: React.FC = () => {
   };
 
   const navegarEditServico = (id: Number) => {
-    router.push(`/servicos-musicais/cadastrar-servico?id=${id}`)
+    router.push(`/instituto-musical/servicos-musicais/cadastrar-servico?id=${id}`)
   }
 
 
@@ -143,7 +143,7 @@ export const DashboardServicosMusicais: React.FC = () => {
             cor={"info"} />
 
            <MetricaCard
-            titulo='Faturamento Mensal'
+            titulo='Total Clientes'
             valor={metrica?.clientes ? metrica.clientes : ''}
             cor={"info"} />
 
@@ -224,7 +224,7 @@ export const DashboardServicosMusicais: React.FC = () => {
                   <th>Serviço</th>
                   <th>Categoria</th>
                   <th>Preço</th>
-                  <th>Duração</th>
+            
                   <th>Ações</th>
                 </tr>
               </thead>
@@ -238,13 +238,8 @@ export const DashboardServicosMusicais: React.FC = () => {
                       </div>
                     </td>
                     <td>{servico.categoria.nome}</td>
-                    <td className="has-text-weight-semibold">{formatarMoeda(servico.precoHora)}</td>
-                    <td>
-                      <span className="icon-text">
-                        <span className="icon"><FiClock /></span>
-                        <span>{formatarDuracao(servico.horasEstimadas)}</span>
-                      </span>
-                    </td>
+                    <td className="has-text-weight-semibold">{formatarMoeda(servico.preco)}</td>
+               
                     <td>
                       <div className="buttons are-small">
                         <button

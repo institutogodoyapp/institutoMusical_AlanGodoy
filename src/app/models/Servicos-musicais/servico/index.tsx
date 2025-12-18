@@ -5,8 +5,8 @@ export interface Servico {
     id: number;
     nome: string;
     descricao: string;
-    precoHora: number;
-    horasEstimadas: number;
+    preco: number;
+  
 categoria: CategoriaServico
     observacao: string;
 categoriaNome: string
@@ -17,11 +17,8 @@ export interface ServicoForm {
     id: number;
     nome: string;
     descricao: string;
-    precoHora: number;
-    horasEstimadas: number;
-
+    preco: number;
     observacao: string;
-
     categoriaId: number
 }
 

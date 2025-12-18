@@ -130,6 +130,7 @@ export const AgendaPage = () => {
 
 
         const response = await service.getReposições(professorIdNovo);
+
         const reposicoesFormatadas = Array.isArray(response)
           ? response.map((reposicao) => ({
             id: reposicao.id,
@@ -143,8 +144,9 @@ export const AgendaPage = () => {
           }))
           : [];
         setReposicao(reposicoesFormatadas);
+      
       } catch (error) {
-        showError('Erro ao buscar aulas');
+        showError('Erro ao buscar88 aulas');
       } finally {
         setLoading(false);
       }
@@ -165,7 +167,6 @@ export const AgendaPage = () => {
         }
         setLoading(true);
         const response = await service.getAulasPorProfessor(professorIdNovo);
-
         const aulasFormatadas = Array.isArray(response)
           ? response.map((aula) => ({
             id: aula.id,
@@ -177,25 +178,30 @@ export const AgendaPage = () => {
             professorNome: aula.professorNome,
             observacoes: aula.observacoes,
             instrumentoNome: aula.instrumentoNome,
+            matricula: aula.matricula,
             professorId: aula.professorId,
             status: mapearStatus(aula.status),
             statusOriginal: aula.statusOriginal,
             diaSemanaAula: aula.diaSemanaAula,
+            alunoId: aula.alunoId
           }))
           : [{
             id: response.id,
             dataHora: response.dataHora,
             horarioAula: response.horarioAula,
             duracao: response.duracao || 60,
+            matricula: response.matricula,
             alunoNome: response.alunoNome,
             professorNome: response.professorNome,
             observacoes: response.observacoes,
             instrumentoNome: response.instrumentoNome,
             professorId: response.professorId,
             status: response.status,
+            alunoId: response.alunoId,
             diaSemanaAula: response.diaSemanaAula,
           }];
         setAulas(aulasFormatadas);
+        
       } catch (error) {
         showError('Erro ao buscar aulas');
       } finally {
@@ -636,7 +642,6 @@ export const AgendaPage = () => {
                   ? diasFiltrados.map((dia) => {
                     const aulaAtiva = getAulaNoHorario(dia, horario);
                     const aulaReposta = getReposicaoNoHorario(dia, horario);
-
                     return (
                       <div
                         key={`${dia}-${horario}`}
@@ -669,7 +674,7 @@ export const AgendaPage = () => {
                               ? 'is-regular'
                               : 'is-makeup'
                               }`}>
-                              {aulaAtiva.instrumentoNome}
+                              {aulaAtiva.matricula?.instrumento?.nome}
                             </div>
                           </div>
                         ) : (
@@ -722,7 +727,7 @@ export const AgendaPage = () => {
                               ? 'is-regular'
                               : 'is-makeup'
                             }`}>
-                           {getAulaNoHorario(diaSelecionadoMobile, horario)!.instrumentoNome} - {converterTipoAulaParaTexto(getAulaNoHorario(diaSelecionadoMobile, horario)!.tipoAula)}
+                           {getAulaNoHorario(diaSelecionadoMobile, horario)!.matricula?.instrumento?.nome} - {converterTipoAulaParaTexto(getAulaNoHorario(diaSelecionadoMobile, horario)!.tipoAula)}
                           </div>
                         </div>
                       ) : (

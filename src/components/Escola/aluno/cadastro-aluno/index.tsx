@@ -5,16 +5,18 @@ import { useAlunoService } from '@/app/services';
 import { Professor } from '@/app/models/escola/professor';
 import { Instrumento } from '@/app/models/escola/instrumentos';
 import { Aluno } from '@/app/models/escola/aluno';
+import { Matricula } from '@/app/models/escola/aluno/matricula'
 import { useRouter } from 'next/router';
-import { FaUser, FaIdCard, FaSpinner, FaEnvelope, FaPhone, FaMusic, FaArrowLeft, FaCalendarAlt, FaClock, FaChalkboardTeacher, FaSave, FaWindowClose, FaUniversity } from 'react-icons/fa';
+import { FaUser, FaIdCard, FaSpinner, FaEnvelope, FaPhone, FaMusic, FaArrowLeft, FaCalendarAlt, FaClock, FaChalkboardTeacher, FaSave, FaWindowClose, FaUniversity, FaTrash } from 'react-icons/fa';
 import { useInstrumentoService } from '@/app/services/escola';
 import { httpClient } from '@/app/http';
 import { formatCPF, unformatCPF } from '@/util'
-import { FiUser, FiX } from 'react-icons/fi';
+import { FiClock, FiDollarSign, FiPlus, FiUser, FiX } from 'react-icons/fi';
 import { voltar } from '@/util/navegacao';
 import NotificationContainer from '@/components/common/notificacao/mutiplasNotifacoes';
 import { Input } from '@/components/common/input';
 import { FaUserGraduate } from 'react-icons/fa6';
+import { clone } from 'chart.js/helpers';
 
 export const CadastroAlunos: React.FC = () => {
     // ========== SERVICES E HOOKS ==========
@@ -31,11 +33,14 @@ export const CadastroAlunos: React.FC = () => {
     const alunoId = Number(id);
 
     // ========== ESTADOS DE DADOS ==========
-    const [instrumentos, setInstrumentos] = useState<Instrumento[]>([]);
+
     const [professores, setProfessores] = useState<Professor[]>([]);
     const [isAlunoLoaded, setIsAlunoLoaded] = useState<boolean>(false);
     const [isMobile, setIsMobile] = useState(false);
-    const [professorSelecionado, setProfessorSelecionado] = useState<Professor>()
+    const [isResponsavel, setIsResponsavel] = useState(false);
+    const [professorId, setProfessorId] = useState();
+    const [instrumentosSistema, setInstrumentosSistema] = useState<Instrumento[]>([]);
+    const [instrumentosProfessor, setInstrumentosProfessor] = useState<Instrumento[]>([]);
 
 
 
@@ -46,10 +51,10 @@ export const CadastroAlunos: React.FC = () => {
         cpf: '',
         email: '',
         telefone: '',
-        instrumentoId: 0,
-        diaSemanaAula: "MONDAY",
-        horarioAula: '',
-        professorId: 0,
+        vencimentoMensalidade: 0,
+        valorMensalidade: 0,
+        telefoneResponsavel: '',
+        instrumentos: [],
         ativo: true
     });
 
@@ -69,38 +74,30 @@ export const CadastroAlunos: React.FC = () => {
     // ========== EFEITOS ==========
     useEffect(() => {
         if (alunoId && !isAlunoLoaded) {
-            service.carregarAluno(alunoId)
+            const response = service.carregarAluno(alunoId)
                 .then(alunoEncontrado => {
-                    setFormData({
-                        ...formData,
-                        id: alunoEncontrado.id,
-                        nome: alunoEncontrado.nome,
-                        cpf: alunoEncontrado.cpf,
-                        email: alunoEncontrado.email,
-                        telefone: alunoEncontrado.telefone,
-                        instrumentoId: alunoEncontrado.instrumento ? alunoEncontrado.instrumento.id : 0,
-                        diaSemanaAula: alunoEncontrado.diaSemanaAula,
-                        horarioAula: alunoEncontrado.horarioAula,
-                        professorId: alunoEncontrado.professor?.id || 0,
-
-                    });
+                    setFormData(alunoEncontrado);
                     setIsAlunoLoaded(true);
                 })
                 .catch(err => {
                     showError('Não foi possível carregar os dados do aluno.');
                 });
+
+
         }
-    }, [id, service]);
+    }, [id, alunoId]);
 
 
     useEffect(() => {
-        if (formData.professorId) {
-            const instrumentos = fetchInstrumentos(Number(formData.professorId));
 
-        }
+        fetchAllInstrumentos();
 
 
-    }, [formData.professorId]);
+
+
+    }, []);
+
+
 
     useEffect(() => {
         const fetchAllData = async () => {
@@ -131,15 +128,38 @@ export const CadastroAlunos: React.FC = () => {
     }, []);
 
 
+
+
     // ========== FUNÇÕES DE CARREGAMENTO DE DADOS ==========
-    const fetchInstrumentos = async (id: number) => {
+    const fetchInstrumentos = async (idProf: number) => {
+
         try {
-            const response = await serviceInstrumento.getInstrumentoByProfessorId(id);
-            setInstrumentos(Array.isArray(response) ? response : [response]);
+
+            const response = await serviceInstrumento.getInstrumentoByProfessorId(idProf)
+            setInstrumentosProfessor(response)
+
+
         } catch (err) {
             showError('Não foi possível carregar os instrumentos');
+
         }
     };
+
+    const fetchAllInstrumentos = async () => {
+        try {
+
+            const response = await serviceInstrumento.getAllInstrumentos();
+
+            setInstrumentosSistema(Array.isArray(response) ? response : [response]);
+
+
+        } catch (err) {
+            showError('Não foi possível carregar os instrumentos');
+         
+        }
+    };
+
+
 
     const fetchProfessores = async () => {
         try {
@@ -163,16 +183,10 @@ export const CadastroAlunos: React.FC = () => {
     };
 
 
-    const handleDiaSemanaChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        setFormData({
-            ...formData,
-            diaSemanaAula: event.target.value as 'MONDAY' | 'TUESDAY' | 'WEDNESDAY' | 'THURSDAY' | 'FRIDAY' | 'SATURDAY'
-        });
-    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        let successMsg: string = 'Aluno cadastrado com sucesso!'
+        let successMsg: string = id ? 'Aluno atualizado com sucesso' : 'Aluno cadastrado com sucesso!' 
 
         try {
             setLoading(true);
@@ -180,7 +194,7 @@ export const CadastroAlunos: React.FC = () => {
 
 
             if (alunoId) {
-        
+
                 const response = await service.atualizarAluno(alunoId, formData);
                 setFormData(response);
             } else {
@@ -198,11 +212,12 @@ export const CadastroAlunos: React.FC = () => {
                 cpf: '',
                 email: '',
                 telefone: '',
-                instrumentoId: 0,
-                diaSemanaAula: "MONDAY",
-                horarioAula: '',
-                professorId: 0,
+                vencimentoMensalidade: 0,
+                valorMensalidade: 0,
+                telefoneResponsavel: '',
+                instrumentos: [],
                 ativo: true
+
             });
 
         } catch (err: any) {
@@ -281,7 +296,6 @@ export const CadastroAlunos: React.FC = () => {
                                         placeholder="000.000.000-00" />
 
                                 </div>
-
                                 <div className="column">
                                     <Input
                                         label='E-mail'
@@ -293,6 +307,8 @@ export const CadastroAlunos: React.FC = () => {
                                         required
                                         placeholder="aluno@email.com" />
                                 </div>
+
+
 
                                 <div className="column">
                                     <Input
@@ -306,6 +322,61 @@ export const CadastroAlunos: React.FC = () => {
                                         required
                                         placeholder="(00) 00000-0000" />
                                 </div>
+                            </div>
+
+                            {/* Dados Musicais */}
+                            <h2 className=""><strong>Menor de Idade ?</strong></h2>
+                            {/* Adicionar Responsavel */}
+                            <button type="button" className="button is-primary-custom mb-4" onClick={() => setIsResponsavel(true)}>
+                                Sim
+                            </button>
+
+                            {isResponsavel &&
+                                <div className="column is-6">
+                                    <Input
+                                        label='Contato Responsável'
+                                        icon={<FaEnvelope />}
+                                        type="tel"
+                                        format='telefone'
+                                        name="telefoneResponsavel"
+                                        value={formData.telefoneResponsavel}
+                                        onChange={handleChange}
+                                        required
+                                        placeholder="(00) 00000-0000" />
+                                </div>}
+
+
+                            <h2 className="title is-5 has-primary-custom">Financeiro</h2>
+
+                            <div className="columns">
+
+
+                                <div className="column ">
+                                    <Input
+                                        label='Valor Mensalidade'
+                                        iconLeft={<FiDollarSign />}
+                                        aditionalClassesControl='has-icons-left'
+                                        type="number"
+                                        name="valorMensalidade"
+                                        value={formData.valorMensalidade}
+                                        onChange={handleChange}
+                                        required />
+                                </div>
+
+                                <div className="column ">
+                                    <Input
+                                        label='Dia Vencimento'
+                                        iconLeft={<FiClock />}
+                                        aditionalClassesControl='has-icons-left'
+                                        type="number"
+                                        name="vencimentoMensalidade"
+                                        value={formData.vencimentoMensalidade}
+                                        onChange={handleChange}
+                                        required />
+                                </div>
+
+
+
 
                                 {id && <div className="column">
                                     <div className="field">
@@ -334,114 +405,6 @@ export const CadastroAlunos: React.FC = () => {
                             </div>
 
 
-                            {/* Dados Musicais */}
-                            <h2 className="title is-5 has-primary-custom">Dados Musicais</h2>
-
-                            <div className="columns">
-
-                                <div className="column">
-                                    <div className="field">
-                                        <label className="label">
-                                            <span className="icon-text has-text-descrition-cinza-custom has-text-bold-normal">
-                                                <span className="icon"><FaChalkboardTeacher /></span>
-                                                <span>Professor</span>
-                                            </span>
-                                        </label>
-                                        <div className="control">
-                                            <div className="select is-fullwidth">
-                                                <select
-                                                    name="professorId"
-                                                    value={formData.professorId}
-                                                    onChange={handleChange}
-                                                    required
-                                                >
-                                                    <option value="">Selecione um professor</option>
-                                                    {professoresAtivos.map(professor => (
-                                                        <option key={professor.id} value={professor.id}>
-                                                            {professor.nome}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="column">
-                                    <div className="field">
-                                        <label className="label">
-                                            <span className="icon-text has-text-descrition-cinza-custom has-text-bold-normal">
-                                                <span className="icon"><FaMusic /></span>
-                                                <span>Instrumento</span>
-                                            </span>
-                                        </label>
-                                        <div className="control">
-                                            <div className="select is-fullwidth">
-                                                <select
-                                                    name="instrumentoId"
-                                                    value={formData.instrumentoId}
-                                                    onChange={handleChange}
-                                                    required
-                                                >
-                                                    <option value="">Selecione um instrumento</option>
-                                                    {instrumentos.map(instrumento => (
-                                                        <option key={instrumento.id} value={instrumento.id}>
-                                                            {instrumento.nome}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-
-                            </div>
-
-                            {/* Agendamento de Aulas */}
-                            <h2 className="title is-5 has-primary-custom">Agendamento de Aulas</h2>
-
-                            <div className="columns">
-                                <div className="column">
-                                    <div className="field">
-                                        <label className="label">
-                                            <span className="icon-text has-text-descrition-cinza-custom has-text-bold-normal">
-                                                <span className="icon"><FaCalendarAlt /></span>
-                                                <span>Dia da Semana</span>
-                                            </span>
-                                        </label>
-                                        <div className="control">
-                                            <div className="select is-fullwidth">
-                                                <select
-                                                    name="diaSemanaAula"
-                                                    value={formData.diaSemanaAula || ""}
-                                                    onChange={handleDiaSemanaChange}
-                                                    required
-                                                >
-                                                    <option value="">Selecione um dia</option>
-                                                    {diasSemana.map(dia => (
-                                                        <option key={dia.value} value={dia.value}>
-                                                            {dia.label}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="column">
-                                    <Input
-                                        label='Horário da Aula'
-                                        icon={<FaClock />}
-                                        type="time"
-                                        name="horarioAula"
-                                        value={formData.horarioAula || ""}
-                                        onChange={handleChange}
-                                        required />
-                                </div>
-                            </div>
-
                             {/* Botões de Ação */}
                             <div className="field is-grouped is-grouped-right">
                                 <div className="control mb-6">
@@ -464,7 +427,7 @@ export const CadastroAlunos: React.FC = () => {
                         </form>
                     </div>
                 </div>
-            </section>
-        </Layout>
+            </section >
+        </Layout >
     );
 };

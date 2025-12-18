@@ -1,4 +1,4 @@
-export { CadastroAlunos } from './cadastro-aluno'
+export { CadastroAlunos } from './aluno/cadastro-aluno'
 export { MarcarReposicao } from './aula'
 export { HomeEscolaMusica } from './escolaHome'
 export { VisualizarReposicoes } from './aula'

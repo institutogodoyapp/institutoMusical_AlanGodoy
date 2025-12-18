@@ -2,6 +2,7 @@
 import { Aluno } from '@/app/models/escola/aluno'
 import { Professor } from '../professor';
 import { Reposicao } from '../reposicao';
+import { Matricula } from '../aluno/matricula';
 export enum TipoAula {
     AULA_REGULAR = 'AULA_REGULAR',
     AULA_REPOSICAO = 'AULA_REPOSICAO',
@@ -46,6 +47,8 @@ export interface AulaForm {
   horarioAula: string;         // Formato "HH:MM"
   duracao: number;      // Em minutos
   alunoNome: string;
+  matricula?: Matricula;
+  alunoId: number;
   professorNome: string;
   professorId: number;
   observacoes: string;

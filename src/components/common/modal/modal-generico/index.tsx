@@ -4,7 +4,7 @@ import { FiSave } from 'react-icons/fi';
 
 // Tipos
 export type CampoModal = {
-  tipo: 'text' | 'email' | 'password' | 'number' | 'textarea' | 'select' | 'date';
+  tipo: 'text' | 'email' | 'password' | 'number' | 'textarea' | 'select' | 'time'| 'date';
   nome: string;
   label: string;
   placeholder?: string;
@@ -29,6 +29,7 @@ interface ModalGenericoProps {
   onClose: () => void;
   dados?: DadosModal | null;
   onSave: (dados: DadosModal) => void;
+  instrumentosPorProfessor?: (id: string) => void
   titulo: string;
   isEdit?: boolean;
   campos: CampoModal[];
@@ -42,6 +43,7 @@ interface ModalGenericoProps {
 export const ModalGenerico: React.FC<ModalGenericoProps> = ({
   isOpen,
   onClose,
+  instrumentosPorProfessor,
   isEdit,
   dados,
   onSave,
@@ -71,7 +73,7 @@ export const ModalGenerico: React.FC<ModalGenericoProps> = ({
 
       setDadosLocais(dadosIniciais);
     }
-  }, [isOpen, dados, campos]);
+  }, [isOpen, dados]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,11 +81,25 @@ export const ModalGenerico: React.FC<ModalGenericoProps> = ({
   };
 
   const handleInputChange = (nomeCampo: string, valor: any) => {
+      
+      if(nomeCampo === 'professorId'){
+      const id = Number(valor)
+      if(!instrumentosPorProfessor) return
+      instrumentosPorProfessor(valor)
+      
+    } 
     setDadosLocais(prev => ({
       ...prev,
       [nomeCampo]: valor
+            
     }));
+
+
+
+  
   };
+
+
 
   const renderizarCampo = (campo: CampoModal) => {
     const valor = dadosLocais[campo.nome] || '';
@@ -118,6 +134,9 @@ export const ModalGenerico: React.FC<ModalGenericoProps> = ({
               required={campo.required}
               disabled={isEdit}
             >
+               <option value="">
+                  Selecione
+                </option>
               {campo.opcoes?.map(opcao => (
                 <option key={opcao.valor} value={opcao.valor}>
                   {opcao.label}

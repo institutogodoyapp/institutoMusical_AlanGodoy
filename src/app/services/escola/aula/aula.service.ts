@@ -27,7 +27,6 @@ export const useAulaService = () => {
     }
 
     const getAulasPorProfessor = async (professorId: number): Promise<AulaForm> => {
-
             const response: AxiosResponse<AulaForm> = await httpClient.get(`${resourceURL}aula/${professorId}/aulasProfessor`)
             return response.data
    

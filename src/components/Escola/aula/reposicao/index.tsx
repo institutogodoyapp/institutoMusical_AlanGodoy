@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, FormEvent } from 'react';
 import { useRouter } from 'next/router';
 import { CustomButton, Layout, useNotifications } from '@/components';
-import { FaUser, FaSpinner, FaCheck, FaTimes, FaCalendarAlt, FaLock, FaArrowLeft } from 'react-icons/fa';
+import { FaUser, FaSpinner, FaCheck, FaTimes, FaCalendarAlt, FaLock, FaArrowLeft, FaGraduationCap, FaChalkboardTeacher } from 'react-icons/fa';
 import { useAlunoService } from '@/app/services';
 import { useAulaService } from '@/app/services/escola/aula/aula.service';
 import { AulaForm as AulaOriginal } from '@/app/models/escola/aula';
@@ -10,6 +10,8 @@ import { StatusReposicao } from '@/app/models/escola/reposicao';
 import { Aluno } from '@/app/models/escola/aluno';
 import NotificationContainer from '@/components/common/notificacao/mutiplasNotifacoes';
 import { FaX } from 'react-icons/fa6';
+import { Professor } from '@/app/models';
+import { useProfessorService } from '@/app/services/escola/professor/professor.service';
 
 export const MarcarReposicao: React.FC = () => {
     // ========== SERVICES E HOOKS ==========
@@ -21,18 +23,25 @@ export const MarcarReposicao: React.FC = () => {
     } = useNotifications();
     const service = useAlunoService();
     const serviceAula = useAulaService();
+    const serviceProf = useProfessorService()
     const router = useRouter();
 
     // ========== REFS ==========
     const buscaAlunoRef = useRef<HTMLDivElement>(null);
-
+    const buscaProfessorRef = useRef<HTMLDivElement>(null);
     // ========== ESTADOS DE DADOS ==========
     const [alunoSelecionado, setAlunoSelecionado] = useState<Aluno | null>(null);
+    const [professorSelecionado, setProfessorSelecionado] = useState<Professor | null>(null);
     const [aulaOriginal, setAulaOriginal] = useState<AulaOriginal | null>(null);
     const [sugestoesAlunos, setSugestoesAlunos] = useState<Aluno[]>([]);
+    const [professores, setProfessores] = useState<Professor[]>([]);
+    const [professorId, setProfessorId] = useState<number>()
+    const [alunoId, setAlunoId] = useState<number>()
+
 
     // ========== ESTADOS DE FORMULÁRIO ==========
     const [buscaAluno, setBuscaAluno] = useState('');
+    const [buscaProfessor, setBuscaProfessor] = useState('');
     const [novaData, setNovaData] = useState('');
     const [novoHorario, setNovoHorario] = useState('');
     const [motivo, setMotivo] = useState('');
@@ -53,6 +62,7 @@ export const MarcarReposicao: React.FC = () => {
         dataSolicitacao: '',
     };
 
+
     // ========== EFEITOS ==========
     useEffect(() => {
         const savedState = localStorage.getItem('reposicaoState');
@@ -65,6 +75,8 @@ export const MarcarReposicao: React.FC = () => {
         }
     }, []);
 
+
+
     useEffect(() => {
         if (alunoSelecionado || aulaOriginal || novaData || novoHorario) {
             localStorage.setItem('reposicaoState', JSON.stringify({
@@ -76,9 +88,27 @@ export const MarcarReposicao: React.FC = () => {
         }
     }, [alunoSelecionado, aulaOriginal, novaData, novoHorario]);
 
+
+
+    const carregarProfessoresDoAluno = () => {
+        const professores: Professor[] = (
+            alunoSelecionado?.instrumentos || [] 
+        )
+            .map(item => item.professor)
+            .filter((prof): prof is Professor => Boolean(prof?.id)) 
+            .filter((prof, index, self) =>
+                self.findIndex(p => p.id === prof.id) === index 
+            );
+        setProfessores(professores); 
+    };
+
+
+
     useEffect(() => {
+
         if (!buscaAluno.trim()) {
             setSugestoesAlunos([]);
+            setProfessores([])
             return;
         }
 
@@ -106,12 +136,15 @@ export const MarcarReposicao: React.FC = () => {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
+
     useEffect(() => {
         async function buscarAulaOriginal(aulaId: number) {
             setLoading(true);
             try {
                 const response = await serviceAula.getAulaPorId(aulaId);
                 setAulaOriginal(response);
+
+
 
                 if (!alunoSelecionado && response.alunoNome) {
                     try {
@@ -177,12 +210,12 @@ export const MarcarReposicao: React.FC = () => {
 
     // ========== FUNÇÕES DE NAVEGAÇÃO ==========
     const irParaAgendaAulaOriginal = () => {
-         const professorId = alunoSelecionado?.professor?.id
+
         if (!alunoSelecionado?.id) {
             showError('Selecione um aluno primeiro');
             return;
         }
-     
+
 
         router.push({
             pathname: '/instituto-musical/escola/aula/agenda',
@@ -198,7 +231,7 @@ export const MarcarReposicao: React.FC = () => {
 
     const irParaAgendaReposicao = () => {
         const alunoId = alunoSelecionado?.id || Number(router.query.alunoId);
- const professorId = aulaOriginal?.professorId
+        const professorId = aulaOriginal?.professorId
         if (!alunoId) {
             showError('Selecione um aluno válido primeiro');
             const input = document.querySelector('.aluno-input');
@@ -215,7 +248,7 @@ export const MarcarReposicao: React.FC = () => {
                 mode: 'select',
                 tipo: 'reposicao',
                 alunoId: alunoId.toString(),
-                professorId:professorId?.toString(),
+                professorId: professorId?.toString(),
                 returnUrl: `${router.pathname}?alunoId=${alunoId}`
             }
         });
@@ -236,7 +269,7 @@ export const MarcarReposicao: React.FC = () => {
         setLoading(true);
 
         try {
-          
+
 
             const response = await serviceAula.marcarReposicao(formData)
 
@@ -343,6 +376,7 @@ export const MarcarReposicao: React.FC = () => {
                                                 onClick={() => {
                                                     setAlunoSelecionado(aluno);
                                                     setBuscaAluno(aluno.nome);
+                                                    setAlunoId(aluno.id)
                                                     setAulaOriginal(null);
                                                     setNovaData('');
                                                     setNovoHorario('');
@@ -365,30 +399,45 @@ export const MarcarReposicao: React.FC = () => {
                             )}
                         </div>
 
+
+
+                        {alunoSelecionado && (
+                            <div className="field mb-4">
+                                <label className="label">
+                                    <span className="icon-text has-text-descrition-cinza-custom has-text-bold-normal">
+                                        <span className="icon"><FaChalkboardTeacher /></span>
+                                        <span>Professor</span>
+                                    </span>
+                                </label>
+                                <div className="control">
+                                    <div className="select is-fullwidth">
+                                        <select
+                                            name="professorId"
+                                            value={professorId || ''}
+                                            onChange={(e) => setProfessorId(Number(e.target.value))}
+                                            onClick={() => carregarProfessoresDoAluno()}
+                                        >
+                                            <option value="">Selecione um professor</option>
+                                            {Array.isArray(professores) && professores.length > 0 ? (
+                                                professores.map((p) => (
+                                                    <option key={p.id} value={p.id}>
+                                                        {p.nome}
+                                                    </option>
+                                                ))
+                                            ) : (
+                                                <option disabled>Carregando professores...</option>
+                                            )}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
                         {/* Seleção de Aula Original */}
                         {alunoSelecionado &&
                             <div className="field mb-4">
                                 <label className="label">Aula Original</label>
-                                {aulaOriginal ? (
-                                    <div className="box mb-2">
-                                        <div className="is-flex is-justify-content-space-between">
-                                            <div>
-                                                <p><strong>Data:</strong> {aulaOriginal.dataHora}</p>
-                                                <p><strong>Horário:</strong> {aulaOriginal.horarioAula}</p>
-                                                <p><strong>Professor:</strong> {aulaOriginal.professorNome}</p>
-                                                <p><strong>Instrumento:</strong> {aulaOriginal.instrumentoNome}</p>
-                                            </div>
-                                            <span className="icon"><FaLock /></span>
-                                        </div>
-                                        <CustomButton
-                                            text="Alterar Aula Original"
-                                            icon={<FaCalendarAlt />}
-                                            onClick={irParaAgendaAulaOriginal}
-                                            type="button"
-                                            className="is-small is-info mt-3"
-                                        />
-                                    </div>
-                                ) : (
+                                {!aulaOriginal &&
                                     <CustomButton
                                         text="Selecionar Aula Original na Agenda"
                                         icon={<FaCalendarAlt />}
@@ -396,7 +445,7 @@ export const MarcarReposicao: React.FC = () => {
                                         type="button"
                                         className="is-fullwidth"
                                     />
-                                )}
+                                }
                             </div>}
 
                         {/* Formulário de Reposição */}
@@ -503,7 +552,7 @@ export const MarcarReposicao: React.FC = () => {
                     </div>
                 </div>
             </section>
-        </Layout>
+        </Layout >
     );
 };
 

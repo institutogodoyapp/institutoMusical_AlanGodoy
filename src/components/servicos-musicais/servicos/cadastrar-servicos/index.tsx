@@ -35,8 +35,7 @@ export const NovoServicePage: React.FC = () => {
     id: 0,
     nome: '',
     descricao: '',
-    precoHora: 0,
-    horasEstimadas: 60,
+    preco: 0,
     categoriaId: 0,
     observacao: '',
   });
@@ -65,8 +64,7 @@ export const NovoServicePage: React.FC = () => {
             id: servicoEncontrado.id,
             nome: servicoEncontrado.nome,
             descricao: servicoEncontrado.descricao,
-            precoHora: servicoEncontrado.precoHora,
-            horasEstimadas: servicoEncontrado.horasEstimadas,
+            preco: servicoEncontrado.preco,
             categoriaId: servicoEncontrado.categoriaId ? servicoEncontrado.categoria.id : 0,
             observacao: servicoEncontrado.observacao ? servicoEncontrado.observacao : '',
 
@@ -119,8 +117,7 @@ export const NovoServicePage: React.FC = () => {
           id: 0,
           nome: '',
           descricao: '',
-          precoHora: 0,
-          horasEstimadas: 60,
+          preco: 0,
           categoriaId: 0,
           observacao: '',
         });
@@ -217,24 +214,14 @@ export const NovoServicePage: React.FC = () => {
                   iconLeft={<FiDollarSign />}
                   aditionalClassesControl='has-icons-left'
                   type="number"
-                  name="precoHora"
-                  value={formData.precoHora}
+                  name="preco"
+                  value={formData.preco}
                   onChange={handleChange}
                   required />
               </div>
 
               <div className="column is-12-mobile is-6-tablet">
-                <Input
-                  label='Tempo Estimado (minutos) *'
-                  iconLeft={<FiClock />}
-                  aditionalClassesControl='has-icons-left'
-                  type="number"
-                  name="horasEstimadas"
-                  value={formData.horasEstimadas}
-                  onChange={handleChange}
-                  min="15"
-                  step="15"
-                  required />
+           
               </div>
 
 

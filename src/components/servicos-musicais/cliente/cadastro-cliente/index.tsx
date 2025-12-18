@@ -147,7 +147,7 @@ export const CadastroCliente: React.FC = () => {
                     placeholder="exemplo@email.com"
                     value={cliente.email}
                     onChange={(e) => setCliente({ ...cliente, email: e.target.value })}
-                    required />
+                    required= {false} />
 
                   <Input
                     label='Contato *'

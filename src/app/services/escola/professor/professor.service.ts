@@ -1,8 +1,11 @@
 import { httpClient } from '@/app/http/';
+import { Instrumento } from '@/app/models';
 import { Professor, ProfessorCadastro } from '@/app/models/escola/professor';
 import { AxiosResponse } from 'axios';
 
 const resourceURL: string = '/admin/escola-musica/professores';
+
+const resourceURLInstrumentoByProfessor ='/admin/escola-musica/instrumentos';
 
 export const useProfessorService = () => {
 
@@ -28,6 +31,19 @@ export const useProfessorService = () => {
         return response.data;
     };
 
+       const getInstrumentoByProfessorId = async (professorId: number): Promise<Instrumento[]> => {
+            const response: AxiosResponse<Instrumento[]> =
+                await httpClient.get<Instrumento[]>(`${resourceURLInstrumentoByProfessor}/professorId/${professorId}`);
+            return response.data;
+        };
+
+          const getProfessorByAlunoId = async (alunoId: number): Promise<Professor[]> => {
+            const response: AxiosResponse<Professor[]> =
+                await httpClient.get<Professor[]>(`${resourceURL}/${alunoId}/alunoId`);
+            return response.data;
+        };
+
+
     const atualizarProfessor = async (professorId: number, professor: ProfessorCadastro): Promise<ProfessorCadastro> => {
         const response: AxiosResponse<ProfessorCadastro> =
             await httpClient.put<ProfessorCadastro>(`${resourceURL}/${professorId}/update`, professor);
@@ -46,6 +62,8 @@ export const useProfessorService = () => {
         cadastrarProfessor,
         getAllProfessores,
         getProfessor,
+        getProfessorByAlunoId,
+        getInstrumentoByProfessorId,
         atualizarProfessor,
         exluirProfessor
     };

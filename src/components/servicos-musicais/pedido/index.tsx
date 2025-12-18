@@ -171,7 +171,7 @@ export const RealizacaoPedidoPage: React.FC = () => {
           ...prev,
           servicoId: servico.id,
           servico: servico,
-          precoUnitario: servico.precoHora || 0,
+          precoUnitario: servico.preco || 0,
           id: servico.id
         }));
       } else {
@@ -363,7 +363,7 @@ export const RealizacaoPedidoPage: React.FC = () => {
                               <option value={0}>Selecione um serviço</option>
                               {servicos.map(servico => (
                                 <option key={servico.id} value={servico.id}>
-                                  {servico.nome} - R$ {servico.precoHora}
+                                  {servico.nome} - R$ {servico.preco}
                                 </option>
                               ))}
                             </select>

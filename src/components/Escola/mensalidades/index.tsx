@@ -224,7 +224,7 @@ export const GerenciamentoMensalidades: React.FC<MensalidadesTabProps> = () => {
                     className="dropdown-item"
                     onClick={() => handleSelecionarAluno(aluno)}
                   >
-                    {aluno.nome} - {aluno.instrumento?.nome}
+                    {aluno.nome}
                   </a>
                 ))}
               </div>
