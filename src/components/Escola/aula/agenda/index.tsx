@@ -540,11 +540,19 @@ export const AgendaPage = () => {
   const diasFiltrados = dias;
 
 
-
+   if (loading) {
+        return (
+            <div className="section">
+                <div className="container">
+                           <LoadingSpinner show = {loading}/>
+                </div>
+            </div>
+        );
+    }
   // ========== RENDERIZAÇÃO PRINCIPAL ==========
   return (
     <Layout titulo={` ${isMobile ? 'Agenda' : 'Agenda de Aulas'} - ${isMobile ? '' : 'Professor'} ${getPrimeiroEUltimoNome(professor?.nome ? professor.nome : '')}`}>
-      <LoadingSpinner show={loading} />
+     
       <div className="container">
         <NotificationContainer
           notifications={notifications}

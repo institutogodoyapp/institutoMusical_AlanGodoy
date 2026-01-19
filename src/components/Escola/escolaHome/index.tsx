@@ -10,6 +10,7 @@ import { CardsAvisos } from './cardsAvisos';
 import { AlertasPendencias } from '@/components/common/homeBase/cardAlertas';
 import { useNotifications } from '@/components/common/notificacao/hookNotify/usoSimples';
 import NotificationContainer from '@/components/common/notificacao/mutiplasNotifacoes';
+import LoadingSpinner from '@/components/common/loading';
 
 export const HomeEscolaMusica = () => {
     const {
@@ -52,8 +53,14 @@ export const HomeEscolaMusica = () => {
 
 
 
-    if (loading) {
-        return <div>Carregando...</div>;
+     if (loading) {
+        return (
+            <div className="section">
+                <div className="container">
+                           <LoadingSpinner show = {loading}/>
+                </div>
+            </div>
+        );
     }
 
     return (

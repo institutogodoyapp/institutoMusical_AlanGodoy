@@ -17,6 +17,7 @@ import NotificationContainer from '@/components/common/notificacao/mutiplasNotif
 import { Input } from '@/components/common/input';
 import { FaUserGraduate } from 'react-icons/fa6';
 import { clone } from 'chart.js/helpers';
+import LoadingSpinner from '@/components/common/loading';
 
 export const CadastroAlunos: React.FC = () => {
     // ========== SERVICES E HOOKS ==========
@@ -234,12 +235,7 @@ export const CadastroAlunos: React.FC = () => {
         return (
             <div className="section">
                 <div className="container">
-                    <div className="box has-text-centered">
-                        <span className="icon is-large">
-                            <FaSpinner className="fa-spin" />
-                        </span>
-                        <p>Carregando dados...</p>
-                    </div>
+                           <LoadingSpinner show = {loading}/>
                 </div>
             </div>
         );

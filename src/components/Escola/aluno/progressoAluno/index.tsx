@@ -23,6 +23,7 @@ import { useProgressoService } from '@/app/services/escola/progresso/progresso.s
 import { ProgressoAluno, StatusTopico, DisciplinaProgresso, statusLabels, StatusProgresso } from '@/app/models/escola/aluno/progresso';
 import { voltar } from '@/util/navegacao';
 import { DividerGradient } from '@/components/common/divisor';
+import LoadingSpinner from '@/components/common/loading';
 
 export const ProgressoAlunos: React.FC = () => {
   // ========== SERVICES E HOOKS ==========
@@ -87,6 +88,8 @@ const fetchProgresso = async () => {
 const atualizarStatusTopico = async (topicoId: number, novoStatus: StatusTopico) => {
   setUpdating(true);
   try {
+
+    setLoading(true)
     // Atualização OTIMISTA no progressos (corrige progressoAtivo)
     setProgressos(prev => {
       if (!prev) return prev;
@@ -112,11 +115,13 @@ const atualizarStatusTopico = async (topicoId: number, novoStatus: StatusTopico)
       ? serviceProgresso.concluirTopico(topicoId)
       : serviceProgresso.IniciarTopico(topicoId, parseId);
       
+
   } catch (error) {
     showError(`Erro na atualização: ${error}`);
     // ✅ Remova o setProgresso daqui
   } finally {
     setUpdating(false);
+    setLoading(false)
   }
 };
 
@@ -184,22 +189,15 @@ const atualizarStatusTopico = async (topicoId: number, novoStatus: StatusTopico)
   if (!progressoAtivo) return;
 
   // ========== RENDERIZAÇÃO DE CARREGAMENTO ==========
-  if (loading) {
-    return (
-      <Layout titulo="Carregando...">
-        <div className="section">
-          <div className="container">
-            <div className="box has-text-centered py-6">
-              <span className="icon is-large has-text-primary">
-                <FaSpinner className="fa-spin" size={32} />
-              </span>
-              <p className="mt-3 has-text-grey-dark">Carregando progresso do aluno...</p>
+   if (loading) {
+        return (
+            <div className="section">
+                <div className="container">
+                           <LoadingSpinner show = {loading}/>
+                </div>
             </div>
-          </div>
-        </div>
-      </Layout>
-    );
-  }
+        );
+    }
 
   // ========== RENDERIZAÇÃO DE ERRO ==========
   if (!progresso) {

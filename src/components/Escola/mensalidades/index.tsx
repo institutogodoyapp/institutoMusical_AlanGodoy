@@ -19,6 +19,7 @@ import { useAlunoService } from '@/app/services';
 import { useMensalidadeService } from '@/app/services/escola/finanças/mensalidade.service';
 import { useRouter } from 'next/router';
 import NotificationContainer from '@/components/common/notificacao/mutiplasNotifacoes';
+import LoadingSpinner from '@/components/common/loading';
 
 // type Aluno = {
 //   id: number;
@@ -145,20 +146,15 @@ export const GerenciamentoMensalidades: React.FC<MensalidadesTabProps> = () => {
     : [];
 
   // ========== RENDERIZAÇÃO DE CARREGAMENTO ==========
-  if (loading) {
-    return (
-      <div className="section">
-        <div className="container">
-          <div className="box has-text-centered">
-            <span className="icon is-large">
-              <FaSpinner className="fa-spin" />
-            </span>
-            <p>Carregando mensalidades...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+   if (loading) {
+        return (
+            <div className="section">
+                <div className="container">
+                           <LoadingSpinner show = {loading}/>
+                </div>
+            </div>
+        );
+    }
 
   // ========== RENDERIZAÇÃO PRINCIPAL ==========
   return (

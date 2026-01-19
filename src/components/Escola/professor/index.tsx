@@ -25,6 +25,7 @@ import CardList from '@/components/common/tableMobile';
 import { FiEdit, FiMessageCircle, FiTrash2, FiUser } from 'react-icons/fi';
 import { FaX } from 'react-icons/fa6';
 import { TfiAgenda } from 'react-icons/tfi';
+import LoadingSpinner from '@/components/common/loading';
 
 export const GerenciamentoProfessores: React.FC = () => {
   // ========== SERVICES E HOOKS ==========
@@ -206,22 +207,15 @@ export const GerenciamentoProfessores: React.FC = () => {
   }
 
   // ========== RENDERIZAÇÃO DE CARREGAMENTO ==========
-  if (loading) {
-    return (
-      <Layout titulo="Carregando...">
-        <div className="section">
-          <div className="container">
-            <div className="box has-text-centered">
-              <span className="icon is-large">
-                <FaSpinner className="fa-spin" />
-              </span>
-              <p>Carregando professores...</p>
+   if (loading) {
+        return (
+            <div className="section">
+                <div className="container">
+                           <LoadingSpinner show = {loading}/>
+                </div>
             </div>
-          </div>
-        </div>
-      </Layout>
-    );
-  }
+        );
+    }
 
   // ========== RENDERIZAÇÃO PRINCIPAL ==========
   return (

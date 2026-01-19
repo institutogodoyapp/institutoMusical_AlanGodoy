@@ -20,6 +20,7 @@ import { useInstrumentoService } from '@/app/services/escola';
 import { getInstrumentoIcon } from '@/util'
 import NotificationContainer from '@/components/common/notificacao/mutiplasNotifacoes';
 import { CampoModal, DadosModal } from '@/components/common/modal/modal-generico';
+import LoadingSpinner from '@/components/common/loading';
 
 export const GerenciamentoInstrumentos: React.FC = () => {
   // ========== SERVICES E HOOKS ==========
@@ -203,20 +204,15 @@ export const GerenciamentoInstrumentos: React.FC = () => {
   });
 
   // ========== RENDERIZAÇÃO DE CARREGAMENTO ==========
-  if (loading) {
-    return (
-      <div className="section">
-        <div className="container">
-          <div className="box has-text-centered">
-            <span className="icon is-large">
-              <FaSpinner className="fa-spin" />
-            </span>
-            <p>Carregando instrumentos...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+   if (loading) {
+        return (
+            <div className="section">
+                <div className="container">
+                           <LoadingSpinner show = {loading}/>
+                </div>
+            </div>
+        );
+    }
 
   // ========== RENDERIZAÇÃO PRINCIPAL ==========
   return (

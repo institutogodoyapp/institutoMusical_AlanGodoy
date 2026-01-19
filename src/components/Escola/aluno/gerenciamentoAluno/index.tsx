@@ -15,6 +15,8 @@ import { Matricula } from '@/app/models/escola/aluno/matricula';
 import { useProfessorService } from '@/app/services/escola/professor/professor.service';
 import { parseApiDate } from '@/util';
 import { formatarDataString } from '@/util/Datas';
+import LoadingSpinner from '@/components/common/loading';
+import { set } from 'date-fns';
 
 export const GerenciamentoAlunos: React.FC = () => {
   // ========== SERVICES E HOOKS ==========
@@ -31,7 +33,7 @@ export const GerenciamentoAlunos: React.FC = () => {
   // ========== ESTADOS DE DADOS ==========
   const [alunos, setAlunos] = useState<Aluno[]>([]);
   const [alunosExpandidos, setAlunosExpandidos] = useState<Set<number>>(new Set());
-  const [carregando, setCarregando] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(true);
   const [modalAberto, setModalAberto] = useState<boolean>(false);
   const [professores, setProfessores] = useState<Professor[]>([])
   const [instrumentos, setInstrumentos] = useState<Instrumento[]>([])
@@ -60,12 +62,14 @@ export const GerenciamentoAlunos: React.FC = () => {
   useEffect(() => {
     const carregarProfessores = async () => {
       try {
+
+         setLoading(true)
         const resposta = await professorService.getAllProfessores();
         setProfessores(resposta);
       } catch (error) {
         showError('Falha ao carregar dados.');
       } finally {
-        setCarregando(false);
+        setLoading(false);
       }
     };
     carregarProfessores();
@@ -85,13 +89,13 @@ export const GerenciamentoAlunos: React.FC = () => {
 
   const carregarAlunos = async () => {
     try {
-      setCarregando(true);
+      setLoading(true);
       const resposta = await service.getAlunos();
       setAlunos(Array.isArray(resposta) ? resposta : [resposta]);
     } catch (error) {
       showError('Falha ao carregar dados.');
     } finally {
-      setCarregando(false);
+      setLoading(false);
     }
   };
 
@@ -273,6 +277,7 @@ export const GerenciamentoAlunos: React.FC = () => {
     
    
     try {
+      setLoading(true)
       const dadostypes = {
         ...dados,
         instrumentoId: Number(dados.instrumentoId),
@@ -296,6 +301,7 @@ export const GerenciamentoAlunos: React.FC = () => {
 
     if (instrumento?.id !== dadostypes.instrumentoId) {
       await service.matricular(dadostypes);
+      setLoading(false)
       showSuccess('Aluno matriculado com sucesso!');
       fecharModalAção()
     } else {
@@ -336,8 +342,15 @@ const editar = (aluno: Aluno) => {
 const acessarSalaReposicao = () => router.push('/instituto-musical/escola/reposicao');
 
 // ========== RENDERIZAÇÃO DE CARREGAMENTO ==========
-if (carregando) return <div className="container mt-6"><div className="notification is-info is-light">Carregando alunos...</div></div>;
-
+   if (loading) {
+        return (
+            <div className="section">
+                <div className="container">
+                           <LoadingSpinner show = {loading}/>
+                </div>
+            </div>
+        );
+    }
 // ========== RENDERIZAÇÃO PRINCIPAL ==========
 return (
   <Layout titulo="Gerenciamento de Alunos">

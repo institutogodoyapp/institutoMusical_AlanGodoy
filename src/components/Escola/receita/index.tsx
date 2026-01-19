@@ -39,6 +39,7 @@ import NotificationContainer from '@/components/common/notificacao/mutiplasNotif
 import ModalGenerico, { CampoModal, DadosModal } from '@/components/common/modal/modal-generico';
 import CardList from '@/components/common/tableMobile';
 import { CategoriasContent, DashboardContent, DespesasContent } from '@/components/common';
+import LoadingSpinner from '@/components/common/loading';
 
 export const ControleFinanceiro: React.FC = () => {
   // ========== SERVICES E HOOKS ==========
@@ -367,23 +368,15 @@ export const ControleFinanceiro: React.FC = () => {
   });
 
   // ========== RENDERIZAÇÃO DE CARREGAMENTO ==========
-  if (loading) {
-    return (
-      <Layout titulo="Carregando...">
-        <div className="section">
-          <div className="container">
-            <div className="box has-text-centered">
-              <span className="icon is-large">
-                <FaSpinner className="fa-spin" />
-              </span>
-              <p>Carregando dados financeiros...</p>
+   if (loading) {
+        return (
+            <div className="section">
+                <div className="container">
+                           <LoadingSpinner show = {loading}/>
+                </div>
             </div>
-          </div>
-        </div>
-      </Layout>
-    );
-  }
-
+        );
+    }
   // ========== RENDERIZAÇÃO PRINCIPAL ==========
   return (
     <Layout titulo="Controle Financeiro">
