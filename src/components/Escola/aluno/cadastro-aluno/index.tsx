@@ -402,6 +402,8 @@ export const CadastroAlunos: React.FC = () => {
                                         </div>
                                     </div>
                                 </div>}
+
+                                
                             </div>
 
 

@@ -4,7 +4,7 @@ import { FiSave } from 'react-icons/fi';
 
 // Tipos
 export type CampoModal = {
-  tipo: 'text' | 'email' | 'password' | 'number' | 'textarea' | 'select' | 'time'| 'date';
+  tipo: 'text' | 'email' | 'password' | 'number' | 'textarea' | 'select' | 'file' | 'time'| 'date';
   nome: string;
   label: string;
   placeholder?: string;
@@ -62,7 +62,7 @@ export const ModalGenerico: React.FC<ModalGenericoProps> = ({
       const dadosIniciais: DadosModal = {};
 
       campos.forEach(campo => {
-        if (dados && dados[campo.nome] !== undefined) {
+        if (dados && dados[campo.nome] !== undefined  && campo.tipo !== 'file') {
           dadosIniciais[campo.nome] = dados[campo.nome];
         } else {
           dadosIniciais[campo.nome] = campo.tipo === 'select'
@@ -81,7 +81,7 @@ export const ModalGenerico: React.FC<ModalGenericoProps> = ({
   };
 
   const handleInputChange = (nomeCampo: string, valor: any) => {
-      
+      console.log('campo'+ nomeCampo, 'valor' + valor)
       if(nomeCampo === 'professorId'){
       const id = Number(valor)
       if(!instrumentosPorProfessor) return
@@ -122,6 +122,20 @@ export const ModalGenerico: React.FC<ModalGenericoProps> = ({
             required={campo.required}
             placeholder={campo.placeholder}
             rows={4}
+          />
+        );
+
+       case 'file':
+        return (
+          <input
+            className="input"
+            type={campo.tipo}
+            title={campo.label}
+            //value={valor}
+            onChange={(e) => handleInputChange(campo.nome, e.target.files?.[0] || null)}
+            required={campo.required}
+            placeholder={campo.placeholder}
+            disabled={campo.disable}
           />
         );
 

@@ -38,7 +38,7 @@ export const DashboardContent = ({
                 </div>
               </div>
               <div className="media-content">
-                <h3 className="title is-5 has-text-grey-dark mb-1">Receita Total</h3>
+                <h3 className="title is-5 has-text-grey-dark mb-1" >Receita Total</h3>
                 <span className="date-range-tag">
                   <FaCalendarAlt size={10} className="mr-1" />
                   {resumoFiltrado?.dataInicio} até {resumoFiltrado?.dataFim}

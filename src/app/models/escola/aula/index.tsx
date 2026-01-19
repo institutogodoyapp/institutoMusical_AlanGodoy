@@ -78,3 +78,7 @@ export interface AulaFormForm {
   status: string;
 }
 
+export interface AulaObs {
+  observacoes: string;
+}
+

@@ -12,6 +12,8 @@ export interface Matricula {
     alunoId?: number;
     professor?: Professor;
     instrumento?: Instrumento;
+    numeroMatricula?: number;
+    dataMatricula?: string;
     diaSemanaAula: string;
     ativo?: boolean;
     horarioAula: string;

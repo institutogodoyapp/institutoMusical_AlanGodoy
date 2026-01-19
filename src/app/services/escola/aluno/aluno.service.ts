@@ -87,6 +87,7 @@ export const useAlunoService = () => {
     }
 
      const matricular = async (matricula: DadosModal): Promise<Matricula> => {
+        console.log(matricula)
         const response: AxiosResponse<Matricula> = await httpClient.post(`${resourceURL}alunos/matricula`, matricula)
          return response.data
     }

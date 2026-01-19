@@ -4,7 +4,7 @@ import { FaFilter, FaCalendarAlt, FaPlus, FaEdit, FaSpinner, FaCog, FaTrash, FaC
 import { CustomButton, ModalGenerico, useNotifications } from '@/components';
 import { useRouter } from 'next/router';
 import { useAulaService } from '@/app/services/escola/aula/aula.service';
-import { AulaForm, AulaFormForm, StatusAula, TipoAula } from '@/app/models/escola/aula';
+import { AulaForm, AulaFormForm, AulaObs, StatusAula, TipoAula } from '@/app/models/escola/aula';
 import { Reposicao } from '@/app/models/escola/reposicao';
 import { mapearStatus, determinarTipoAula, getDataAtual, traduzirDiaSemana, adicionarDias } from '@/util';
 import NotificationContainer from '@/components/common/notificacao/mutiplasNotifacoes';
@@ -17,6 +17,8 @@ import { useConfigAgendaService } from '@/app/services/escola/aula/agendaConfig.
 import { ConfigAgenda, DiaSemana } from '@/app/models/escola/aula/configAgenda';
 import { Console } from 'console';
 import { converterTipoAulaParaTexto } from '@/util/statusETipos';
+import { CampoModal, DadosModal } from '@/components/common/modal/modal-generico';
+import LoadingSpinner from '@/components/common/loading';
 
 export const AgendaPage = () => {
   // ========== SERVICES E HOOKS ==========
@@ -49,7 +51,7 @@ export const AgendaPage = () => {
   const [horarios, setHorarios] = useState<string[]>([]);
   const [filtroTipo, setFiltroTipo] = useState<'todos' | 'regular' | 'reposicao'>('todos');
   const [diaSelecionadoMobile, setDiaSelecionadoMobile] = useState<string>('');
-
+  const [showObsForm, setShowObsForm] = useState(false)
   const [configAgenda, setConfigAgenda] = useState<ConfigAgenda | null>(null);
   const configAgendaService = useConfigAgendaService();
 
@@ -61,6 +63,10 @@ export const AgendaPage = () => {
   const [returnUrl, setReturnUrl] = useState<string>('');
 
   // ========== ESTADOS DE FORMULÁRIOS ==========
+  const [observacoes, setObservacoes] = useState<AulaObs>({
+    observacoes: ''
+  })
+
   const [novaAula, setNovaAula] = useState<Partial<AulaForm>>({
     dataHora: '',
     horarioAula: '',
@@ -144,7 +150,7 @@ export const AgendaPage = () => {
           }))
           : [];
         setReposicao(reposicoesFormatadas);
-      
+
       } catch (error) {
         showError('Erro ao buscar88 aulas');
       } finally {
@@ -166,7 +172,7 @@ export const AgendaPage = () => {
           professorIdNovo = professorId
         }
         setLoading(true);
-        const response = await service.getAulasPorProfessor(professorIdNovo);
+        const response = await service.getAulasPorProfessor(professorIdNovo, dataInicio, dataFim);
         const aulasFormatadas = Array.isArray(response)
           ? response.map((aula) => ({
             id: aula.id,
@@ -201,7 +207,7 @@ export const AgendaPage = () => {
             diaSemanaAula: response.diaSemanaAula,
           }];
         setAulas(aulasFormatadas);
-        
+
       } catch (error) {
         showError('Erro ao buscar aulas');
       } finally {
@@ -262,9 +268,48 @@ export const AgendaPage = () => {
 
 
 
+  // ========== CONFIGURAÇÕES ==========
+
+  const camposObservacao: CampoModal[] = [
+    {
+      tipo: 'textarea',
+      nome: 'observacoes',
+      label: 'Relatório de Aula',
+      placeholder: "",
+      required: true
+    },
+
+  ];
+
+  
 
 
-  // ========== FUNÇÕES AUXILIARES ==========
+  const fecharModal = () => {
+    setShowObsForm(false)
+
+  };
+  const salvarObservacao = async (dados: DadosModal) => {
+
+  console.log('salvo1')
+    if (!aulaSelecionada) return
+
+  console.log('salvo1', aulaSelecionada)
+    setLoading(true)
+    try {
+      const doc = await service.salvarObservacao(dados, aulaSelecionada.id)
+      console.log('salvo', doc)
+    } catch (error) {
+      showError('Falha em salvar: ' + error)
+    } finally {
+      fecharModal()
+      setLoading(false)
+
+    }
+  }
+
+
+
+
 
   const isAulaReposta = (status: StatusAula) => {
     return status === 'REPOSTA';
@@ -344,7 +389,7 @@ export const AgendaPage = () => {
       const aulaDataFormatada = `${yyyy}-${mm}-${dd}`;
 
       if (aulaDataFormatada !== dia) return false;
- if (aula.status === 'REPOSTA') return false;
+      if (aula.status === 'REPOSTA') return false;
       const [aulaHoraStr, aulaMinutoStr] = aula.horarioAula.split(':');
       const aulaHora = parseInt(aulaHoraStr);
       const aulaMinuto = parseInt(aulaMinutoStr);
@@ -463,12 +508,17 @@ export const AgendaPage = () => {
     }
 
     if (aulaExistente) {
+      console.log("chm", aulaExistente)
       setAulaSelecionada(aulaExistente);
       setNovaAula({
         ...aulaExistente,
         dataHora: dia,
         horarioAula: horario,
       });
+      setShowObsForm(true)
+      setObservacoes({
+        observacoes: aulaExistente.observacoes
+      })
     } else {
       setAulaSelecionada(null);
       setNovaAula({
@@ -494,6 +544,7 @@ export const AgendaPage = () => {
   // ========== RENDERIZAÇÃO PRINCIPAL ==========
   return (
     <Layout titulo={` ${isMobile ? 'Agenda' : 'Agenda de Aulas'} - ${isMobile ? '' : 'Professor'} ${getPrimeiroEUltimoNome(professor?.nome ? professor.nome : '')}`}>
+      <LoadingSpinner show={loading} />
       <div className="container">
         <NotificationContainer
           notifications={notifications}
@@ -646,6 +697,7 @@ export const AgendaPage = () => {
                       <div
                         key={`${dia}-${horario}`}
                         onClick={() => {
+
                           handleClicarCelula(dia, horario);
                         }}
                         className={`schedule-cell ${aulaAtiva
@@ -679,7 +731,7 @@ export const AgendaPage = () => {
                           </div>
                         ) : (
                           <div className="add-class">
-                            { selectionMode && <button
+                            {selectionMode && <button
                               className="button is-small is-text"
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -724,17 +776,17 @@ export const AgendaPage = () => {
                             {getPrimeiroEUltimoNome(getAulaNoHorario(diaSelecionadoMobile, horario)!.alunoNome)}
                           </div>
                           <div className={`class-type ${getAulaNoHorario(diaSelecionadoMobile, horario)!.tipoAula === TipoAula.AULA_REGULAR
-                              ? 'is-regular'
-                              : 'is-makeup'
+                            ? 'is-regular'
+                            : 'is-makeup'
                             }`}>
-                           {getAulaNoHorario(diaSelecionadoMobile, horario)!.matricula?.instrumento?.nome} - {converterTipoAulaParaTexto(getAulaNoHorario(diaSelecionadoMobile, horario)!.tipoAula)}
+                            {getAulaNoHorario(diaSelecionadoMobile, horario)!.matricula?.instrumento?.nome} - {converterTipoAulaParaTexto(getAulaNoHorario(diaSelecionadoMobile, horario)!.tipoAula)}
                           </div>
                         </div>
                       ) : (
                         <div className="add-class">
-                         {selectionMode && <button
+                          {selectionMode && <button
                             className="button is-small is-text"
-                            disabled= {!selectionMode}
+                            disabled={!selectionMode}
                             onClick={(e) => {
                               e.stopPropagation();
                               handleClicarCelula(diaSelecionadoMobile, horario);
@@ -1081,6 +1133,15 @@ export const AgendaPage = () => {
  
 `}</style>
 
+      <ModalGenerico
+        isOpen={showObsForm}
+        onClose={() => fecharModal()}
+        dados={observacoes}
+        onSave={salvarObservacao}
+        titulo={'Relatório Prof° ' + professor?.nome}
+        campos={camposObservacao}
+        textoBotaoSalvar="Salvar"
+      />
       <ConfigAgendaModal
         isOpen={modalConfigAberto}
         onClose={() => setModalConfigAberto(false)}

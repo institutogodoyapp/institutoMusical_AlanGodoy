@@ -73,7 +73,7 @@ export const HomeLoja = () => {
             <HomePage
                 title="Loja"
                 isMobile={isMobileView}
-                subtitle="Gerenciamento simplificado para sua Loja"
+                subtitle="Gerenciamento para sua Loja"
                 icon={<FaHome size={56} />}
                 useLayout={true}
                 main=''

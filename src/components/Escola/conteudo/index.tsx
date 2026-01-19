@@ -1,5 +1,5 @@
 import { Layout, useNotifications } from '@/components';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Fragment } from 'react';
 import { useRouter } from 'next/router';
 import { CustomButton } from '@/components'
 import {
@@ -9,6 +9,7 @@ import {
   FaSpinner,
   FaChevronDown,
   FaChevronUp,
+  FaUpload,
   FaList,
   FaBook,
   FaTrash,
@@ -16,6 +17,8 @@ import {
   FaChartLine,
   FaTimes
 } from 'react-icons/fa';
+
+import { formatBytes } from '@/util';
 
 import { Instrumento, InstrumentoTipo } from '@/app/models/escola/instrumentos';
 import { Topico, TopicoCadastro } from '@/app/models/escola/instrumentos/conteudoProgramatico/topico';
@@ -27,11 +30,17 @@ import { getInstrumentoIcon } from '@/util'
 import NotificationContainer from '@/components/common/notificacao/mutiplasNotifacoes';
 import ModalGenerico, { CampoModal, DadosModal } from '@/components/common/modal/modal-generico';
 import { Input } from '@/components/common/input';
-import { FiSave } from 'react-icons/fi';
+import { FiEye, FiFileText, FiMoreVertical, FiSave, FiTrash } from 'react-icons/fi';
+import { useDocsService } from '@/app/services/escola/grade/docs.service';
+import { Documento } from '@/app/models/escola/instrumentos/conteudoProgramatico/documento';
+import { authService } from '@/app/services/api/authSeervice';
+import LoadingSpinner from '@/components/common/loading';
 
 export const GerenciamentoConteudo: React.FC = () => {
   // ========== SERVICES E HOOKS ==========
   const gradeService = useGradeService()
+  const docsService = useDocsService()
+
   const {
     notifications,
     showSuccess,
@@ -48,10 +57,12 @@ export const GerenciamentoConteudo: React.FC = () => {
   const [instrumentos, setInstrumentos] = useState<Instrumento[]>([]);
   const [instrumentoSelecionado, setInstrumentoSelecionado] = useState<Instrumento | null>(null);
   const [conteudoCompleto, setConteudoCompleto] = useState<ConteudoProgramatico | null>(null);
+  const [documento, setDocumento] = useState<Documento | null>(null);
   const [disciplinaParaTopico, setDisciplinaParaTopico] = useState<number | null>(null);
   const [topicoParaEdicao, setTopicoParaEdicao] = useState<number | null>(null);
   const [disciplinaEditando, setDisciplinaEditando] = useState<Disciplina | null>(null);
   const [topicoEditando, setTopicoEditando] = useState<Topico | null>(null);
+  const [expandedTopicoId, setExpandedTopicoId] = useState<number | null>(null);
 
   // ========== ESTADOS DE FORMULÁRIOS ==========
   const [formData, setFormData] = useState<DisciplinaCadastro>({
@@ -61,7 +72,6 @@ export const GerenciamentoConteudo: React.FC = () => {
     ordem: 0,
     instrumentoId: 0
   });
-
   const [formDataTopico, setFormDataTopico] = useState<TopicoCadastro>({
     nome: '',
     descricao: '',
@@ -73,12 +83,23 @@ export const GerenciamentoConteudo: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [loadingConteudo, setLoadingConteudo] = useState(false);
   const [expandedDisciplinas, setExpandedDisciplinas] = useState<number[]>([]);
+  const [expandedTopicos, setExpandedTopicos] = useState<number[]>([]);
   const [activeTab, setActiveTab] = useState<'conteudo' | 'estatisticas'>('conteudo');
+  const [showAddDocForm, setShowAddDocForm] = useState(false)
   const [showDisciplinaForm, setShowDisciplinaForm] = useState(false);
   const [showTopicoForm, setShowTopicoForm] = useState(false);
   const [showEditTopicoForm, setShowEditTopicoForm] = useState<boolean>(false);
   const [showEditDisciplinaForm, setShowEditDisciplinaForm] = useState<boolean>(false);
+
   const [isMobile, setIsMobile] = useState(false);
+  // no topo do componente:
+  const [topicoParaUp, setTopicoParaUp] = useState<number | null>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [documentoAtual, setDocumentoAtual] = useState<Documento | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+
+
 
   // ========== EFEITOS ==========
   useEffect(() => {
@@ -108,6 +129,7 @@ export const GerenciamentoConteudo: React.FC = () => {
     try {
       setLoadingConteudo(true);
       const conteudo = await gradeService.buscarConteudoCompleto(id);
+      console.log("fff", conteudo)
       setConteudoCompleto(conteudo);
     } catch (error) {
       showError("Erro ao buscar conteúdo completo");
@@ -115,6 +137,87 @@ export const GerenciamentoConteudo: React.FC = () => {
       setLoadingConteudo(false);
     }
   };
+
+  const verDocumento = async (doc: Documento) => {
+    try {
+      console.log('Abrindo PDF:', doc.nome, formatBytes(doc.tamanho));
+
+      setLoading(true)
+      const token = authService.getTokens() // seu storage
+      const tokenDefinido = token.refreshToken
+      if (!token) throw new Error('Token não encontrado - faça login');
+      console.log(tokenDefinido)
+      const response = await fetch(
+        `http://localhost:8080/admin/escola-musica/conteudo-programatico/documentos/${doc.id}`,
+        {
+          method: 'GET',
+          headers: {
+            'Authorization': `${tokenDefinido}`,  // ← ADICIONE
+            'Accept': 'application/pdf'  // força binário
+          }
+
+        }
+      );
+
+      if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+
+      const blob = await response.blob();
+      if (blob.size === 0) throw new Error('Blob vazio');
+
+      const url = URL.createObjectURL(blob);
+      // ✅ ABRE NOVA ABA (sem modal!)
+      window.open(url, '_blank', 'noopener,noreferrer');
+
+      // Cleanup após delay (boa prática)
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      setPdfUrl(url);
+      setDocumentoAtual(doc);
+
+    } catch (error) {
+      showError('Erro ao carregar PDF: ' + (error as Error).message);
+      console.error(error);
+    } finally {
+      setLoading(false)
+    }
+  };
+
+  const upload = async (dados: DadosModal) => {
+    console.log('salvo', dados.file, topicoParaUp)
+
+    if (!topicoParaUp) return
+    setLoading(true)
+    try {
+      const doc = await docsService.upload(dados.file, topicoParaUp)
+      console.log('salvo', doc)
+    } catch (error) {
+      showError('Falha no upload: ' + error)
+    } finally {
+      fecharModalAddDoc()
+      setLoading(false)
+      if (!instrumentoSelecionado) return
+      await buscarConteudoInstrumento(instrumentoSelecionado.id);
+
+    }
+  }
+
+  const excluirDocs = async (docId: number) => {
+    if (confirm('Tem certeza que deseja excluir este Arquivo?')) {
+      try {
+        setLoading(true)
+        await docsService.deletarArquivo(docId)
+        showSuccess('Excluído com sucesso!')
+      } catch (err) {
+        showError('Erro ao excluir');
+      } finally {
+        setLoading(false)
+      }
+    }
+
+
+    await buscarConteudoInstrumento(Number(instrumentoSelecionado?.id))
+  }
+
+
 
   const fetchConteudo = async () => {
     try {
@@ -151,6 +254,16 @@ export const GerenciamentoConteudo: React.FC = () => {
     );
   };
 
+  const toggleTopico = (id: number) => {
+    setExpandedTopicos(prev =>
+      prev.includes(id)
+        ? prev.filter(item => item !== id)
+        : [...prev, id]
+    ); // Define o tópico expandido como o único item na lista
+  };
+
+
+
   const abrirModal = (disciplina: Disciplina | null = null) => {
     if (disciplina?.id) {
       setDisciplinaEditando(disciplina)
@@ -178,6 +291,18 @@ export const GerenciamentoConteudo: React.FC = () => {
       disciplinaId: 0,
       ordem: 0,
     });
+  };
+
+  const abrirModalAddDoc = (id: number) => {
+    setShowAddDocForm(true)
+    setTopicoParaUp(id)
+
+  }
+
+  const fecharModalAddDoc = () => {
+    setShowAddDocForm(false)
+
+
   };
 
   const handleAddTopico = (disciplinaId: number) => {
@@ -320,6 +445,15 @@ export const GerenciamentoConteudo: React.FC = () => {
   }
 
   // ========== CONFIGURAÇÕES ==========
+  const camposAddDoc: CampoModal[] = [
+    {
+      tipo: 'file',
+      nome: 'file',
+      label: 'Arquivo (MAX 70MB)',
+      required: true
+    }
+  ];
+
   const camposDisciplina: CampoModal[] = [
     {
       tipo: 'text',
@@ -360,22 +494,6 @@ export const GerenciamentoConteudo: React.FC = () => {
   ];
 
   // ========== RENDERIZAÇÃO DE CARREGAMENTO ==========
-  if (loading) {
-    return (
-      <Layout titulo="Carregando...">
-        <div className="section">
-          <div className="container">
-            <div className="box has-text-centered">
-              <span className="icon is-large">
-                <FaSpinner className="fa-spin" />
-              </span>
-              <p>Carregando instrumentos...</p>
-            </div>
-          </div>
-        </div>
-      </Layout>
-    );
-  }
 
   if (!instrumentoSelecionado) {
     return (
@@ -396,9 +514,13 @@ export const GerenciamentoConteudo: React.FC = () => {
 
   // ========== RENDERIZAÇÃO PRINCIPAL ==========
   return (
+
+  
     <Layout titulo={`Gerenciamento: ${instrumentoSelecionado.nome}`} >
+          <LoadingSpinner show={loading} />
       <section className="section">
         <div className="container">
+        
           <NotificationContainer
             notifications={notifications}
             onRemove={removeNotification}
@@ -547,50 +669,163 @@ export const GerenciamentoConteudo: React.FC = () => {
                             <table className={`table is-fullwidth is-narrow is-hoverable is-striped`}>
                               <thead>
                                 <tr>
-                                  <th className={isMobile ? 'is-size-7' : ''}>Ordem</th>
+                                 {!isMobile && <th className={isMobile ? 'is-size-7' : ''}>Ordem</th>}
                                   <th className={isMobile ? 'is-size-7' : ''}>Nome</th>
+
                                   {!isMobile && <th>Ações</th>}
+
+
                                 </tr>
                               </thead>
                               <tbody>
                                 {disciplina.topicos
                                   .sort((a, b) => (a.ordem || 0) - (b.ordem || 0))
-                                  .map(topico => (
-                                    <tr
-                                      key={topico.id}
-                                      onClick={isMobile ? () => {
-                                        setTopicoEditando(topico);
-                                        setShowEditTopicoForm(true)
-                                      } : undefined}
-                                      className={isMobile ? 'is-clickable' : ''}
-                                    >
-                                      <td className={isMobile ? 'is-size-7' : ''}>{topico.ordem}</td>
-                                      <td className={isMobile ? 'is-size-7' : ''}>{topico.nome}</td>
-                                      {!isMobile && (
-                                        <td>
-                                          <div className="buttons are-small">
-                                            <button
-                                              className="button is-primary-custom has-secundary-custom"
-                                              onClick={() => {
-                                                setTopicoEditando(topico);
-                                                setShowEditTopicoForm(true)
-                                              }}
-                                            >
-                                              <span className="icon">
-                                                <FaEdit size={14} />
-                                              </span>
-                                            </button>
-                                          </div>
-                                        </td>
-                                      )}
-                                    </tr>
-                                  ))}
+                                  .map((topico) => {
+                                    const isOpen = expandedTopicos.includes(topico.id);
+
+                                    return (
+                                      <Fragment key={topico.id}>
+                                        {/* HEADER DO TÓPICO (clicável) */}
+                                        <tr
+                                          onClick={() => toggleTopico(topico.id)}
+                                          className={`is-clickable topico-row ${isOpen ? "is-open" : ""}`}
+                                          role="button"
+                                          tabIndex={0}
+                                          aria-expanded={isOpen}
+                                          onKeyDown={(e) => {
+                                            if (e.key === "Enter" || e.key === " ") {
+                                              e.preventDefault();
+                                              toggleTopico(topico.id);
+                                            }
+                                          }}
+                                        >
+                                         {!isMobile && <td className={isMobile ? 'is-size-7' : ''}>{topico.ordem}</td>}
+
+                                          <td className={isMobile ? 'is-size-7' : ''}>
+                                            <div className="is-flex is-align-items-center is-justify-content-space-between">
+                                              <span>{topico.nome}</span>
+
+
+                                            </div>
+                                          </td>
+
+                                          {!isMobile && (
+                                            <td>
+                                              <div className="buttons are-small">
+                                                <button
+                                                  className="button is-primary-custom has-secundary-custom"
+                                                  onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setTopicoEditando(topico);
+                                                    setShowEditTopicoForm(true);
+                                                  }}
+                                                >
+                                                  <span className="icon">
+                                                    <FaEdit size={14} />
+                                                  </span>
+                                                </button>
+
+                                                {/* IMPORTANTE: colocar stopPropagation aqui,
+                      senão clica no botão e também dispara o onClick do <tr>
+                      (aí ele abre e fecha na mesma hora) */}
+                                                <button
+                                                  className="button is-primary-custom has-secundary-custom"
+                                                  onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    abrirModalAddDoc(topico.id);
+                                                  }}
+                                                >
+                                                  <span className="icon">
+                                                    <FaUpload size={14} />
+                                                  </span>
+                                                </button>
+                                              </div>
+                                            </td>
+                                          )}
+                                        </tr>
+
+                                        {/* ÁREA COLAPSÁVEL (sempre renderizada para animar abrir/fechar) */}
+                                        <tr className="topico-docs-row">
+                                          <td
+                                            colSpan={isMobile ? 2 : 3}
+                                            style={{ padding: 0, borderTop: "none" }}
+                                          >
+                                            <div className={`topico-collapse ${isOpen ? "is-open" : ""}`}>
+                                              <div className="topico-collapse-inner">
+                                                {topico.docs.map((doc) => (
+                                                  <div
+                                                    key={doc.id}
+                                                    className="doc-item"
+                                                    onClick={(e) => {
+                                                      e.stopPropagation();
+                                                      verDocumento(doc);
+                                                    }}
+                                                    role="button"
+                                                    tabIndex={0}
+                                                    onKeyDown={(e) => {
+                                                      if (e.key === "Enter" || e.key === " ") {
+                                                        e.preventDefault();
+                                                        verDocumento(doc);
+                                                      }
+                                                    }}
+                                                  >
+                                                    <div className="doc-name-container mb-2">
+                                                      <span className="icon doc-mini-icon mr-2">
+                                                        <FiFileText size={16} />
+                                                      </span>
+
+                                                      <span className="doc-name is-clipped" title={doc.nome}>
+                                                        {doc.nome}
+                                                      </span>
+                                                      {!isMobile &&
+                                                        <><span className="tag is-light is-rounded mr-7">
+                                                          {formatBytes(doc.tamanho)}
+                                                        </span>
+                                                          <span className="tag is-light  is-rounded">PDF</span>
+                                                          <div className="buttons are-small ml-2" style={{ marginRight: '100px' }}>
+                                                            <button
+                                                              className={`button  is-primary-custom  ${isOpen ? "is-open" : ""}  has-secundary-custom`}
+                                                              onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                excluirDocs(doc.id);
+                                                              }}
+                                                            >
+                                                              <span className="icon doc-mini-icon ">
+                                                                <FiTrash size={14} />
+                                                              </span>
+                                                            </button>
+                                                          </div></>
+                                                      }
+
+                                                    </div>
+
+
+                                                  </div>
+                                                ))}
+                                              </div>
+                                            </div>
+
+
+
+                                          </td>
+
+
+                                        </tr>
+                                      </Fragment>
+                                    );
+                                  })}
                               </tbody>
                             </table>
+
                           </div>
+
                         </div>
+
                       </div>
+
+
                     )}
+
                   </div>
                 ))
               )}
@@ -647,16 +882,16 @@ export const GerenciamentoConteudo: React.FC = () => {
 
       {/* ========== MODAIS ========== */}
 
-      {/* Modal de Adição de Tópico */}
+      {/* Modal de Adição de Disciplina */}
 
       <ModalGenerico
-        isOpen={showDisciplinaForm}
-        onClose={() => fecharModal()}
-        dados={disciplinaEditando}
-        onSave={adicionarDisciplina}
-        titulo={disciplinaEditando?.id ? 'Editar Disciplina' : 'Nova Disciplina'}
-        campos={camposDisciplina}
-        textoBotaoSalvar="Salvar"
+        isOpen={showAddDocForm}
+        onClose={() => fecharModalAddDoc()}
+        dados={selectedFile}
+        onSave={upload}
+        titulo={'Adicionar Arquivo'}
+        campos={camposAddDoc}
+        textoBotaoSalvar="Enviar"
       />
 
       {/* Modal de Adição de Tópico */}
@@ -670,6 +905,35 @@ export const GerenciamentoConteudo: React.FC = () => {
         campos={camposTopico}
         textoBotaoSalvar="Salvar"
       />
+
+
+      {/* Modal de Adição de Disciplina */}
+
+      <ModalGenerico
+        isOpen={showDisciplinaForm}
+        onClose={() => fecharModal()}
+        dados={disciplinaEditando}
+        onSave={adicionarDisciplina}
+        titulo={disciplinaEditando?.id ? 'Editar Disciplina' : 'Nova Disciplina'}
+        campos={camposDisciplina}
+        textoBotaoSalvar="Salvar"
+      />
+
+      {showModal && pdfUrl && (
+        <div className="modal is-active" >
+          <div className="modal-background" onClick={() => setShowModal(false)} />
+          <div className="modal-content" style={{ maxWidth: '800vw', height: '800vh' }}>
+            <iframe
+              src={pdfUrl}
+              width="100%"
+              height="100%"
+              style={{ border: 'none' }}
+              title={documentoAtual?.nome}
+            />
+          </div>
+          <button className="modal-close is-large" onClick={() => setShowModal(false)} />
+        </div>
+      )}
 
       {/* Modal de Edição de Disciplina */}
       {showEditDisciplinaForm && (

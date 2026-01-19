@@ -478,7 +478,7 @@ export const MarcarReposicao: React.FC = () => {
                                         <input
                                             className="input mb-2"
                                             type="text"
-                                            value={`Instrumento: ${aulaOriginal.instrumentoNome}`}
+                                            value={`Instrumento: ${aulaOriginal.matricula?.instrumento?.nome}`}
                                             disabled
                                             readOnly
                                         />

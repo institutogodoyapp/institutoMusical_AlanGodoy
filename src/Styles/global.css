@@ -618,6 +618,158 @@ textarea,
   border-top: 1px solid #f5f5f5;
 } */
 
+.expandable-row {
+  overflow: hidden;
+  transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+  max-height: 0;
+  opacity: 0;
+}
+
+.expandable-row.is-expanded {
+  max-height: 200px;  /* Ajuste conforme conteúdo máximo esperado */
+  opacity: 1;
+}
+
+.expandable-row td {
+  border-top: none;  /* Remove borda superior na expansão */
+  padding: 1rem;    /* Usa Bulma spacing */
+}
+
+
+.doc-item {
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.doc-item:hover {
+  background-color: #f0f0f0; /* Cor de fundo ao passar o mouse (ajuste conforme necessário) */
+  transform: scale(1.02); /* Efeito de leve aumento ao passar o mouse */
+}
+
+.doc-name-container {
+   display: flex;
+  align-items: center; 
+
+  
+}
+
+.doc-name-container:hover .doc-name {
+  color: #A33100; /* Cor para o nome do arquivo ao passar o mouse (ajuste conforme necessário) */
+}
+
+.doc-name-container:hover .doc-mini-icon {
+  color: #A33100; 
+}
+
+.topico-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 200ms ease, transform 120ms ease;
+}
+
+.topico-header:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.topico-header.is-open {
+  background-color: rgba(0, 0, 0, 0.06);
+}
+
+.topico-chevron {
+  display: inline-flex;
+  transition: transform 250ms ease;
+}
+
+.topico-chevron.rotated {
+  transform: rotate(180deg);
+}
+
+/* sanfona */
+.topico-collapse {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: max-height 280ms ease, opacity 200ms ease, transform 200ms ease;
+}
+
+.topico-collapse.is-open {
+    overflow: hidden;
+  /* Ajuste esse valor para algo que cubra a altura máxima esperada */
+  max-height: 1900px;
+  opacity: 1;
+  transform: translateY(0);
+  transition: max-height 480ms ease, opacity 400ms ease, transform 400ms ease;
+}
+
+/* um respiro interno para o conteúdo não "grudar" */
+.topico-collapse-inner {
+  padding: 8px 6px 10px;
+}
 
 
 
+.has-flex-centered {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+}
+
+.fa-fw {
+  width: 1.25em;
+}
+
+
+.lds-hourglass,
+.lds-hourglass:after {
+  box-sizing: border-box;
+}
+
+.lds-hourglass {
+  display: inline-block;
+  position: relative;
+  width: 80px;
+  height: 80px;
+  color: #777474; /* Azul Bulma */
+}
+
+.lds-hourglass:after {
+  content: " ";
+  display: block;
+  border-radius: 50%;
+  width: 0;
+  height: 0;
+  margin: 8px;
+  box-sizing: border-box;
+  border: 32px solid currentColor;
+  border-color: currentColor transparent currentColor transparent;
+  animation: lds-hourglass 1.2s infinite;
+}
+
+@keyframes lds-hourglass {
+  0% {
+    transform: rotate(0deg);
+    animation-timing-function: cubic-bezier(0.55, 0.055, 0.675, 0.19);
+  }
+  50% {
+    transform: rotate(900deg);
+    animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+  }
+  100% {
+    transform: rotate(1800deg);
+  }
+}
+
+.doc-name-container .buttons {
+  opacity: 0;
+  pointer-events: none; /* opcional, para não clicar enquanto escondido */
+  transition: opacity 0.2s ease;
+}
+
+.doc-name-container:hover .buttons {
+  opacity: 1;
+  pointer-events: auto;
+}

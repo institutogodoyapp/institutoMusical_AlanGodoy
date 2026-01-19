@@ -36,6 +36,7 @@ export interface ProgressoAluno {
   disciplinas: DisciplinaProgresso[];
   instrumentoNome: String;
   instrumento: Instrumento;
+  instrumentoTipo: string;
   instrumentoId: number;
   percentualConclusao: number;
   status?: StatusProgresso;
