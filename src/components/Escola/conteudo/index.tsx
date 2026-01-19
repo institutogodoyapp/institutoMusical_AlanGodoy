@@ -146,9 +146,9 @@ export const GerenciamentoConteudo: React.FC = () => {
       const token = authService.getTokens() // seu storage
       const tokenDefinido = token.refreshToken
       if (!token) throw new Error('Token não encontrado - faça login');
-
+      const urlProd = "https://studio-godoy-app-production.up.railway.app"
       const response = await fetch(
-        `http://localhost:8080/admin/escola-musica/conteudo-programatico/documentos/${doc.id}`,
+        `${urlProd}/admin/escola-musica/conteudo-programatico/documentos/${doc.id}`,
         {
           method: 'GET',
           headers: {
@@ -182,13 +182,13 @@ export const GerenciamentoConteudo: React.FC = () => {
   };
 
   const upload = async (dados: DadosModal) => {
-    
+
 
     if (!topicoParaUp) return
     setLoading(true)
     try {
       const doc = await docsService.upload(dados.file, topicoParaUp)
-     showSuccess('Sucesso!')
+      showSuccess('Sucesso!')
     } catch (error) {
       showError('Falha no upload: ' + error)
     } finally {
@@ -515,12 +515,12 @@ export const GerenciamentoConteudo: React.FC = () => {
   // ========== RENDERIZAÇÃO PRINCIPAL ==========
   return (
 
-  
+
     <Layout titulo={`Gerenciamento: ${instrumentoSelecionado.nome}`} >
-          <LoadingSpinner show={loading} />
+      <LoadingSpinner show={loading} />
       <section className="section">
         <div className="container">
-        
+
           <NotificationContainer
             notifications={notifications}
             onRemove={removeNotification}
@@ -669,7 +669,7 @@ export const GerenciamentoConteudo: React.FC = () => {
                             <table className={`table is-fullwidth is-narrow is-hoverable is-striped`}>
                               <thead>
                                 <tr>
-                                 {!isMobile && <th className={isMobile ? 'is-size-7' : ''}>Ordem</th>}
+                                  {!isMobile && <th className={isMobile ? 'is-size-7' : ''}>Ordem</th>}
                                   <th className={isMobile ? 'is-size-7' : ''}>Nome</th>
 
                                   {!isMobile && <th>Ações</th>}
@@ -699,7 +699,7 @@ export const GerenciamentoConteudo: React.FC = () => {
                                             }
                                           }}
                                         >
-                                         {!isMobile && <td className={isMobile ? 'is-size-7' : ''}>{topico.ordem}</td>}
+                                          {!isMobile && <td className={isMobile ? 'is-size-7' : ''}>{topico.ordem}</td>}
 
                                           <td className={isMobile ? 'is-size-7' : ''}>
                                             <div className="is-flex is-align-items-center is-justify-content-space-between">
