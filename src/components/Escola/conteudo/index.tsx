@@ -188,7 +188,7 @@ export const GerenciamentoConteudo: React.FC = () => {
     setLoading(true)
     try {
       const doc = await docsService.upload(dados.file, topicoParaUp)
-    
+     showSuccess('Sucesso!')
     } catch (error) {
       showError('Falha no upload: ' + error)
     } finally {
