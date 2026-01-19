@@ -123,7 +123,7 @@ const atualizarStatusTopico = async (topicoId: number, novoStatus: StatusTopico)
 
   const atualizarProgresso = (disciplinas: DisciplinaProgresso[]) => {
 
-        console.log("progresso mudou:", progresso);
+
     const disciplinasAtualizadas = disciplinas.map(d => {
       const totalTopicos = d.topicos.length;
       const concluidos = d.topicos.filter(t => t.status === StatusTopico.TOPICO_CONCLUIDO).length;
@@ -163,7 +163,7 @@ const atualizarStatusTopico = async (topicoId: number, novoStatus: StatusTopico)
     (p) => p.instrumentoId === activeTab
   );
 
-  console.log(progressoAtivo)
+
 
   const getInstrumentoIcon = (tipo: string) => {
     switch (tipo) {

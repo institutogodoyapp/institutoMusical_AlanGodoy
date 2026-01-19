@@ -7,6 +7,7 @@ import { Documento } from "@/app/models/escola/instrumentos/conteudoProgramatico
 import { authService } from "../../api/authSeervice";
 
 const resourceURL: string = '/admin/escola-musica/conteudo-programatico';
+const url = process.env.NEXT_PUBLIC_INSTITUTOMUSICAL_GODOY_APP
 
 export const useDocsService = () => {
 
@@ -29,10 +30,10 @@ export const useDocsService = () => {
         const token = authService.getTokens() // seu storage
         const tokenDefinido = token.refreshToken
         if (!token) throw new Error('Token não encontrado - faça login');
-        console.log("service", tokenDefinido)
+       
 
         const response = await fetch(
-            `http://localhost:8080${resourceURL}/topicos/${topicoId}/documentos`,
+            `${url}${resourceURL}/topicos/${topicoId}/documentos`,
             {
                 method: 'POST',
                 body: formData,

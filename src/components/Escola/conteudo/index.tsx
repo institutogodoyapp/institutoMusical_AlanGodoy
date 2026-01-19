@@ -129,7 +129,7 @@ export const GerenciamentoConteudo: React.FC = () => {
     try {
       setLoadingConteudo(true);
       const conteudo = await gradeService.buscarConteudoCompleto(id);
-      console.log("fff", conteudo)
+
       setConteudoCompleto(conteudo);
     } catch (error) {
       showError("Erro ao buscar conteúdo completo");
@@ -140,13 +140,13 @@ export const GerenciamentoConteudo: React.FC = () => {
 
   const verDocumento = async (doc: Documento) => {
     try {
-      console.log('Abrindo PDF:', doc.nome, formatBytes(doc.tamanho));
+
 
       setLoading(true)
       const token = authService.getTokens() // seu storage
       const tokenDefinido = token.refreshToken
       if (!token) throw new Error('Token não encontrado - faça login');
-      console.log(tokenDefinido)
+
       const response = await fetch(
         `http://localhost:8080/admin/escola-musica/conteudo-programatico/documentos/${doc.id}`,
         {
@@ -182,13 +182,13 @@ export const GerenciamentoConteudo: React.FC = () => {
   };
 
   const upload = async (dados: DadosModal) => {
-    console.log('salvo', dados.file, topicoParaUp)
+    
 
     if (!topicoParaUp) return
     setLoading(true)
     try {
       const doc = await docsService.upload(dados.file, topicoParaUp)
-      console.log('salvo', doc)
+    
     } catch (error) {
       showError('Falha no upload: ' + error)
     } finally {

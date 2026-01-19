@@ -290,14 +290,14 @@ export const AgendaPage = () => {
   };
   const salvarObservacao = async (dados: DadosModal) => {
 
-  console.log('salvo1')
+
     if (!aulaSelecionada) return
 
-  console.log('salvo1', aulaSelecionada)
+
     setLoading(true)
     try {
       const doc = await service.salvarObservacao(dados, aulaSelecionada.id)
-      console.log('salvo', doc)
+     
     } catch (error) {
       showError('Falha em salvar: ' + error)
     } finally {
@@ -508,7 +508,7 @@ export const AgendaPage = () => {
     }
 
     if (aulaExistente) {
-      console.log("chm", aulaExistente)
+
       setAulaSelecionada(aulaExistente);
       setNovaAula({
         ...aulaExistente,

@@ -271,7 +271,7 @@ export const GerenciamentoAlunos: React.FC = () => {
 
   const matricularAluno = async (dados: DadosModal) => {
     
-      console.log("dados" + dados.dataMatricula)
+   
     try {
       const dadostypes = {
         ...dados,
@@ -287,7 +287,7 @@ export const GerenciamentoAlunos: React.FC = () => {
 
       
 
-      console.log("dados" + dadostypes.dataMatricula)
+     
 
     const aluno = alunos.find(a => a.id === dadostypes.alunoId)
     const instrumento = aluno?.instrumentos

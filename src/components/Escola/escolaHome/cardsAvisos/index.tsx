@@ -103,7 +103,7 @@ export const CardsAvisos: React.FC<CardsAvisosProps> = ({
             })
             .slice(0, 3);
 
-            console.log(aulasOrdenadas)
+
         setAulasAgendadas(aulasOrdenadas);
       } catch (error) {
         showError(`Erro ao buscar os dados: ${error}`);

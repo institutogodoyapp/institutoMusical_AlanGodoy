@@ -81,7 +81,7 @@ export const ModalGenerico: React.FC<ModalGenericoProps> = ({
   };
 
   const handleInputChange = (nomeCampo: string, valor: any) => {
-      console.log('campo'+ nomeCampo, 'valor' + valor)
+  
       if(nomeCampo === 'professorId'){
       const id = Number(valor)
       if(!instrumentosPorProfessor) return

@@ -104,7 +104,7 @@ export const GerenciamentoMensalidades: React.FC<MensalidadesTabProps> = () => {
     }
    
     const responseMensalidades: Mensalidades[] = await mensalidadeService.listarMensalidadePorAluno(alunoSelecionado?.id)
-    console.log(responseMensalidades)
+
     
     setMensalidades(responseMensalidades)
   };
