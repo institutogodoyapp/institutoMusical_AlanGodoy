@@ -503,7 +503,7 @@ export const GerenciamentoConteudo: React.FC = () => {
           <div className="section">
             <div className="container">
               <div className="box has-text-centered">
-                <p>Nenhum instrumento selecionado.</p>
+               <LoadingSpinner show={true}/>
               </div>
             </div>
           </div>
