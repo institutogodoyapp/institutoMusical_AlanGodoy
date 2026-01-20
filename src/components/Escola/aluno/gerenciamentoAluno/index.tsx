@@ -34,6 +34,7 @@ export const GerenciamentoAlunos: React.FC = () => {
   const [alunos, setAlunos] = useState<Aluno[]>([]);
   const [alunosExpandidos, setAlunosExpandidos] = useState<Set<number>>(new Set());
   const [loading, setLoading] = useState<boolean>(true);
+  const [isMobile, setIsMobile] = useState<boolean>(true);
   const [modalAberto, setModalAberto] = useState<boolean>(false);
   const [professores, setProfessores] = useState<Professor[]>([])
   const [instrumentos, setInstrumentos] = useState<Instrumento[]>([])
@@ -54,6 +55,16 @@ export const GerenciamentoAlunos: React.FC = () => {
   const [ordem, setOrdem] = useState<{ campo: keyof Aluno; direcao: 'asc' | 'desc' }>({ campo: 'nome', direcao: 'asc' });
 
   // ========== EFEITOS ==========
+   useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
   useEffect(() => {
 
     carregarAlunos();
@@ -537,7 +548,7 @@ return (
               )) : (
                 <tr>
                   <td colSpan={7} className="has-text-centered">
-                    <div className="notification is-light">Nenhum aluno encontrado com os filtros atuais</div>
+                    {!loading && <div className="notification is-light">Nenhum aluno encontrado com os filtros atuais</div>}
                   </td>
                 </tr>
               )}
@@ -595,9 +606,9 @@ return (
             />
           ) : (
             <div className="column is-12">
-              <div className="notification is-light">
+             {isMobile && <div className="notification is-light">
                 Nenhum Aluno encontrado
-              </div>
+              </div>}
             </div>
           )}
 

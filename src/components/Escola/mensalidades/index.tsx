@@ -11,15 +11,20 @@ import {
   FaUser,
   FaFilter,
   FaTimes,
-  FaArrowLeft
+  FaArrowLeft,
+  FaChartLine,
+  FaFileInvoice,
+  FaHistory
 } from 'react-icons/fa';
 import { Aluno } from '@/app/models/escola/aluno'
-import { Mensalidades, Config } from '@/app/models/escola/financeiro/mensalidade'
+import { Mensalidades, Config, MensalidadesHistorico } from '@/app/models/escola/financeiro/mensalidade'
 import { useAlunoService } from '@/app/services';
 import { useMensalidadeService } from '@/app/services/escola/finanças/mensalidade.service';
 import { useRouter } from 'next/router';
 import NotificationContainer from '@/components/common/notificacao/mutiplasNotifacoes';
 import LoadingSpinner from '@/components/common/loading';
+import { FiTrendingDown, FiTrendingUp } from 'react-icons/fi';
+import { set } from 'date-fns';
 
 // type Aluno = {
 //   id: number;
@@ -51,17 +56,18 @@ interface MensalidadesTabProps { }
 export const GerenciamentoMensalidades: React.FC<MensalidadesTabProps> = () => {
   // ========== SERVICES E HOOKS ==========
   const router = useRouter();
-    const {
-      notifications,
-      showSuccess,
-      showError,
-      removeNotification
-    } = useNotifications();
+  const {
+    notifications,
+    showSuccess,
+    showError,
+    removeNotification
+  } = useNotifications();
   const alunoService = useAlunoService()
   const mensalidadeService = useMensalidadeService()
 
   // ========== ESTADOS DE DADOS ==========
   const [mensalidades, setMensalidades] = useState<Mensalidades[]>([]);
+  const [mensalidadesHistórico, setMensalidadesHistorico] = useState<MensalidadesHistorico[]>([]);
   const [alunos, setAlunos] = useState<Aluno[]>([]);
   const [mensalidadesEmAberto, setMensalidadesEmAberto] = useState<Mensalidades[]>([])
   const [alunoSelecionado, setAlunoSelecionado] = useState<Aluno | null>(null);
@@ -70,6 +76,7 @@ export const GerenciamentoMensalidades: React.FC<MensalidadesTabProps> = () => {
   const [periodoInicio, setPeriodoInicio] = useState<string>('');
   const [periodoFim, setPeriodoFim] = useState<string>('');
   const [buscaAluno, setBuscaAluno] = useState<string>('');
+  const [activeTab, setActiveTab] = useState<'Abertas' | 'Histórico'>('Abertas')
 
   // ========== ESTADOS DE UI ==========
   const [loading, setLoading] = useState(true);
@@ -87,12 +94,12 @@ export const GerenciamentoMensalidades: React.FC<MensalidadesTabProps> = () => {
 
       const responseAlunos: Aluno[] = await alunoService.getAlunos()
       const mensalidades: Mensalidades[] = await mensalidadeService.listarMensalidadesAberto();
-      
-  
+
+
       setMensalidadesEmAberto(mensalidades)
       setAlunos(responseAlunos);
     } catch (error) {
-       showError(`Erro ao buscar os dados: ${error}`);
+      showError(`Erro ao buscar os dados: ${error}`);
     } finally {
       setLoading(false);
     }
@@ -100,14 +107,28 @@ export const GerenciamentoMensalidades: React.FC<MensalidadesTabProps> = () => {
 
   // ========== FUNÇÕES DE FILTRO E BUSCA ==========
   const handleBuscarPorPeriodo = async () => {
+  
     if (alunoSelecionado?.id == null) {
       return
     }
-   
+setLoading(true)
     const responseMensalidades: Mensalidades[] = await mensalidadeService.listarMensalidadePorAluno(alunoSelecionado?.id)
 
-    
+    console.log(responseMensalidades)
     setMensalidades(responseMensalidades)
+    setLoading(false)
+  };
+
+  const handleBuscarPorPeriodoHistorico = async () => {
+    console.log("chamei1")
+    if (alunoSelecionado?.id == null) {
+      return
+    }
+    console.log("chamei")
+    const responseMensalidades: MensalidadesHistorico[] = await mensalidadeService.listarMensalidade(alunoSelecionado?.id)
+
+    console.log(responseMensalidades)
+    setMensalidadesHistorico(responseMensalidades)
   };
 
   const handleSelecionarAluno = async (aluno: Aluno) => {
@@ -125,10 +146,13 @@ export const GerenciamentoMensalidades: React.FC<MensalidadesTabProps> = () => {
   // ========== FUNÇÕES DE MANIPULAÇÃO DE MENSALIDADES ==========
   const handleMarcarComoPaga = async (mensalidadeId: number) => {
     if (confirm("Confirmar pagamento desta mensalidade?")) {
+      setLoading(true)
       await mensalidadeService.marcarPaga(mensalidadeId)
     }
+    
     await fetchData()
     await handleBuscarPorPeriodo()
+    setLoading(false)
   };
 
   // ========== CÁLCULOS E DERIVAÇÕES ==========
@@ -146,24 +170,28 @@ export const GerenciamentoMensalidades: React.FC<MensalidadesTabProps> = () => {
     : [];
 
   // ========== RENDERIZAÇÃO DE CARREGAMENTO ==========
-   if (loading) {
-        return (
-            <div className="section">
-                <div className="container">
-                           <LoadingSpinner show = {loading}/>
-                </div>
-            </div>
-        );
-    }
+  if (loading) {
+    return (
+      <div className="section">
+        <div className="container">
+          <LoadingSpinner show={loading} />
+        </div>
+      </div>
+    );
+  }
 
   // ========== RENDERIZAÇÃO PRINCIPAL ==========
   return (
     <section className="section">
-      <div className="container">
-            <NotificationContainer
-                notifications={notifications}
-                onRemove={removeNotification}
-            />
+    
+      {activeTab == 'Abertas' ? <div className="container">
+
+        <NotificationContainer
+          notifications={notifications}
+          onRemove={removeNotification}
+        />
+
+
         {/* Botão de Filtros para Mobile */}
         <div className="is-hidden-tablet mb-4">
           <button
@@ -181,7 +209,7 @@ export const GerenciamentoMensalidades: React.FC<MensalidadesTabProps> = () => {
         <div className={`box ${!showFilters && 'is-hidden-mobile'} `} style={{ boxShadow: 'none', margin: '0 0 0 0', padding: '0px' }}>
           <div className="level is-mobile">
             <div className="level-left">
-              <h2 className="title is-5">Mensalidades</h2>
+             
             </div>
             <div className="level-right is-hidden-tablet">
               <button
@@ -243,7 +271,7 @@ export const GerenciamentoMensalidades: React.FC<MensalidadesTabProps> = () => {
         )}
 
         {/* Lista de Mensalidades */}
-        <div className="box" style={{marginTop: '40px',  boxShadow: 'none'}}>
+        <div className="box" style={{ marginTop: '40px', boxShadow: 'none' }}>
           <div className="level is-mobile">
             <div className="level-left">
               <h2 className="title is-5">
@@ -262,19 +290,13 @@ export const GerenciamentoMensalidades: React.FC<MensalidadesTabProps> = () => {
 
           {/* Conteúdo das Mensalidades */}
           {alunoSelecionado ? (
-            // Mensalidades Filtradas por Aluno
-            mensalidadesFiltradas.length === 0 ? (
-              <div className="has-text-centered py-6">
-                <p>Nenhuma mensalidade encontrada para este aluno.</p>
-              </div>
-            ) : (
               <div className="table-container">
                 {/* Tabela para Desktop */}
                 <table className="table is-fullwidth is-striped is-hoverable is-hidden-mobile">
                   <thead>
                     <tr>
                       <th>Aluno</th>
-                      <th>Instrumento</th>
+              
                       <th>Valor</th>
                       <th>Vencimento</th>
                       <th>Pagamento</th>
@@ -286,7 +308,7 @@ export const GerenciamentoMensalidades: React.FC<MensalidadesTabProps> = () => {
                     {mensalidadesFiltradas.map(mensalidade => (
                       <tr key={mensalidade.id}>
                         <td>{mensalidade.alunoNome}</td>
-                        <td>{mensalidade.instrumentoNome}</td>
+                    
                         <td>R$ {mensalidade.valor.toFixed(2)}</td>
                         <td>{mensalidade.dataVencimento}</td>
                         <td>{mensalidade.dataPagamento}</td>
@@ -324,7 +346,7 @@ export const GerenciamentoMensalidades: React.FC<MensalidadesTabProps> = () => {
                         <div className="media">
                           <div className="media-content">
                             <p className="title is-6">{mensalidade.alunoNome}</p>
-                            <p className="subtitle is-7">{mensalidade.instrumentoNome}</p>
+                           
                           </div>
                         </div>
                         <div className="content">
@@ -371,7 +393,7 @@ export const GerenciamentoMensalidades: React.FC<MensalidadesTabProps> = () => {
                 </div>
               </div>
             )
-          ) : (
+           : (
             // Mensalidades em Aberto
             mensalidadesEmAberto.length === 0 ? (
               <div className="has-text-centered py-6">
@@ -384,7 +406,7 @@ export const GerenciamentoMensalidades: React.FC<MensalidadesTabProps> = () => {
                   <thead>
                     <tr>
                       <th>Aluno</th>
-                      <th>Instrumento</th>
+                   
                       <th>Valor</th>
                       <th>Vencimento</th>
                       <th>Pagamento</th>
@@ -396,7 +418,7 @@ export const GerenciamentoMensalidades: React.FC<MensalidadesTabProps> = () => {
                     {mensalidadesEmAberto.map(mensalidade => (
                       <tr key={mensalidade.id}>
                         <td>{mensalidade.alunoNome}</td>
-                        <td>{mensalidade.instrumentoNome}</td>
+                     
                         <td>R$ {mensalidade.valor.toFixed(2)}</td>
                         <td>{mensalidade.dataVencimento}</td>
                         <td>{mensalidade.dataPagamento}</td>
@@ -429,12 +451,12 @@ export const GerenciamentoMensalidades: React.FC<MensalidadesTabProps> = () => {
                 {/* Cards para Mobile */}
                 <div className="is-hidden-tablet" >
                   {mensalidadesEmAberto.map(mensalidade => (
-                    <div key={mensalidade.id} className="card"style={{padding: '.2rem', marginBottom: '30px'}}>
+                    <div key={mensalidade.id} className="card" style={{ padding: '.2rem', marginBottom: '30px' }}>
                       <div className="card-content">
                         <div className="media">
                           <div className="" >
                             <p className="title is-6">{mensalidade.alunoNome}</p>
-                            <p className="subtitle is-7">{mensalidade.instrumentoNome}</p>
+                          
                           </div>
                         </div>
                         <div className="content">
@@ -483,7 +505,8 @@ export const GerenciamentoMensalidades: React.FC<MensalidadesTabProps> = () => {
             )
           )}
         </div>
-      </div>
-    </section>
+      </div> : ('')
+      }
+    </section >
   )
 };

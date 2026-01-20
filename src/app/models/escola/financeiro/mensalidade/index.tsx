@@ -28,17 +28,34 @@ export interface Mensalidades {
     status: StatusMensalidade; // Corrigido o nome (sem camelCase)
     historicoStatus?: StatusMensalidadeHistorico[]; // Array opcional
 }
+export interface MensalidadesHistorico {
+    dataModificacao: string;
+    mensalidade: Mensalidades
+    alunoId: number;
+    alunoNome:string;
+    ativo:boolean
+    dataPagamento: string;
+    dataUltimaAtualizacao: string
+    dataVencimento:string
+    instrumentoNome:string
+    status: StatusMensalidade
+    statusMensalidade: StatusMensalidade
+    valor: number
+    statusAnterior: StatusMensalidade
+    statusNovo: StatusMensalidade
+
+}
 
 export interface Config {
     valorMensalidade: number;
-  diaVencimento: number;
+    diaVencimento: number;
     ultimaAtualizacao?: string;
 }
 
 
 export interface ConfigPost {
     valorMensalidade: number;
-  diaVencimento: number;
+    diaVencimento: number;
 
 }
 

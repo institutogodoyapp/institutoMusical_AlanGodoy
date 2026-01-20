@@ -41,6 +41,7 @@ export const AgendaPage = () => {
   const [professor, setProfessor] = useState<Professor>()
   const [reposicao, setReposicao] = useState<Reposicao[]>([]);
   const [loading, setLoading] = useState(true);
+  const [agendaLoad, setAgendaLoad] = useState(false)
   const [loadingConfig, setLoadingConfig] = useState(true);
 
 
@@ -130,7 +131,7 @@ export const AgendaPage = () => {
         } else {
           professorIdNovo = professorId
         }
-        setLoading(true);
+        setAgendaLoad(true);
         const responseProf = await profService.getProfessor(professorIdNovo)
         setProfessor(responseProf)
 
@@ -154,7 +155,7 @@ export const AgendaPage = () => {
       } catch (error) {
         showError('Erro ao buscar88 aulas');
       } finally {
-        setLoading(false);
+        setAgendaLoad(false);
       }
     };
     fetchReposicoes();
@@ -171,7 +172,7 @@ export const AgendaPage = () => {
         } else {
           professorIdNovo = professorId
         }
-        setLoading(true);
+        // setLoading(true);
         const response = await service.getAulasPorProfessor(professorIdNovo, dataInicio, dataFim);
         const aulasFormatadas = Array.isArray(response)
           ? response.map((aula) => ({
@@ -281,7 +282,7 @@ export const AgendaPage = () => {
 
   ];
 
-  
+
 
 
   const fecharModal = () => {
@@ -297,7 +298,7 @@ export const AgendaPage = () => {
     setLoading(true)
     try {
       const doc = await service.salvarObservacao(dados, aulaSelecionada.id)
-     
+
     } catch (error) {
       showError('Falha em salvar: ' + error)
     } finally {
@@ -540,19 +541,19 @@ export const AgendaPage = () => {
   const diasFiltrados = dias;
 
 
-   if (loading) {
-        return (
-            <div className="section">
-                <div className="container">
-                           <LoadingSpinner show = {loading}/>
-                </div>
-            </div>
-        );
-    }
+  if (loading) {
+    return (
+      <div className="section">
+        <div className="container">
+          <LoadingSpinner show={loading} />
+        </div>
+      </div>
+    );
+  }
   // ========== RENDERIZAÇÃO PRINCIPAL ==========
   return (
     <Layout titulo={` ${isMobile ? 'Agenda' : 'Agenda de Aulas'} - ${isMobile ? '' : 'Professor'} ${getPrimeiroEUltimoNome(professor?.nome ? professor.nome : '')}`}>
-     
+
       <div className="container">
         <NotificationContainer
           notifications={notifications}
@@ -701,6 +702,10 @@ export const AgendaPage = () => {
                   ? diasFiltrados.map((dia) => {
                     const aulaAtiva = getAulaNoHorario(dia, horario);
                     const aulaReposta = getReposicaoNoHorario(dia, horario);
+
+
+
+
                     return (
                       <div
                         key={`${dia}-${horario}`}
@@ -720,6 +725,7 @@ export const AgendaPage = () => {
                         {/* Cabeçalho da aula reposta, se existir */}
                         {aulaReposta && (
                           <div className="reposta-info-header">
+          
                             <div className="class-student-minimal">{getPrimeiroEUltimoNome(aulaReposta.alunoNome)}</div>
                             <div className="class-status-minimal is-reposta">Reposta</div>
                           </div>
@@ -728,6 +734,7 @@ export const AgendaPage = () => {
                         {/* Conteúdo da aula ativa ou botão de adicionar */}
                         {aulaAtiva ? (
                           <div className="class-info">
+                         
                             <div className="class-student">{getPrimeiroEUltimoNome(aulaAtiva.alunoNome)}</div>
 
                             <div className={`class-type ${aulaAtiva.tipoAula === TipoAula.AULA_REGULAR
@@ -751,6 +758,8 @@ export const AgendaPage = () => {
 
                           </div>
                         )}
+
+
                       </div>
                     );
                   })
@@ -809,7 +818,7 @@ export const AgendaPage = () => {
               </div>
             ))}
           </div>
-        </div>
+        </div>)
 
         {/* Legenda */}
         <div className="box mt-5" style={{ boxShadow: 'none', border: '1px solid #dbdbdb' }}>

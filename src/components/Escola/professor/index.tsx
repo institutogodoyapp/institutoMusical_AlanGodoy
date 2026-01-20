@@ -125,12 +125,15 @@ export const GerenciamentoProfessores: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      setLoading(true)
       if (professorEditando?.id) {
         await serviceProfessor.atualizarProfessor(professorEditando.id, formData);
         showSuccess("Professor atualizado com sucesso!");
+        setLoading(false)
       } else {
         await serviceProfessor.cadastrarProfessor(formData);
         showSuccess("Professor criado com sucesso!");
+        setLoading(false)
       }
 
       setProfessorEditando(null);
@@ -147,9 +150,12 @@ export const GerenciamentoProfessores: React.FC = () => {
       if (!prof.alunos) return
       if (prof.alunos.length === 0) {
         try {
+          setLoading(true)
           if (!prof.id) return
           await serviceProfessor.exluirProfessor(prof.id);
+           setLoading(false)
           showSuccess("Professor excluído com sucesso!");
+          
           await fetchData();
         } catch (err) {
           showError('Erro ao excluir professor');

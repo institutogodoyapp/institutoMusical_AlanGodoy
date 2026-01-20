@@ -1,6 +1,6 @@
 import { httpClient } from "@/app/http";
 
-import { Mensalidades, Config, ConfigPost, StatusMensalidade } from "@/app/models/escola/financeiro/mensalidade";
+import { Mensalidades, Config, ConfigPost, StatusMensalidade, MensalidadesHistorico } from "@/app/models/escola/financeiro/mensalidade";
 import { AxiosResponse } from "axios";
 
 const resourceURL: string = '/admin/escola-musica/'
@@ -13,6 +13,12 @@ export const useMensalidadeService = () => {
 
     const listarMensalidadePorAluno = async (alunoId: number): Promise<Mensalidades[]> => {
         const response: AxiosResponse<Mensalidades[]> = await httpClient.get<Mensalidades[]>(`${resourceURL}mensalidade/${alunoId}`);
+        return response.data;
+    };
+
+    const listarMensalidade = async (mensalidadeId: number): Promise<MensalidadesHistorico[]> => {
+        const response: AxiosResponse<MensalidadesHistorico[]> = await httpClient.get<MensalidadesHistorico[]>(`${resourceURL}mensalidade/${mensalidadeId}/periodo`
+        );
         return response.data;
     };
 
@@ -52,7 +58,7 @@ export const useMensalidadeService = () => {
         listarMensalidadePorAluno,
         listarMensalidadesAberto,
         marcarPaga,
-
+        listarMensalidade,
         getConfig,
         postConfig
     };

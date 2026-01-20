@@ -29,15 +29,10 @@ import { format, parse } from 'date-fns';
 import { CategoriaDespesaCadastro, Despesas, DespesasCadastro, CategoriaDespesa } from '@/app/models/escola/financeiro/Despesas';
 import { ResumoFinanceiro } from '@/app/models/escola/financeiro';
 import { useFinancasService } from '@/app/services/escola/finanças/index.service';
-import { useRouter } from 'next/router';
-import useAuth from '@/app/services/api/useAuth';
-import ProtectedRoute from '@/components/common/Auth/protectedRotes';
-import { MdPayment } from 'react-icons/md';
-import { ConfiguraçãoGlobal } from '../mensalidades/confiGlobal';
+
 import { useNotifications } from '@/components/common/notificacao/hookNotify/usoSimples';
 import NotificationContainer from '@/components/common/notificacao/mutiplasNotifacoes';
 import ModalGenerico, { CampoModal, DadosModal } from '@/components/common/modal/modal-generico';
-import CardList from '@/components/common/tableMobile';
 import { CategoriasContent, DashboardContent, DespesasContent } from '@/components/common';
 import LoadingSpinner from '@/components/common/loading';
 
@@ -398,7 +393,7 @@ export const ControleFinanceiro: React.FC = () => {
               </li>
               <li className={activeTab === 'mensalidades' ? 'is-active' : ''}>
                 <a onClick={() => setActiveTab('mensalidades')}>
-                  <span className="icon is-small"><FiTrendingUp /></span>
+                  <span className="icon is-small"><FaMoneyBillWave  /></span>
                   <span>Mensalidades</span>
                 </a>
               </li>
@@ -414,12 +409,7 @@ export const ControleFinanceiro: React.FC = () => {
                   <span>Categorias</span>
                 </a>
               </li>
-              <li className={activeTab === 'configuracoes' ? 'is-active' : ''}>
-                <a onClick={() => setActiveTab('configuracoes')}>
-                  <span className="icon is-small"><FaCog /></span>
-                  <span>Definiçoes Globais</span>
-                </a>
-              </li>
+             
             </ul>
           </div>
 
@@ -457,10 +447,8 @@ export const ControleFinanceiro: React.FC = () => {
               abrirModalCategoria={abrirModalCategoria}
               handleDeleteCategoria={handleDeleteCategoria}
             />
-          ) : activeTab === 'mensalidades' ? (
-            <GerenciamentoMensalidades />
           ) : (
-            <ConfiguraçãoGlobal />
+            <GerenciamentoMensalidades />
           )}
         </div>
 

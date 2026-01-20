@@ -15,7 +15,8 @@ import {
   FaTrash,
   FaArrowLeft,
   FaChartLine,
-  FaTimes
+  FaTimes,
+  FaFileInvoice
 } from 'react-icons/fa';
 
 import { formatBytes } from '@/util';
@@ -495,23 +496,25 @@ export const GerenciamentoConteudo: React.FC = () => {
 
   // ========== RENDERIZAÇÃO DE CARREGAMENTO ==========
 
-  if (!instrumentoSelecionado) {
-    return (
-      <Layout titulo="Gerenciamento de Conteúdo">
-        <div className="section">
-          <div className="container">
-            <div className="box has-text-centered">
-              <p>Nenhum instrumento selecionado.</p>
+  if (!instrumentoSelecionado && !loadingConteudo) {
+  
+      return (
+        <Layout titulo="Gerenciamento de Conteúdo">
+          <div className="section">
+            <div className="container">
+              <div className="box has-text-centered">
+                <p>Nenhum instrumento selecionado.</p>
+              </div>
             </div>
           </div>
-        </div>
-      </Layout>
-    );
+        </Layout>
+      );
+    
   }
 
   // ========== CÁLCULOS E DERIVAÇÕES ==========
   const disciplinasParaExibir = conteudoCompleto?.disciplinas || [];
-
+if (!instrumentoSelecionado) return 
   // ========== RENDERIZAÇÃO PRINCIPAL ==========
   return (
 
@@ -572,12 +575,9 @@ export const GerenciamentoConteudo: React.FC = () => {
 
           {/* Indicador de Carregamento do Conteúdo */}
           {loadingConteudo && (
-            <div className="notification is-info is-light">
-              <span className="icon">
-                <FaSpinner className="fa-spin" />
-              </span>
-              <span>Carregando conteúdo programático...</span>
-            </div>
+     
+              <LoadingSpinner show={loadingConteudo} />
+     
           )}
 
           {/* Tabs de Navegação */}
@@ -605,7 +605,7 @@ export const GerenciamentoConteudo: React.FC = () => {
           {/* Conteúdo das Tabs */}
           {activeTab === 'conteudo' ? (
             <div className="box" style={{ boxShadow: 'none' }}>
-              {disciplinasParaExibir.length === 0 ? (
+              {!loadingConteudo && disciplinasParaExibir.length === 0 ? (
                 <div className="has-text-centered py-6">
                   <p className="mb-4">Nenhuma disciplina cadastrada para este instrumento.</p>
                   <CustomButton
@@ -771,7 +771,7 @@ export const GerenciamentoConteudo: React.FC = () => {
                                                   >
                                                     <div className="doc-name-container mb-2">
                                                       <span className="icon doc-mini-icon mr-2">
-                                                        <FiFileText size={16} />
+                                                        <FaFileInvoice size={16} />
                                                       </span>
 
                                                       <span className="doc-name is-clipped" title={doc.nome}>

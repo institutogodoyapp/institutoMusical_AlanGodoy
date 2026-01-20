@@ -18,7 +18,7 @@ if(show){
             width: '100%',
             height: '100%',
             zIndex: 999999,
-            position: 'absolute',
+            position: 'fixed',
             left: '5%',
             top: '5%'
         }}>
