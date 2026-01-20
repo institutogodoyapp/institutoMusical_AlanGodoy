@@ -24,8 +24,8 @@ if(show){
         }}>
             <div style={{
                 position: 'absolute',
-                left: '36%',
-                top:'30%'
+                left: '42%',
+                top:'28%'
             }}>
                 <div className="lds-hourglass"></div>
             </div>
