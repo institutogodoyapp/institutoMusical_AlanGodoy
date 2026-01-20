@@ -548,7 +548,7 @@ return (
               )) : (
                 <tr>
                   <td colSpan={7} className="has-text-centered">
-                    {!loading && <div className="notification is-light">Nenhum aluno encontrado com os filtros atuais</div>}
+                    {alunos.length === 0 && <div className="notification is-light">Nenhum aluno encontrado com os filtros atuais</div>}
                   </td>
                 </tr>
               )}
