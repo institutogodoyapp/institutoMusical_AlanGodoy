@@ -467,7 +467,7 @@ return (
               </tr>
             </thead>
             <tbody>
-              {alunosFiltradosOrdenados.length > 0 ? alunosFiltradosOrdenados.map(aluno => (
+              {alunos.length > 0 ? alunosFiltradosOrdenados.map(aluno => (
                 <React.Fragment key={aluno.id}>
                   <tr className="is-clickable" onClick={() => toggleExpandirAluno(aluno.id)}>
                     <td style={{ borderBottomWidth: '0', border: 'none', padding: '1.5rem' }}><span className="icon">{alunosExpandidos.has(aluno.id) ? <FiChevronDown /> : <FiChevronRight />}</span></td>
