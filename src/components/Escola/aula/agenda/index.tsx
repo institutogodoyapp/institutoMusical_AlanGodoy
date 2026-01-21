@@ -220,18 +220,18 @@ console.log('reposicoes', response)
     fetchAulas();
   }, [dataInicio, dataFim]);
 
-  // useEffect(() => {
-  //    console.log('route', router.query)
-  //   if (typeof window !== 'undefined') {
-  //         console.log('window', window)
-  //     const { mode, returnUrl } = router.query;
-  //     if (mode === 'select') {
-  //               console.log('mode', mode)
-  //       setSelectionMode(true);
-  //       setReturnUrl(returnUrl as string || '/');
-  //     }
-  //   }
-  // }, [router.query]);
+  useEffect(() => {
+     console.log('route', router.query)
+    if (typeof window !== 'undefined') {
+          console.log('window', window)
+      const { mode, returnUrl } = router.query;
+      if (mode === 'select') {
+                console.log('mode', mode)
+        setSelectionMode(true);
+        setReturnUrl(returnUrl as string || '/');
+      }
+    }
+  }, [router.query]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
