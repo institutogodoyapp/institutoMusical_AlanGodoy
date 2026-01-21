@@ -20,6 +20,7 @@ import { converterTipoAulaParaTexto } from '@/util/statusETipos';
 import { CampoModal, DadosModal } from '@/components/common/modal/modal-generico';
 import LoadingSpinner from '@/components/common/loading';
 
+export const dynamic = 'force-dynamic';
 export const AgendaPage = () => {
   // ========== SERVICES E HOOKS ==========
   const service = useAulaService();
@@ -123,16 +124,16 @@ export const AgendaPage = () => {
   }, []);
 
   useEffect(() => {
-  if (!isClient || !router.isReady) return;
-  
-  const { mode, returnUrl } = router.query;
-  if (mode === 'select') {
-    setSelectionMode(true);
-    setReturnUrl(returnUrl as string || '/');
-  } else {
-    setSelectionMode(false);  // ✅ Reset se não for select
-  }
-}, [isClient, router.isReady, router.asPath]); 
+    if (!isClient || !router.isReady) return;
+
+    const { mode, returnUrl } = router.query;
+    if (mode === 'select') {
+      setSelectionMode(true);
+      setReturnUrl(returnUrl as string || '/');
+    } else {
+      setSelectionMode(false);  // ✅ Reset se não for select
+    }
+  }, [isClient, router.isReady, router.asPath]);
 
   const getProfessorId = useCallback(() => {
     return Number((router.query.professorId as string[])?.[0] ??
@@ -142,11 +143,11 @@ export const AgendaPage = () => {
 
 
   let professorIdNovo
-
-  useEffect(() => {
-    const fetchData = async () => {
+  
+const fetchData = useCallback(async () => {
       const profId = getProfessorId();
-      if (!profId) return;
+      if (!profId || !isClient) return;  // ✅ Ignora SSR
+
 
       setAgendaLoad(true);
       try {
@@ -167,14 +168,18 @@ export const AgendaPage = () => {
       } finally {
         setAgendaLoad(false);
       }
-    };
-    fetchData();
-  }, [dataInicio, dataFim, getProfessorId]);
+    }, [getProfessorId, isClient, profService, showError]);
+
 
   useEffect(() => {
-    const fetchAulas = async () => {
+    
+    fetchData();
+  }, [fetchData]);
+
+   const fetchAulas = useCallback(async () => {
       const profId = getProfessorId();
-      if (!profId) return;
+      if (!profId || !isClient) return;
+
 
       try {
         const response = await service.getAulasPorProfessor(profId, dataInicio, dataFim);
@@ -196,9 +201,12 @@ export const AgendaPage = () => {
       } finally {
         setLoading(false);
       }
-    };
+    }, [getProfessorId, isClient, dataInicio, dataFim, isMobile, service, showError]);
+    
+  useEffect(() => {
+ 
     fetchAulas();
-  }, [dataInicio, dataFim, getProfessorId, isMobile]);
+  }, [fetchAulas]);
 
 
   useEffect(() => {
@@ -241,7 +249,7 @@ export const AgendaPage = () => {
       setDiaSelecionadoMobile(diasArray[0]);
     }
   }, [dataInicio, dataFim]);
-
+  console.log('🔍 RENDER:', { isClient, routerIsReady: router.isReady, profId: getProfessorId(), selectionMode, query: router.query });
 
 
   // ========== CONFIGURAÇÕES ==========
