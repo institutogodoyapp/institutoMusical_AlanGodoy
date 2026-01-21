@@ -1,5 +1,5 @@
 import { Layout } from '@/components/layout';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { FaFilter, FaCalendarAlt, FaPlus, FaEdit, FaSpinner, FaCog, FaTrash, FaClock, FaUser, FaMusic, FaSquare } from 'react-icons/fa';
 import { CustomButton, ModalGenerico, useNotifications } from '@/components';
 import { useRouter } from 'next/router';
@@ -82,6 +82,11 @@ export const AgendaPage = () => {
 
   // ========== ESTADOS DE UI ==========
   const [isMobile, setIsMobile] = useState<boolean>(false);
+  // ========== CLIENT-ONLY FIX ==========
+  const [isClient, setIsClient] = useState(false);
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   // ========== CONSTANTES ==========
   const HORA_INICIO = 7;
@@ -107,6 +112,8 @@ export const AgendaPage = () => {
       }
     };
 
+
+
     loadConfigAgenda();
 
 
@@ -115,100 +122,60 @@ export const AgendaPage = () => {
 
   }, []);
 
+      const getProfessorId = useCallback(() => {
+      return Number((router.query.professorId as string[])?.[0] ?? router.query.id ?? professorId);
+    }, [router.query.professorId, router.query.id, professorId]);
+
   let professorIdNovo
 
   useEffect(() => {
-    const fetchReposicoes = async () => {
+    const fetchData = async () => {
+      const profId = getProfessorId();
+      if (!profId) return;
 
-      const professorIdQuery = Number(router.query.professorId) || Number(router.query.id);
-
+      setAgendaLoad(true);
       try {
-        const { mode } = router.query;
+        const responseProf = await profService.getProfessor(profId);
+        setProfessor(responseProf);
 
-        if (mode === 'select') {
-
-          professorIdNovo = professorIdQuery
-        } else {
-          professorIdNovo = professorId
-        }
-        setAgendaLoad(true);
-        const responseProf = await profService.getProfessor(professorIdNovo)
-        setProfessor(responseProf)
-
-
-        const response = await service.getReposições(professorIdNovo);
-
+        const response = await service.getReposições(profId);
         const reposicoesFormatadas = Array.isArray(response)
-          ? response.map((reposicao) => ({
-            id: reposicao.id,
-            aulaOriginalId: reposicao.aulaOriginalId,
-            alunoNome: reposicao.alunoNome,
-            novaDataHora: reposicao.novaDataHora,
-            motivo: reposicao.motivo,
-            Status: reposicao.status,
-            dataSolicitacao: reposicao.dataSolicitacao,
-            dataHoraAulaOriginal: reposicao.dataHoraAulaOriginal,
+          ? response.map((r: Reposicao) => ({
+            id: r.id, aulaOriginalId: r.aulaOriginalId, alunoNome: r.alunoNome,
+            novaDataHora: r.novaDataHora, motivo: r.motivo, Status: r.status,
+            dataSolicitacao: r.dataSolicitacao, dataHoraAulaOriginal: r.dataHoraAulaOriginal,
           }))
           : [];
         setReposicao(reposicoesFormatadas);
-
       } catch (error) {
-        showError('Erro ao buscar88 aulas');
+        showError('Erro ao buscar reposições');
       } finally {
         setAgendaLoad(false);
       }
     };
-    fetchReposicoes();
-  }, [dataInicio, dataFim]);
+    fetchData();
+  }, [dataInicio, dataFim, getProfessorId]);
 
-  useEffect(() => {
+   useEffect(() => {
     const fetchAulas = async () => {
+      const profId = getProfessorId();
+      if (!profId) return;
 
-      const professorIdQuery = Number(router.query.professorId) || Number(router.query.id);
       try {
-        const { mode } = router.query;
-        if (mode === 'select') {
-          professorIdNovo = professorIdQuery
-        } else {
-          professorIdNovo = professorId
-        }
-        // setLoading(true);
-        const response = await service.getAulasPorProfessor(professorIdNovo, dataInicio, dataFim);
+        const response = await service.getAulasPorProfessor(profId, dataInicio, dataFim);
         const aulasFormatadas = Array.isArray(response)
-          ? response.map((aula) => ({
-            id: aula.id,
-            tipoAula: aula.tipoAula,
-            dataHora: aula.dataHora,
-            horarioAula: aula.horarioAula,
-            duracao: aula.duracao || 60,
-            alunoNome: `${isMobile ? getPrimeiroEUltimoNome(aula.alunoNome) : aula.alunoNome}`,
-            professorNome: aula.professorNome,
-            observacoes: aula.observacoes,
-            instrumentoNome: aula.instrumentoNome,
-            matricula: aula.matricula,
-            professorId: aula.professorId,
-            status: mapearStatus(aula.status),
-            statusOriginal: aula.statusOriginal,
-            diaSemanaAula: aula.diaSemanaAula,
-            alunoId: aula.alunoId
-          }))
-          : [{
-            id: response.id,
-            dataHora: response.dataHora,
-            horarioAula: response.horarioAula,
-            duracao: response.duracao || 60,
-            matricula: response.matricula,
-            alunoNome: response.alunoNome,
-            professorNome: response.professorNome,
-            observacoes: response.observacoes,
-            instrumentoNome: response.instrumentoNome,
-            professorId: response.professorId,
-            status: response.status,
-            alunoId: response.alunoId,
-            diaSemanaAula: response.diaSemanaAula,
-          }];
+          ? response.map((aula: any) => ({
+              id: aula.id, tipoAula: aula.tipoAula, dataHora: aula.dataHora,
+              horarioAula: aula.horarioAula, duracao: aula.duracao || 60,
+              alunoNome: `${isMobile ? getPrimeiroEUltimoNome(aula.alunoNome) : aula.alunoNome}`,
+              professorNome: aula.professorNome, observacoes: aula.observacoes,
+              instrumentoNome: aula.instrumentoNome, matricula: aula.matricula,
+              professorId: aula.professorId, status: mapearStatus(aula.status),
+              statusOriginal: aula.statusOriginal, diaSemanaAula: aula.diaSemanaAula,
+              alunoId: aula.alunoId,
+            }))
+          : [response];
         setAulas(aulasFormatadas);
-
       } catch (error) {
         showError('Erro ao buscar aulas');
       } finally {
@@ -216,8 +183,7 @@ export const AgendaPage = () => {
       }
     };
     fetchAulas();
-  }, [dataInicio, dataFim]);
-
+  }, [dataInicio, dataFim, getProfessorId, isMobile]);
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const { mode, returnUrl } = router.query;
@@ -244,6 +210,15 @@ export const AgendaPage = () => {
       setHorarios(novosHorarios);
     }
   }, [configAgenda, dataInicio, dataFim]);
+
+  useEffect(() => {
+    if (!router.isReady || !isClient) return;
+    const { mode, returnUrl: url } = router.query;
+    if (mode === 'select') {
+      setSelectionMode(true);
+      setReturnUrl(url as string || '/');
+    }
+  }, [router.isReady, router.asPath]);
 
   useEffect(() => {
     const diasArray: string[] = [];
@@ -478,36 +453,21 @@ export const AgendaPage = () => {
     const aulaExistente = getAulaNoHorario(dia, horario);
 
     if (selectionMode) {
-      const { pathname, params: baseParams } = parseReturnUrl(returnUrl);
-      const alunoId = router.query.alunoId;
-      if (!alunoId && router.query.tipo === 'reposicao') {
+      const { pathname, params } = parseReturnUrl(returnUrl);
+      const alunoId = (router.query.alunoId as string[])?.[0];
+      if (!alunoId && (router.query.tipo as string) === 'reposicao') {
         showError('alunoId não encontrado para reposição');
         return;
       }
 
-
       router.push({
         pathname,
         query: aulaExistente
-          ? {
-            ...baseParams,
-            aulaId: aulaExistente.id,
-            tipo: 'original',
-            data: formatarDataIso(dia),
-            horario: aulaExistente.horarioAula,
-            alunoId,
-          }
-          : {
-            ...baseParams,
-            selectedDate: formatarDataIso(dia),
-            selectedTime: horario,
-            tipo: 'reposicao',
-            alunoId,
-          },
-      });
+          ? { ...params, aulaId: aulaExistente.id, tipo: 'original', data: formatarDataIso(dia), horario: aulaExistente.horarioAula, alunoId }
+          : { ...params, selectedDate: formatarDataIso(dia), selectedTime: horario, tipo: 'reposicao', alunoId },
+      }); // ❌ REMOVIDO shallow: true
       return;
     }
-
     if (aulaExistente) {
 
       setAulaSelecionada(aulaExistente);
@@ -725,7 +685,7 @@ export const AgendaPage = () => {
                         {/* Cabeçalho da aula reposta, se existir */}
                         {aulaReposta && (
                           <div className="reposta-info-header">
-          
+
                             <div className="class-student-minimal">{getPrimeiroEUltimoNome(aulaReposta.alunoNome)}</div>
                             <div className="class-status-minimal is-reposta">Reposta</div>
                           </div>
@@ -734,7 +694,7 @@ export const AgendaPage = () => {
                         {/* Conteúdo da aula ativa ou botão de adicionar */}
                         {aulaAtiva ? (
                           <div className="class-info">
-                         
+
                             <div className="class-student">{getPrimeiroEUltimoNome(aulaAtiva.alunoNome)}</div>
 
                             <div className={`class-type ${aulaAtiva.tipoAula === TipoAula.AULA_REGULAR
