@@ -122,9 +122,24 @@ export const AgendaPage = () => {
 
   }, []);
 
-      const getProfessorId = useCallback(() => {
-      return Number((router.query.professorId as string[])?.[0] ?? router.query.id ?? professorId);
-    }, [router.query.professorId, router.query.id, professorId]);
+  useEffect(() => {
+  if (!isClient || !router.isReady) return;
+  
+  const { mode, returnUrl } = router.query;
+  if (mode === 'select') {
+    setSelectionMode(true);
+    setReturnUrl(returnUrl as string || '/');
+  } else {
+    setSelectionMode(false);  // ✅ Reset se não for select
+  }
+}, [isClient, router.isReady, router.asPath]); 
+
+  const getProfessorId = useCallback(() => {
+    return Number((router.query.professorId as string[])?.[0] ??
+      (router.query.id as string) ??
+      String(professorId));
+  }, [router.query.id, router.query.professorId, professorId]);
+
 
   let professorIdNovo
 
@@ -156,7 +171,7 @@ export const AgendaPage = () => {
     fetchData();
   }, [dataInicio, dataFim, getProfessorId]);
 
-   useEffect(() => {
+  useEffect(() => {
     const fetchAulas = async () => {
       const profId = getProfessorId();
       if (!profId) return;
@@ -165,15 +180,15 @@ export const AgendaPage = () => {
         const response = await service.getAulasPorProfessor(profId, dataInicio, dataFim);
         const aulasFormatadas = Array.isArray(response)
           ? response.map((aula: any) => ({
-              id: aula.id, tipoAula: aula.tipoAula, dataHora: aula.dataHora,
-              horarioAula: aula.horarioAula, duracao: aula.duracao || 60,
-              alunoNome: `${isMobile ? getPrimeiroEUltimoNome(aula.alunoNome) : aula.alunoNome}`,
-              professorNome: aula.professorNome, observacoes: aula.observacoes,
-              instrumentoNome: aula.instrumentoNome, matricula: aula.matricula,
-              professorId: aula.professorId, status: mapearStatus(aula.status),
-              statusOriginal: aula.statusOriginal, diaSemanaAula: aula.diaSemanaAula,
-              alunoId: aula.alunoId,
-            }))
+            id: aula.id, tipoAula: aula.tipoAula, dataHora: aula.dataHora,
+            horarioAula: aula.horarioAula, duracao: aula.duracao || 60,
+            alunoNome: `${isMobile ? getPrimeiroEUltimoNome(aula.alunoNome) : aula.alunoNome}`,
+            professorNome: aula.professorNome, observacoes: aula.observacoes,
+            instrumentoNome: aula.instrumentoNome, matricula: aula.matricula,
+            professorId: aula.professorId, status: mapearStatus(aula.status),
+            statusOriginal: aula.statusOriginal, diaSemanaAula: aula.diaSemanaAula,
+            alunoId: aula.alunoId,
+          }))
           : [response];
         setAulas(aulasFormatadas);
       } catch (error) {
@@ -184,15 +199,7 @@ export const AgendaPage = () => {
     };
     fetchAulas();
   }, [dataInicio, dataFim, getProfessorId, isMobile]);
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const { mode, returnUrl } = router.query;
-      if (mode === 'select') {
-        setSelectionMode(true);
-        setReturnUrl(returnUrl as string || '/');
-      }
-    }
-  }, [router.query]);
+
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -211,14 +218,7 @@ export const AgendaPage = () => {
     }
   }, [configAgenda, dataInicio, dataFim]);
 
-  useEffect(() => {
-    if (!router.isReady || !isClient) return;
-    const { mode, returnUrl: url } = router.query;
-    if (mode === 'select') {
-      setSelectionMode(true);
-      setReturnUrl(url as string || '/');
-    }
-  }, [router.isReady, router.asPath]);
+
 
   useEffect(() => {
     const diasArray: string[] = [];
@@ -450,24 +450,28 @@ export const AgendaPage = () => {
 
   // ========== FUNÇÕES DE MANIPULAÇÃO DE AULAS ==========
   const handleClicarCelula = (dia: string, horario: string) => {
-    const aulaExistente = getAulaNoHorario(dia, horario);
 
+    const aulaExistente = getAulaNoHorario(dia, horario);
     if (selectionMode) {
-      const { pathname, params } = parseReturnUrl(returnUrl);
       const alunoId = (router.query.alunoId as string[])?.[0];
-      if (!alunoId && (router.query.tipo as string) === 'reposicao') {
+      if (!alunoId) {
+        console.error('❌ alunoId missing in query:', router.query); // Debug prod
         showError('alunoId não encontrado para reposição');
         return;
       }
+
+      const { pathname, params } = parseReturnUrl(returnUrl);
+
 
       router.push({
         pathname,
         query: aulaExistente
           ? { ...params, aulaId: aulaExistente.id, tipo: 'original', data: formatarDataIso(dia), horario: aulaExistente.horarioAula, alunoId }
-          : { ...params, selectedDate: formatarDataIso(dia), selectedTime: horario, tipo: 'reposicao', alunoId },
-      }); // ❌ REMOVIDO shallow: true
+          : { ...params, selectedDate: formatarDataIso(dia), selectedTime: horario, tipo: 'reposicao', alunoId }
+      }); // Sem shallow: true - causa loops em prod[web:14][web:18]
       return;
     }
+
     if (aulaExistente) {
 
       setAulaSelecionada(aulaExistente);
@@ -501,11 +505,11 @@ export const AgendaPage = () => {
   const diasFiltrados = dias;
 
 
-  if (loading) {
+  if (loading || loadingConfig || agendaLoad || !isClient || !router.isReady) {
     return (
       <div className="section">
         <div className="container">
-          <LoadingSpinner show={loading} />
+          <LoadingSpinner show={true} />
         </div>
       </div>
     );
