@@ -1,565 +1,1159 @@
-import { useState, useEffect, useRef, FormEvent } from 'react';
+import { Layout } from '@/components/layout';
+import { useState, useEffect } from 'react';
+import { FaFilter, FaCalendarAlt, FaPlus, FaEdit, FaSpinner, FaCog, FaTrash, FaClock, FaUser, FaMusic, FaSquare } from 'react-icons/fa';
+import { CustomButton, ModalGenerico, useNotifications } from '@/components';
 import { useRouter } from 'next/router';
-import { CustomButton, Layout, useNotifications } from '@/components';
-import { FaUser, FaSpinner, FaCheck, FaTimes, FaCalendarAlt, FaLock, FaArrowLeft, FaGraduationCap, FaChalkboardTeacher } from 'react-icons/fa';
-import { useAlunoService } from '@/app/services';
 import { useAulaService } from '@/app/services/escola/aula/aula.service';
-import { AulaForm as AulaOriginal } from '@/app/models/escola/aula';
-import { extrairData } from '@/util';
-import { StatusReposicao } from '@/app/models/escola/reposicao';
-import { Aluno } from '@/app/models/escola/aluno';
+import { AulaForm, AulaFormForm, AulaObs, StatusAula, TipoAula } from '@/app/models/escola/aula';
+import { Reposicao } from '@/app/models/escola/reposicao';
+import { mapearStatus, determinarTipoAula, getDataAtual, traduzirDiaSemana, adicionarDias } from '@/util';
 import NotificationContainer from '@/components/common/notificacao/mutiplasNotifacoes';
-import { FaX } from 'react-icons/fa6';
-import { Professor } from '@/app/models';
+import { Input } from '@/components/common/input';
 import { useProfessorService } from '@/app/services/escola/professor/professor.service';
+import { Professor } from '@/app/models/escola/professor';
 
-export const MarcarReposicao: React.FC = () => {
-    // ========== SERVICES E HOOKS ==========
-    const {
-        notifications,
-        showSuccess,
-        showError,
-        removeNotification
-    } = useNotifications();
-    const service = useAlunoService();
-    const serviceAula = useAulaService();
-    const serviceProf = useProfessorService()
-    const router = useRouter();
+import { ConfigAgendaModal } from '@/components/common/modal/modalConfigAgenda';
+import { useConfigAgendaService } from '@/app/services/escola/aula/agendaConfig.service';
+import { ConfigAgenda, DiaSemana } from '@/app/models/escola/aula/configAgenda';
+import { Console } from 'console';
+import { converterTipoAulaParaTexto } from '@/util/statusETipos';
+import { CampoModal, DadosModal } from '@/components/common/modal/modal-generico';
+import LoadingSpinner from '@/components/common/loading';
 
-    // ========== REFS ==========
-    const buscaAlunoRef = useRef<HTMLDivElement>(null);
-    const buscaProfessorRef = useRef<HTMLDivElement>(null);
-    // ========== ESTADOS DE DADOS ==========
-    const [alunoSelecionado, setAlunoSelecionado] = useState<Aluno | null>(null);
-    const [professorSelecionado, setProfessorSelecionado] = useState<Professor | null>(null);
-    const [aulaOriginal, setAulaOriginal] = useState<AulaOriginal | null>(null);
-    const [sugestoesAlunos, setSugestoesAlunos] = useState<Aluno[]>([]);
-    const [professores, setProfessores] = useState<Professor[]>([]);
-    const [professorId, setProfessorId] = useState<number>()
-    const [alunoId, setAlunoId] = useState<number>()
+export const AgendaPage = () => {
+  // ========== SERVICES E HOOKS ==========
+  const service = useAulaService();
+  const profService = useProfessorService()
+  const router = useRouter();
 
+  const { id } = router.query;
+  const professorId = Number(id)
 
-    // ========== ESTADOS DE FORMULÁRIO ==========
-    const [buscaAluno, setBuscaAluno] = useState('');
-    const [buscaProfessor, setBuscaProfessor] = useState('');
-    const [novaData, setNovaData] = useState('');
-    const [novoHorario, setNovoHorario] = useState('');
-    const [motivo, setMotivo] = useState('');
+  const {
+    notifications,
+    showSuccess,
+    showError,
+    removeNotification
+  } = useNotifications();
 
-    // ========== ESTADOS DE UI ==========
-    const [mostrarSugestoes, setMostrarSugestoes] = useState(false);
-    const [loading, setLoading] = useState(false);
-
-    // ========== DADOS DO FORMULÁRIO ==========
-    const formData = {
-        id: 0,
-        aulaOriginalId: Number(aulaOriginal?.id),
-        novaDataHora: `${novaData}T${novoHorario}:00Z`,
-        motivo: motivo,
-        dataHoraAulaOriginal: '',
-        alunoNome: '',
-        status: StatusReposicao.PENDENTE,
-        dataSolicitacao: '',
-    };
+  // ========== ESTADOS DE DADOS ==========
+  const [aulas, setAulas] = useState<AulaForm[]>([]);
+  const [professor, setProfessor] = useState<Professor>()
+  const [reposicao, setReposicao] = useState<Reposicao[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadingConfig, setLoadingConfig] = useState(true);
 
 
-    // ========== EFEITOS ==========
-    useEffect(() => {
-        const savedState = localStorage.getItem('reposicaoState');
-        if (savedState) {
-            const { aluno, aula, novaData: savedData, novoHorario: savedHorario } = JSON.parse(savedState);
-            if (!alunoSelecionado && aluno) setAlunoSelecionado(aluno);
-            if (!aulaOriginal && aula) setAulaOriginal(aula);
-            if (!novaData && savedData) setNovaData(savedData);
-            if (!novoHorario && savedHorario) setNovoHorario(savedHorario);
-        }
-    }, []);
+  // ========== ESTADOS DE FILTROS E CONFIGURAÇÕES ==========
+  const [dataInicio, setDataInicio] = useState<string>(getDataAtual());
+  const [dataFim, setDataFim] = useState<string>(adicionarDias(getDataAtual(), 7));
+  const [dias, setDias] = useState<string[]>([]);
+  const [horarios, setHorarios] = useState<string[]>([]);
+  const [filtroTipo, setFiltroTipo] = useState<'todos' | 'regular' | 'reposicao'>('todos');
+  const [diaSelecionadoMobile, setDiaSelecionadoMobile] = useState<string>('');
+  const [showObsForm, setShowObsForm] = useState(false)
+  const [configAgenda, setConfigAgenda] = useState<ConfigAgenda | null>(null);
+  const configAgendaService = useConfigAgendaService();
 
+  // ========== ESTADOS DE MODAIS E SELEÇÃO ==========
+  const [modalAberto, setModalAberto] = useState<boolean>(false);
+  const [modalConfigAberto, setModalConfigAberto] = useState<boolean>(false);
+  const [aulaSelecionada, setAulaSelecionada] = useState<AulaForm | null>(null);
+  const [selectionMode, setSelectionMode] = useState<boolean>(false);
+  const [returnUrl, setReturnUrl] = useState<string>('');
 
-
-    useEffect(() => {
-        if (alunoSelecionado || aulaOriginal || novaData || novoHorario) {
-            localStorage.setItem('reposicaoState', JSON.stringify({
-                aluno: alunoSelecionado,
-                aula: aulaOriginal,
-                novaData,
-                novoHorario
-            }));
-        }
-    }, [alunoSelecionado, aulaOriginal, novaData, novoHorario]);
-
-
-
-    const carregarProfessoresDoAluno = () => {
-        const professores: Professor[] = (
-            alunoSelecionado?.instrumentos || [] 
-        )
-            .map(item => item.professor)
-            .filter((prof): prof is Professor => Boolean(prof?.id)) 
-            .filter((prof, index, self) =>
-                self.findIndex(p => p.id === prof.id) === index 
-            );
-        setProfessores(professores); 
-    };
-
-
-
-    useEffect(() => {
-
-        if (!buscaAluno.trim()) {
-            setSugestoesAlunos([]);
-            setProfessores([])
-            return;
-        }
-
-        const timer = setTimeout(async () => {
-            try {
-                const response = await service.getAlunos();
-                setSugestoesAlunos(Array.isArray(response) ? response : [response]);
-                setMostrarSugestoes(true);
-            } catch {
-                setSugestoesAlunos([]);
-            }
-        }, 300);
-
-        return () => clearTimeout(timer);
-    }, [buscaAluno]);
-
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (buscaAlunoRef.current && !buscaAlunoRef.current.contains(event.target as Node)) {
-                setMostrarSugestoes(false);
-            }
-        };
-
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
-
-
-    useEffect(() => {
-        async function buscarAulaOriginal(aulaId: number) {
-            setLoading(true);
-            try {
-                const response = await serviceAula.getAulaPorId(aulaId);
-                setAulaOriginal(response);
-
-
-
-                if (!alunoSelecionado && response.alunoNome) {
-                    try {
-                        const alunos: Aluno[] = await service.getAlunos();
-                        const alunoEncontrado = Array.isArray(alunos)
-                            ? alunos.find(a => a.nome === response.alunoNome)
-                            : response.alunoNome ? alunos : null;
-
-                        if (alunoEncontrado) {
-                            setAlunoSelecionado(alunoEncontrado);
-                            setBuscaAluno(alunoEncontrado.nome);
-                            router.replace({
-                                pathname: router.pathname,
-                                query: { ...router.query, alunoId: alunoEncontrado.id }
-                            }, undefined, { shallow: true });
-                        }
-                    } catch (error) {
-                        showError('Erro ao buscar aluno');
-                    }
-                }
-
-                setNovaData('');
-                setNovoHorario('');
-            } catch {
-                showError('Não foi possível buscar os dados da aula original.');
-            } finally {
-                setLoading(false);
-            }
-        }
-
-        if (router.query.tipo === 'original' && router.query.aulaId) {
-            buscarAulaOriginal(Number(router.query.aulaId));
-            const newQuery = router.query.alunoId ? { alunoId: router.query.alunoId } : {};
-            router.replace({ pathname: router.pathname, query: newQuery }, undefined, { shallow: true });
-        }
-
-        if (router.query.tipo === 'reposicao' && router.query.selectedDate && router.query.selectedTime) {
-            setNovaData(router.query.selectedDate as string);
-            setNovoHorario(router.query.selectedTime as string);
-            const newQuery = router.query.alunoId ? { alunoId: router.query.alunoId } : {};
-            router.replace({ pathname: router.pathname, query: newQuery }, undefined, { shallow: true });
-        }
-
-        if (router.query.alunoId && !alunoSelecionado) {
-            const fetchAluno = async () => {
-                try {
-                    const alunos = await service.getAlunos();
-                    const alunoEncontrado = Array.isArray(alunos)
-                        ? alunos.find(a => a.id === Number(router.query.alunoId))
-                        : Number(router.query.alunoId) ? alunos : null;
-
-                    if (alunoEncontrado) {
-                        setAlunoSelecionado(alunoEncontrado);
-                        setBuscaAluno(alunoEncontrado.nome);
-                    }
-                } catch (error) {
-                    showError('Erro ao carregar aluno');
-                }
-            };
-            fetchAluno();
-        }
-    }, [router.query]);
-
-    // ========== FUNÇÕES DE NAVEGAÇÃO ==========
-    const irParaAgendaAulaOriginal = () => {
-
-        if (!alunoSelecionado?.id) {
-            showError('Selecione um aluno primeiro');
-            return;
-        }
-
-
-        router.push({
-            pathname: '/instituto-musical/escola/aula/agenda',
-            query: {
-                mode: 'select',
-                tipo: 'original',
-                alunoId: alunoSelecionado.id,
-                professorId: professorId,
-                returnUrl: `${router.pathname}?alunoId=${alunoSelecionado.id}`
-            }
-        });
-    };
-
-const irParaAgendaReposicao = () => {
-  const alunoId =  aulaOriginal?.alunoId
-  const professorID = aulaOriginal?.professorId
-
-  console.log(aulaOriginal)
- 
-  // ✅ Igual ao que funciona: professorId direto do state (não aulaOriginal)
-  if (!alunoId || !professorID) {  // professorId do state da página
-    showError('Selecione aluno E professor primeiro');
-    return;
-  }
-console.log("fix o pudh1----->>>", alunoId, professorID,`${router.pathname}?alunoId=${alunoId}` );
-
-  const returnUrl = `${router.pathname}?alunoId=${alunoId}`;
-  
-  console.log("Redirecionando para agenda - returnUrl:", returnUrl);
-
-  router.push({
-    
-    pathname: '/instituto-musical/escola/aula/agenda',
-    query: {
-      mode: 'select',
-      tipo: 'reposicao',
-      alunoId: alunoId.toString(),
-      professorId: professorID.toString(),  // ✅ Sempre válido como em AulaOriginal
-      returnUrl: returnUrl,  // Igual ao que funciona
-      aulaOriginalId: aulaOriginal.id
-    }
+  // ========== ESTADOS DE FORMULÁRIOS ==========
+  const [observacoes, setObservacoes] = useState<AulaObs>({
+    observacoes: ''
   })
-  console.log("fix o pudh----->>>", alunoId, professorID,`${router.pathname}?alunoId=${alunoId}` );
-};
 
-    const voltarParaListagem = () => {
-        localStorage.removeItem('reposicaoState');
-        router.push('/instituto-musical/escola/aluno/gerenciamento-aluno');
+  const [novaAula, setNovaAula] = useState<Partial<AulaForm>>({
+    dataHora: '',
+    horarioAula: '',
+    duracao: 60,
+    professorNome: '',
+    alunoNome: '',
+    instrumentoNome: '',
+    observacoes: '',
+    status: StatusAula.AGENDADA,
+    diaSemanaAula: '',
+  });
+
+  // ========== ESTADOS DE UI ==========
+  const [isMobile, setIsMobile] = useState<boolean>(false);
+
+  // ========== CONSTANTES ==========
+  const HORA_INICIO = 7;
+  const HORA_FIM = 23;
+  const INTERVALO = 60;
+
+  // ========== EFEITOS ==========
+  useEffect(() => {
+    const loadConfigAgenda = async () => {
+      try {
+        setLoadingConfig(true)
+        const config = await configAgendaService.getConfig();
+        setConfigAgenda(config);
+
+      } catch (error) {
+        showError(`Erro ao carregar configuração da agenda: ${error}`);
+        // Usa configuração padrão se não conseguir carregar
+        setConfigAgenda(configAgendaService.getDefaultConfig());
+
+      } finally {
+        setLoadingConfig(false)
+
+      }
     };
 
-    // ========== FUNÇÕES DE SUBMISSÃO ==========
-    const handleSubmit = async () => {
-    console.log('handle')
-        if (!alunoSelecionado || !aulaOriginal || !novaData || !novoHorario) {
-            showError('Preencha todos os campos obrigatórios.');
-            return;
+    loadConfigAgenda();
+
+
+
+
+
+  }, []);
+
+  let professorIdNovo
+
+  useEffect(() => {
+    const fetchReposicoes = async () => {
+
+      const professorIdQuery = Number(router.query.professorId) || Number(router.query.id);
+
+      try {
+        const { mode } = router.query;
+
+        if (mode === 'select') {
+
+          professorIdNovo = professorIdQuery
+        } else {
+          professorIdNovo = professorId
         }
-        
+        setLoading(true);
+        const responseProf = await profService.getProfessor(professorIdNovo)
+        setProfessor(responseProf)
 
-        try {
 
-setLoading(true);
-            const response = await serviceAula.marcarReposicao(formData)
+        const response = await service.getReposições(professorIdNovo);
 
-            showSuccess('Reposição agendada com sucesso!');
-            setAulaOriginal(null);
-            setNovaData('');
-            setNovoHorario('');
-            setMotivo('');
-            setBuscaAluno('');
-            setAlunoSelecionado(null);
-            localStorage.removeItem('reposicaoState');
-        } catch {
-            showError('Erro ao agendar reposição. Tente novamente.');
-        } finally {
-            setLoading(false);
-        }
+        const reposicoesFormatadas = Array.isArray(response)
+          ? response.map((reposicao) => ({
+            id: reposicao.id,
+            aulaOriginalId: reposicao.aulaOriginalId,
+            alunoNome: reposicao.alunoNome,
+            novaDataHora: reposicao.novaDataHora,
+            motivo: reposicao.motivo,
+            Status: reposicao.status,
+            dataSolicitacao: reposicao.dataSolicitacao,
+            dataHoraAulaOriginal: reposicao.dataHoraAulaOriginal,
+          }))
+          : [];
+        setReposicao(reposicoesFormatadas);
+
+      } catch (error) {
+        showError('Erro ao buscar88 aulas');
+      } finally {
+        setLoading(false);
+      }
     };
+    fetchReposicoes();
+  }, [dataInicio, dataFim]);
 
-    
+  useEffect(() => {
+    const fetchAulas = async () => {
 
-    // ========== RENDERIZAÇÃO PRINCIPAL ==========
-    return (
-        <Layout titulo="Marcar Reposição">
-            <section className="section">
-                <NotificationContainer
-                    notifications={notifications}
-                    onRemove={removeNotification}
-                />
-                <div className="container">
-                    <div className="box" style={{ boxShadow: 'none' }}>
-                        {/* Botão Voltar */}
-                        <div className="control mb-6">
-                            <CustomButton
-                                text=""
-                                icon={<FaX />}
-                                onClick={voltarParaListagem}
-                                className="control"
-                            />
-                        </div>
+      const professorIdQuery = Number(router.query.professorId) || Number(router.query.id);
+      try {
+        const { mode } = router.query;
+        if (mode === 'select') {
+          professorIdNovo = professorIdQuery
+        } else {
+          professorIdNovo = professorId
+        }
+        setLoading(true);
+        const response = await service.getAulasPorProfessor(professorIdNovo, dataInicio, dataFim);
+        const aulasFormatadas = Array.isArray(response)
+          ? response.map((aula) => ({
+            id: aula.id,
+            tipoAula: aula.tipoAula,
+            dataHora: aula.dataHora,
+            horarioAula: aula.horarioAula,
+            duracao: aula.duracao || 60,
+            alunoNome: `${isMobile ? getPrimeiroEUltimoNome(aula.alunoNome) : aula.alunoNome}`,
+            professorNome: aula.professorNome,
+            observacoes: aula.observacoes,
+            instrumentoNome: aula.instrumentoNome,
+            matricula: aula.matricula,
+            professorId: aula.professorId,
+            status: mapearStatus(aula.status),
+            statusOriginal: aula.statusOriginal,
+            diaSemanaAula: aula.diaSemanaAula,
+            alunoId: aula.alunoId
+          }))
+          : [{
+            id: response.id,
+            dataHora: response.dataHora,
+            horarioAula: response.horarioAula,
+            duracao: response.duracao || 60,
+            matricula: response.matricula,
+            alunoNome: response.alunoNome,
+            professorNome: response.professorNome,
+            observacoes: response.observacoes,
+            instrumentoNome: response.instrumentoNome,
+            professorId: response.professorId,
+            status: response.status,
+            alunoId: response.alunoId,
+            diaSemanaAula: response.diaSemanaAula,
+          }];
+        setAulas(aulasFormatadas);
 
-                        {/* Título */}
-                        <h1 className="title is-4">
-                            <span className="icon-text">
-                                <span className="icon"><FaCalendarAlt /></span>
-                                <span>Agendar Reposição</span>
-                            </span>
-                        </h1>
+      } catch (error) {
+        showError('Erro ao buscar aulas');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAulas();
+  }, [dataInicio, dataFim]);
 
-                        {/* Busca de Aluno */}
-                        <div className="field mb-4" ref={buscaAlunoRef}>
-                            <label className="label">Buscar Aluno</label>
-                            <div className="control has-icons-left has-icons-right">
-                                <input
-                                    className="input aluno-input"
-                                    type="text"
-                                    value={
-                                        aulaOriginal
-                                            ? aulaOriginal.alunoNome
-                                            : alunoSelecionado
-                                                ? alunoSelecionado.nome
-                                                : buscaAluno
-                                    }
-                                    onChange={(e) => {
-                                        const value = e.target.value;
-                                        setBuscaAluno(value);
+  useEffect(() => {
+    console.log("qury agenda page", router.query)
+    if (typeof window !== 'undefined') {
+      const { mode, returnUrl } = router.query;
+      if (mode === 'select') {
+        setSelectionMode(true);
+        setReturnUrl(returnUrl as string || '/');
+      }
+    }
+  }, [router.query]);
 
-                                        if (!value.trim() && alunoSelecionado) {
-                                            setAlunoSelecionado(null);
-                                            const newQuery = { ...router.query };
-                                            delete newQuery.alunoId;
-                                            router.replace(
-                                                { pathname: router.pathname, query: newQuery },
-                                                undefined,
-                                                { shallow: true }
-                                            );
-                                        }
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const handleResize = () => setIsMobile(window.innerWidth < 768);
+      handleResize();
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    }
+  }, []);
 
-                                        setMostrarSugestoes(true);
-                                    }}
-                                    onFocus={() => !aulaOriginal && setMostrarSugestoes(true)}
-                                    placeholder={alunoSelecionado ? "" : "Digite o nome do aluno"}
-                                    readOnly={!!aulaOriginal}
-                                />
-                                <span className="icon is-left"><FaUser /></span>
-                                {buscaAluno && (
-                                    <span
-                                        className="icon is-right is-clickable"
-                                        onClick={() => {
-                                            setBuscaAluno('');
-                                            setAlunoSelecionado(null);
-                                        }}
-                                    >
-                                        <FaTimes />
-                                    </span>
-                                )}
-                            </div>
+  // useEffect separado para horários que depende de configAgenda
+  useEffect(() => {
+    if (configAgenda) {
+      const novosHorarios = gerarHorariosDia();
+      setHorarios(novosHorarios);
+    }
+  }, [configAgenda, dataInicio, dataFim]);
 
-                            {/* Sugestões de Alunos */}
-                            {mostrarSugestoes && sugestoesAlunos.length > 0 && !aulaOriginal && (
-                                <div className="dropdown-menu mt-0" style={{ display: 'block', width: '100%' }}>
-                                    <div className="dropdown-content" style={{ marginTop: '-40px' }}>
-                                        {sugestoesAlunos.map((aluno) => (
-                                            <a
-                                                key={aluno.id}
-                                                className="dropdown-item"
-                                                onClick={() => {
-                                                    setAlunoSelecionado(aluno);
-                                                    setBuscaAluno(aluno.nome);
-                                                    setAlunoId(aluno.id)
-                                                    setAulaOriginal(null);
-                                                    setNovaData('');
-                                                    setNovoHorario('');
-                                                    setMostrarSugestoes(false);
-                                                    router.replace(
-                                                        {
-                                                            pathname: router.pathname,
-                                                            query: { ...router.query, alunoId: aluno.id },
-                                                        },
-                                                        undefined,
-                                                        { shallow: true }
-                                                    );
-                                                }}
-                                            >
-                                                {aluno.nome}
-                                            </a>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-                        </div>
+  useEffect(() => {
+    const diasArray: string[] = [];
+    const currentDate = new Date(adicionarDias(dataInicio, 2));
+
+    const endDate = new Date(dataFim);
+    currentDate.setHours(12, 0, 0, 0);
+    endDate.setHours(12, 0, 0, 0);
+
+    while (currentDate <= endDate) {
+      const dia = currentDate.toISOString().split('T')[0];
+      diasArray.push(dia);
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    setDias(diasArray);
+
+
+    if (diasArray.length > 0 && !diaSelecionadoMobile) {
+      setDiaSelecionadoMobile(diasArray[0]);
+    }
+  }, [dataInicio, dataFim]);
 
 
 
-                        {alunoSelecionado && (
-                            <div className="field mb-4">
-                                <label className="label">
-                                    <span className="icon-text has-text-descrition-cinza-custom has-text-bold-normal">
-                                        <span className="icon"><FaChalkboardTeacher /></span>
-                                        <span>Professor</span>
-                                    </span>
-                                </label>
-                                <div className="control">
-                                    <div className="select is-fullwidth">
-                                        <select
-                                            name="professorId"
-                                            value={professorId || ''}
-                                            onChange={(e) => setProfessorId(Number(e.target.value))}
-                                            onClick={() => carregarProfessoresDoAluno()}
-                                        >
-                                            <option value="">Selecione um professor</option>
-                                            {Array.isArray(professores) && professores.length > 0 ? (
-                                                professores.map((p) => (
-                                                    <option key={p.id} value={p.id}>
-                                                        {p.nome}
-                                                    </option>
-                                                ))
-                                            ) : (
-                                                <option disabled>Carregando professores...</option>
-                                            )}
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
+  // ========== CONFIGURAÇÕES ==========
 
-                        {/* Seleção de Aula Original */}
-                        {alunoSelecionado &&
-                            <div className="field mb-4">
-                                <label className="label">Aula Original</label>
-                                {!aulaOriginal &&
-                                    <CustomButton
-                                        text="Selecionar Aula Original na Agenda"
-                                        icon={<FaCalendarAlt />}
-                                        onClick={irParaAgendaAulaOriginal}
-                                        type="button"
-                                        className="is-fullwidth"
-                                    />
-                                }
-                            </div>}
+  const camposObservacao: CampoModal[] = [
+    {
+      tipo: 'textarea',
+      nome: 'observacoes',
+      label: 'Relatório de Aula',
+      placeholder: "",
+      required: true
+    },
 
-                        {/* Formulário de Reposição */}
-                        {aulaOriginal && (
-                           <div>
-                                <div className="box mb-4">
-                                    <label className="label mb-2">Aula que será reposta</label>
-                                    <div className="is-flex is-flex-direction-column is-align-items-flex-start">
-                                        <input
-                                            className="input mb-2"
-                                            type="text"
-                                            value={`Data: ${extrairData(aulaOriginal.dataHora)}`}
-                                            disabled
-                                            readOnly
-                                        />
-                                        <input
-                                            className="input mb-2"
-                                            type="text"
-                                            value={`Horário: ${aulaOriginal.horarioAula}`}
-                                            disabled
-                                            readOnly
-                                        />
-                                        <input
-                                            className="input mb-2"
-                                            type="text"
-                                            value={`Professor: ${aulaOriginal.professorNome}`}
-                                            disabled
-                                            readOnly
-                                        />
-                                        <input
-                                            className="input mb-2"
-                                            type="text"
-                                            value={`Instrumento: ${aulaOriginal.matricula?.instrumento?.nome}`}
-                                            disabled
-                                            readOnly
-                                        />
-                                    </div>
-                                </div>
+  ];
 
-                                {/* Seleção de Nova Data/Horário */}
-                            
-                                <div className="box mb-4">
-                                    <div className="is-flex is-align-items-center mb-2">
-                                        <label className="label mr-2">Reposição para</label>
-                                        <CustomButton
-                                            text="Selecionar nova data/hora na Agenda"
-                                            icon={<FaCalendarAlt />}
-                                            onClick={irParaAgendaReposicao}
-                                            type="button"
-                                            className="ml-2"
-                                        />
-                                    </div>
-                                    <input
-                                        className="input mb-2"
-                                        type="text"
-                                        value={novaData ? `Data: ${novaData}` : ''}
-                                        placeholder="Data da Reposição"
-                                        disabled
-                                        readOnly
-                                    />
-                                    <input
-                                        className="input mb-2"
-                                        type="text"
-                                        value={novoHorario ? `Horário: ${novoHorario}` : ''}
-                                        placeholder="Horário da Reposição"
-                                        disabled
-                                        readOnly
-                                    />
-                                </div>
+  
 
-                                {/* Motivo e Confirmação */}
-                                {novaData && novoHorario && (
-                                    <>
-                                        <div className="field">
-                                       
-                                        </div>
-                                        <div className="field is-grouped is-grouped-right">
-                                            <div className="control">
-                                                <CustomButton
-                                                    type="submit"
-                                                    text={loading ? "Agendando..." : "Confirmar Reposição"}
-                                                    icon={loading ? <FaSpinner className="fa-spin" /> : <FaCheck />}
-                                                    disabled={loading}
-                                                    onClick={handleSubmit}
-                                                    className="is-primary"
-                                                />
-                                            </div>
-                                        </div>
-                                    </>
-                                )}
-                                
-                      </div>
-                        )}
 
-                        {/* Indicador de Carregamento */}
-                        {loading && (
-                            <div className="has-text-centered mt-4">
-                                <FaSpinner className="fa-spin" />
-                            </div>
-                        )}
-                    </div>
+  const fecharModal = () => {
+    setShowObsForm(false)
+
+  };
+  const salvarObservacao = async (dados: DadosModal) => {
+
+  console.log('salvo1')
+    if (!aulaSelecionada) return
+
+  console.log('salvo1', aulaSelecionada)
+    setLoading(true)
+    try {
+      const doc = await service.salvarObservacao(dados, aulaSelecionada.id)
+      console.log('salvo', doc)
+    } catch (error) {
+      showError('Falha em salvar: ' + error)
+    } finally {
+      fecharModal()
+      setLoading(false)
+
+    }
+  }
+
+
+
+
+
+  const isAulaReposta = (status: StatusAula) => {
+    return status === 'REPOSTA';
+  };
+
+  const gerarHorariosDia = () => {
+
+    if (!configAgenda) {
+
+      // Configuração padrão se não houver config
+      const horarios = [];
+      for (let hora = 7; hora < 23; hora++) {
+        for (let minuto = 0; minuto < 60; minuto += 60) {
+          horarios.push(`${hora.toString().padStart(2, '0')}:${minuto.toString().padStart(2, '0')}`);
+        }
+      }
+
+      return horarios;
+    }
+
+
+    const horarios = [];
+    const [inicioHora, inicioMinuto] = configAgenda.horaInicio.split(':').map(Number);
+    const [fimHora, fimMinuto] = configAgenda.horaFim.split(':').map(Number);
+
+    const inicioTotalMinutos = inicioHora * 60 + inicioMinuto;
+    const fimTotalMinutos = fimHora * 60 + fimMinuto;
+
+    for (let minuto = inicioTotalMinutos; minuto < fimTotalMinutos; minuto += configAgenda.duracaoAulaMinutos) {
+      const hora = Math.floor(minuto / 60);
+      const min = minuto % 60;
+      horarios.push(`${hora.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}`);
+    }
+
+    return horarios;
+  };
+
+
+
+  const getPrimeiroEUltimoNome = (nomeCompleto: string): string => {
+    const partes = nomeCompleto.split(' ').filter(Boolean);
+    if (partes.length <= 2) {
+      return nomeCompleto;
+    }
+    return `${partes[0]} ${partes[partes.length - 1]}`;
+  };
+
+  const getAulaNoHorario = (dia: string, horario: string) => {
+    return aulas.find((aula) => {
+      const [diaAula, horaAula] = aula.dataHora.split(' ');
+      const [dd, mm, yyyy] = diaAula.split('/');
+      const aulaDataFormatada = `${yyyy}-${mm}-${dd}`;
+
+      if (aulaDataFormatada !== dia) return false;
+
+      if (aula.status === 'REPOSTA') return false;
+
+      const [aulaHoraStr, aulaMinutoStr] = aula.horarioAula.split(':');
+      const aulaHora = parseInt(aulaHoraStr);
+      const aulaMinuto = parseInt(aulaMinutoStr);
+      const aulaInicio = aulaHora * 60 + aulaMinuto;
+      const aulaFim = aulaInicio + aula.duracao;
+
+      const [cellHoraStr, cellMinutoStr] = horario.split(':');
+      const cellHora = parseInt(cellHoraStr);
+      const cellMinuto = parseInt(cellMinutoStr);
+      const cellTime = cellHora * 60 + cellMinuto;
+
+      return cellTime >= aulaInicio && cellTime < aulaFim;
+    });
+  };
+
+  const getAulaNoHorarioMobile = (dia: string, horario: string) => {
+    return aulas.find((aula) => {
+      const [diaAula, horaAula] = aula.dataHora.split(' ');
+      const [dd, mm, yyyy] = diaAula.split('/');
+      const aulaDataFormatada = `${yyyy}-${mm}-${dd}`;
+
+      if (aulaDataFormatada !== dia) return false;
+      if (aula.status === 'REPOSTA') return false;
+      const [aulaHoraStr, aulaMinutoStr] = aula.horarioAula.split(':');
+      const aulaHora = parseInt(aulaHoraStr);
+      const aulaMinuto = parseInt(aulaMinutoStr);
+      const aulaInicio = aulaHora * 60 + aulaMinuto;
+      const aulaFim = aulaInicio + aula.duracao;
+
+      const [cellHoraStr, cellMinutoStr] = horario.split(':');
+      const cellHora = parseInt(cellHoraStr);
+      const cellMinuto = parseInt(cellMinutoStr);
+      const cellTime = cellHora * 60 + cellMinuto;
+
+      return cellTime >= aulaInicio && cellTime < aulaFim;
+    });
+  };
+
+
+  const getReposicaoNoHorario = (dia: string, horario: string) => {
+    return aulas.find((aula) => {
+      const [diaAula, horaAula] = aula.dataHora.split(' ');
+      const [dd, mm, yyyy] = diaAula.split('/');
+      const aulaDataFormatada = `${yyyy}-${mm}-${dd}`;
+
+      if (aulaDataFormatada !== dia) return false;
+
+
+      if (aula.status !== 'REPOSTA') return false;
+
+      const [aulaHoraStr, aulaMinutoStr] = aula.horarioAula.split(':');
+      const aulaHora = parseInt(aulaHoraStr);
+      const aulaMinuto = parseInt(aulaMinutoStr);
+      const aulaInicio = aulaHora * 60 + aulaMinuto;
+      const aulaFim = aulaInicio + aula.duracao;
+
+      const [cellHoraStr, cellMinutoStr] = horario.split(':');
+      const cellHora = parseInt(cellHoraStr);
+      const cellMinuto = parseInt(cellMinutoStr);
+      const cellTime = cellHora * 60 + cellMinuto;
+
+      return cellTime >= aulaInicio && cellTime < aulaFim;
+    });
+  };
+
+  const formatarData = (data: string) => {
+    const [ano, mes, dia] = data.split('-');
+    return `${dia}/${mes}`;
+  };
+
+  const formatarDiaSemana = (data: string) => {
+    const [ano, mes, dia] = data.split('-');
+    const dataObj = new Date(Date.UTC(parseInt(ano), parseInt(mes) - 1, parseInt(dia)));
+    const dias = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+    return dias[dataObj.getUTCDay()];
+  };
+
+  function parseReturnUrl(returnUrl: string) {
+    try {
+      const url = new URL(returnUrl, window.location.origin);
+      const params: Record<string, string> = {};
+      for (const [key, value] of url.searchParams.entries()) {
+        params[key] = value;
+      }
+      return { pathname: url.pathname, params };
+    } catch {
+      const [pathname, querystring] = returnUrl.split('?');
+      const params: Record<string, string> = {};
+      if (querystring) {
+        for (const pair of querystring.split('&')) {
+          const [key, value] = pair.split('=');
+          if (key) params[key] = value;
+        }
+      }
+      return { pathname, params };
+    }
+  }
+
+  const formatarDataIso = (data: string) => {
+    if (/^\d{4}-\d{2}-\d{2}$/.test(data)) return data;
+    const [dd, mm, yyyy] = data.split(/[\/\-]/);
+    if (yyyy && mm && dd) return `${yyyy}-${mm.padStart(2, '0')}-${dd.padStart(2, '0')}`;
+    return data;
+  };
+
+  // ========== FUNÇÕES DE MANIPULAÇÃO DE AULAS ==========
+  const handleClicarCelula = (dia: string, horario: string) => {
+    const aulaExistente = getAulaNoHorario(dia, horario);
+
+    if (selectionMode) {
+      const { pathname, params: baseParams } = parseReturnUrl(returnUrl);
+      const alunoId = router.query.alunoId;
+      if (!alunoId && router.query.tipo === 'reposicao') {
+        showError('alunoId não encontrado para reposição');
+        return;
+      }
+
+
+      router.push({
+        pathname,
+        query: aulaExistente
+          ? {
+            ...baseParams,
+            aulaId: aulaExistente.id,
+            tipo: 'original',
+            data: formatarDataIso(dia),
+            horario: aulaExistente.horarioAula,
+            alunoId,
+          }
+          : {
+            ...baseParams,
+            selectedDate: formatarDataIso(dia),
+            selectedTime: horario,
+            tipo: 'reposicao',
+            alunoId,
+          },
+      });
+      return;
+    }
+
+    if (aulaExistente) {
+      console.log("chm", aulaExistente)
+      setAulaSelecionada(aulaExistente);
+      setNovaAula({
+        ...aulaExistente,
+        dataHora: dia,
+        horarioAula: horario,
+      });
+      setShowObsForm(true)
+      setObservacoes({
+        observacoes: aulaExistente.observacoes
+      })
+    } else {
+      setAulaSelecionada(null);
+      setNovaAula({
+        tipoAula: TipoAula.AULA_REGULAR,
+        dataHora: dia,
+        horarioAula: horario,
+        duracao: 60,
+        professorNome: '',
+        alunoNome: '',
+      });
+    }
+    setModalAberto(true);
+  };
+
+
+
+
+  // Modifique a renderização dos dias para filtrar por dias de trabalho
+  const diasFiltrados = dias;
+
+
+
+  // ========== RENDERIZAÇÃO PRINCIPAL ==========
+  return (
+    <Layout titulo={` ${isMobile ? 'Agenda' : 'Agenda de Aulas'} - ${isMobile ? '' : 'Professor'} ${getPrimeiroEUltimoNome(professor?.nome ? professor.nome : '')}`}>
+      <LoadingSpinner show={loading} />
+      <div className="container">
+        <NotificationContainer
+          notifications={notifications}
+          onRemove={removeNotification}
+        />
+        {selectionMode && (
+          <div className="notification is-info">
+            <div className="is-flex is-justify-content-space-between is-align-items-center">
+              <p>Selecione um horário na agenda</p>
+              <button className="button is-small is-light" onClick={() => router.push(returnUrl)}>
+                Cancelar seleção
+              </button>
+            </div>
+          </div>
+        )}
+
+
+
+        {/* Filtros */}
+        <div className="box " style={{ boxShadow: 'none' }}>
+          <div className="is-flex is-align-items-center mb-4">
+            <FaFilter className="mr-2 has-primary-custom" />
+            <h2 className="subtitle is-4 has-text-grey">Filtros</h2>
+          </div>
+          <div className="is-flex is-justify-content-space-between is-align-items-center mb-4">
+            <div className="is-flex is-align-items-center">
+
+            </div>
+
+            {/* Botão de Configuração */}
+            <CustomButton
+              type="button"
+              text={'Configurar Agenda'}
+              icon={<FaCog className="mr-2" />}
+              className="is-primary is-outlined is-rounded"
+              onClick={() => setModalConfigAberto(true)}
+            />
+          </div>
+
+
+          <div className="columns is-mobile is-multiline">
+            <div className="column is-full-mobile is-half-tablet is-one-third-desktop">
+              <Input
+                label='Data Inicial'
+                type="date"
+                className="input is-rounded"
+                aditionalClasseslabel='has-text-weight-semibold'
+                aditionalClassesControl='has-icons-left'
+                iconLeft={<FaCalendarAlt className="has-primary-custom" />}
+                value={dataInicio}
+                onChange={(e) => setDataInicio(e.target.value)}
+                max={dataFim}
+
+
+              />
+
+            </div>
+
+            <div className="column is-full-mobile is-half-tablet is-one-third-desktop">
+              <Input
+                label='Data Final'
+                type="date"
+                className="input is-rounded"
+                aditionalClasseslabel='has-text-weight-semibold'
+                aditionalClassesControl='has-icons-left'
+                iconLeft={<FaCalendarAlt className="has-primary-custom" />}
+                value={dataFim}
+
+                onChange={(e) => setDataFim(e.target.value)}
+                min={dataInicio}
+
+              />
+
+            </div>
+
+            <div className="column is-full-mobile is-half-tablet is-one-third-desktop">
+              <div className="field">
+                <label className="label has-text-weight-semibold">Tipo de Aula</label>
+                <div className="control is-expanded">
+                  <div className="select is-fullwidth is-rounded">
+                    <select
+                      value={filtroTipo}
+                      onChange={(e) => setFiltroTipo(e.target.value as 'todos' | 'regular' | 'reposicao')}
+                      className="has-text-weight-semibold"
+                    >
+                      <option value="todos">Todos</option>
+                      <option value="regular">Regular</option>
+                      <option value="reposicao">Reposição</option>
+                    </select>
+                  </div>
                 </div>
-            </section>
-        </Layout >
-    );
-};
+              </div>
+            </div>
+          </div>
+        </div>
 
-export default MarcarReposicao;
+        {/* Seletor de Dia Mobile */}
+        {isMobile && diasFiltrados.length > 0 && (
+          <div className="box has-background-light">
+            <div className="field">
+              <label className="label has-text-weight-semibold">Selecione o dia</label>
+              <div className="control is-expanded">
+                <div className="select is-fullwidth is-rounded">
+                  <select
+                    value={diaSelecionadoMobile}
+                    onChange={(e) => setDiaSelecionadoMobile(e.target.value)}
+                    className="has-text-weight-semibold"
+                  >
+                    {diasFiltrados.map((dia) => (
+                      <option key={dia} value={dia}>
+                        {formatarDiaSemana(dia)} - {formatarData(dia)}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Grade de Horários */}
+        <div className="schedule-container">
+          <div className="schedule-header">
+            {!isMobile && <div className="schedule-time-label">Horário</div>
+            }           {!isMobile
+              ? diasFiltrados.map((dia) => (
+                <div key={dia} className="schedule-day-header">
+                  <div className="schedule-weekday">{formatarDiaSemana(dia)}</div>
+                  <div className="schedule-date">{formatarData(dia)}</div>
+                </div>
+              ))
+              : (
+                <div className="schedule-day-header">
+                  <div className="schedule-weekday">{formatarDiaSemana(diaSelecionadoMobile)}</div>
+                  <div className="schedule-date">{formatarData(diaSelecionadoMobile)}</div>
+                </div>
+              )}
+          </div>
+
+          <div className="schedule-body">
+            {horarios.map((horario) => (
+              <div key={horario} className="schedule-row">
+                <div className="schedule-time">{horario}</div>
+
+                {!isMobile
+                  ? diasFiltrados.map((dia) => {
+                    const aulaAtiva = getAulaNoHorario(dia, horario);
+                    const aulaReposta = getReposicaoNoHorario(dia, horario);
+                    return (
+                      <div
+                        key={`${dia}-${horario}`}
+                        onClick={() => {
+
+                          handleClicarCelula(dia, horario);
+                        }}
+                        className={`schedule-cell ${aulaAtiva
+                          ? aulaAtiva.tipoAula === 'AULA_REGULAR'
+                            ? 'has-class'
+                            : 'has-makeup'
+                          : aulaReposta
+                            ? 'has-reposta-info' // Classe para célula com aula reposta (mas não ativa)
+                            : 'is-available'
+                          }`}
+                      >
+                        {/* Cabeçalho da aula reposta, se existir */}
+                        {aulaReposta && (
+                          <div className="reposta-info-header">
+                            <div className="class-student-minimal">{getPrimeiroEUltimoNome(aulaReposta.alunoNome)}</div>
+                            <div className="class-status-minimal is-reposta">Reposta</div>
+                          </div>
+                        )}
+
+                        {/* Conteúdo da aula ativa ou botão de adicionar */}
+                        {aulaAtiva ? (
+                          <div className="class-info">
+                            <div className="class-student">{getPrimeiroEUltimoNome(aulaAtiva.alunoNome)}</div>
+
+                            <div className={`class-type ${aulaAtiva.tipoAula === TipoAula.AULA_REGULAR
+                              ? 'is-regular'
+                              : 'is-makeup'
+                              }`}>
+                              {aulaAtiva.matricula?.instrumento?.nome}
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="add-class">
+                            {selectionMode && <button
+                              className="button is-small is-text"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleClicarCelula(dia, horario);
+                              }}
+                            >
+                              <FaPlus className="has-text-grey-light" />
+                            </button>}
+
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })
+                  : (
+                    // Table Mobile - VERSÃO CORRIGIDA
+                    <div
+                      onClick={() => handleClicarCelula(diaSelecionadoMobile, horario)}
+                      className={`schedule-cell ${getAulaNoHorarioMobile(diaSelecionadoMobile, horario)
+                        ? getAulaNoHorarioMobile(diaSelecionadoMobile, horario)?.status === 'REPOSTA'
+                          ? 'has-reposta' // Usa a mesma classe do desktop
+                          : getAulaNoHorarioMobile(diaSelecionadoMobile, horario)?.tipoAula === TipoAula.AULA_REGULAR
+                            ? 'has-class'
+                            : 'has-makeup'
+                        : 'is-available'
+                        }`}
+                    >
+                      {/* Cabeçalho da aula reposta, se existir - IGUAL AO DESKTOP */}
+                      {getReposicaoNoHorario(diaSelecionadoMobile, horario) && (
+                        <div className="reposta-info-header">
+                          <div className="class-student-minimal">
+                            {getPrimeiroEUltimoNome(getReposicaoNoHorario(diaSelecionadoMobile, horario)!.alunoNome)}
+                          </div>
+                          <div className="class-status-minimal is-reposta">Reposta</div>
+                        </div>
+                      )}
+
+                      {/* Conteúdo da aula ativa ou botão de adicionar */}
+                      {getAulaNoHorario(diaSelecionadoMobile, horario) ? (
+                        <div className="class-info">
+                          <div className="class-student">
+                            {getPrimeiroEUltimoNome(getAulaNoHorario(diaSelecionadoMobile, horario)!.alunoNome)}
+                          </div>
+                          <div className={`class-type ${getAulaNoHorario(diaSelecionadoMobile, horario)!.tipoAula === TipoAula.AULA_REGULAR
+                            ? 'is-regular'
+                            : 'is-makeup'
+                            }`}>
+                            {getAulaNoHorario(diaSelecionadoMobile, horario)!.matricula?.instrumento?.nome} - {converterTipoAulaParaTexto(getAulaNoHorario(diaSelecionadoMobile, horario)!.tipoAula)}
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="add-class">
+                          {selectionMode && <button
+                            className="button is-small is-text"
+                            disabled={!selectionMode}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleClicarCelula(diaSelecionadoMobile, horario);
+                            }}
+                          >
+                            <FaPlus className="has-text-grey-light" />
+                          </button>}
+                        </div>
+                      )}
+                    </div>
+                  )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Legenda */}
+        <div className="box mt-5" style={{ boxShadow: 'none', border: '1px solid #dbdbdb' }}>
+          <div className="is-flex is-flex-wrap-wrap is-justify-content-center is-gap-3 mr-3"   >
+            <span className="tag is-light is-rounded" style={{ marginRight: '30px', marginBottom: '10px' }}>
+              <span className="icon has-text-grey">
+                <i className="fas fa-square">< FaSquare /> </i>
+              </span>
+              <span className="has-text-weight-semibold">Horário Livre</span>
+            </span>
+            <span className="tag is-warning is-rounded" style={{ marginRight: '30px', marginBottom: '10px' }}>
+              <span className="icon">
+                <i className="fas fa-square">< FaSquare /></i>
+              </span>
+              <span className="has-text-weight-semibold">Aula Regular</span>
+            </span>
+            <span className="tag is-danger is-rounded" style={{ marginRight: '30px', marginBottom: '10px' }}>
+              <span className="icon">
+                <i className="fas fa-square">< FaSquare /></i>
+              </span>
+              <span className="has-text-weight-semibold">Reposição</span>
+            </span>
+            <span className="tag is-success is-rounded " style={{ marginRight: '30px', marginBottom: '10px' }}>
+              <span className="icon">
+                <i className="fas fa-square">< FaSquare /></i>
+              </span>
+              <span className="has-text-weight-semibold">Aula Reposta</span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+
+      <style jsx>{`
+  .schedule-container {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+
+  .schedule-header {
+    display: flex;
+    background: #f5f5f5;
+    border-bottom: 1px solid #e8e8e8;
+  }
+
+  .schedule-time-label {
+    width: 80px;
+    padding: 12px;
+    font-weight: bold;
+    color: gray;
+    text-align: center;
+    border-right: 1px solid #e8e8e8;
+    flex-shrink: 0;
+  }
+
+  .schedule-day-header {
+    flex: 1;
+    padding: 12px;
+    text-align: center;
+
+    min-width: 0; /* Importante para flexbox */
+  }
+
+  .schedule-day-header:last-child {
+    border-right: none;
+  }
+
+  .schedule-weekday {
+    font-weight: bold;
+    color: #363636;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .schedule-date {
+    font-size: 0.9em;
+    color: #666;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .schedule-body {
+    max-height: 600px;
+    overflow-y: auto;
+  }
+
+  .schedule-row {
+    display: flex;
+    border-bottom: 1px solid #e8e8e8;
+    min-height: 80px; /* Altura fixa mínima */
+  }
+
+  .schedule-row:last-child {
+    border-bottom: none;
+  }
+
+  .schedule-time {
+    width: 80px;
+    padding: 8px 12px;
+    text-align: center;
+    font-size: 0.9em;
+    color: #666;
+    background: #fafafa;
+    border-right: 1px solid #e8e8e8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .schedule-cell {
+    flex: 1;
+    min-height: 80px; /* Altura fixa */
+    height: 80px; /* Força altura fixa */
+    padding: 4px;
+    border: 1px solid #e8e8e8;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0; /* Importante para flexbox */
+    overflow: hidden; /* Impede conteúdo extra */
+    position: relative;
+  }
+
+  .schedule-cell:last-child {
+    border-right: none;
+  }
+
+  .schedule-cell:hover {
+    background: #f8f9fa;
+  }
+
+  .schedule-cell.is-available {
+    background: #f8f9fa;
+  }
+
+  .schedule-cell.has-class {
+    background: #fff3cd;
+    border-left: 1px solid #ffc107;
+  }
+
+  .schedule-cell.has-makeup {
+    background: #f8d7da;
+    border-left: 1px solid #dc3545;
+  }
+
+  .schedule-cell.has-reposta {
+  color: white;
+    border-left: 4px solid #28a745;
+  }
+
+  .schedule-cell.not-clickable {
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+
+  .schedule-cell.not-clickable:hover {
+    background: inherit;
+  }
+
+  /* CONTEÚDO DAS CÉLULAS - ALTURA CONTROLADA */
+  .class-info {
+    padding: 2px;
+    max-height: 72px; /* Altura máxima do conteúdo */
+    overflow: hidden;
+  }
+
+  .class-student {
+    font-weight: bold;
+    font-size: 0.75em; /* Reduzido */
+    margin-bottom: 1px;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .class-teacher {
+    font-size: 0.7em; /* Reduzido */
+    color: #666;
+    margin-bottom: 1px;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .class-instrument {
+    font-size: 0.65em; /* Reduzido */
+    color: #888;
+    margin-bottom: 3px;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .class-type {
+    display: inline-block;
+    padding: 1px 4px; /* Reduzido */
+    border-radius: 8px;
+    font-size: 0.6em; /* Reduzido */
+    font-weight: bold;
+    text-transform: uppercase;
+    line-height: 1.2;
+  }
+
+  .class-type.is-regular {
+    background: #ffc107;
+    color: #000;
+  }
+
+  .class-type.is-makeup {
+    background: #dc3545;
+    color: #fff;
+  }
+
+  .class-status {
+    display: inline-block;
+    padding: 1px 4px;
+    border-radius: 8px;
+    font-size: 0.6em;
+    font-weight: bold;
+    margin-top: 1px;
+    line-height: 1.2;
+  }
+
+  .class-status.is-reposta {
+    background: #28a745;
+    color: #fff;
+  }
+
+  .add-class {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+  }
+
+  /* AULAS REPOSTAS */
+  .schedule-cell.has-reposta-minimal {
+    background: #f8f9fa;
+    border-left: 1px solid #28a745;
+    opacity: 0.7;
+  }
+
+  .reposta-minimal-info {
+    padding: 2px;
+    text-align: center;
+    max-height: 72px;
+    overflow: hidden;
+  }
+
+  .class-student-minimal {
+    font-weight: bold;
+    font-size: 0.7em;
+    margin-bottom: 2px;
+    color: #424242;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .class-status-minimal {
+    display: inline-block;
+    padding: 1px 4px;
+    border-radius: 8px;
+    font-size: 0.55em;
+    font-weight: bold;
+    line-height: 1.2;
+  }
+
+  .class-status-minimal.is-reposta {
+    background: #28a745;
+    color: #fff;
+  }
+
+  /* DIAS DE FOLGA */
+  .schedule-day-header.not-working-day {
+    background-color: #f8f9fa;
+    opacity: 0.6;
+  }
+
+  .schedule-day-off {
+    font-size: 0.7em;
+    color: #dc3545;
+    font-weight: bold;
+    margin-top: 2px;
+    line-height: 1.2;
+  }
+
+  .schedule-cell.not-working-day {
+    background-color: #f8f9fa;
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  
+
+  .day-off-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #6c757d;
+    font-size: 0.7em;
+    font-weight: bold;
+    text-align: center;
+    line-height: 1.2;
+  }
+
+  .schedule-cell.not-clickable:hover {
+    background-color: #f8f9fa;
+  }
+
+  /* CABEÇALHO DE AULA REPOSTA */
+  .reposta-info-header {
+    max-height: 72px;
+    overflow: hidden;
+  }
+
+ 
+`}</style>
+
+      <ModalGenerico
+        isOpen={showObsForm}
+        onClose={() => fecharModal()}
+        dados={observacoes}
+        onSave={salvarObservacao}
+        titulo={'Relatório Prof° ' + professor?.nome}
+        campos={camposObservacao}
+        textoBotaoSalvar="Salvar"
+      />
+      <ConfigAgendaModal
+        isOpen={modalConfigAberto}
+        onClose={() => setModalConfigAberto(false)}
+        professorId={professorId}
+        onConfigUpdate={(newConfig) => {
+          setConfigAgenda(newConfig);
+          // Recarregar dados quando a configuração mudar
+          // Você pode adicionar um refresh dos dados aqui se necessário
+        }}
+      />
+
+    </Layout>
+  );
+};
