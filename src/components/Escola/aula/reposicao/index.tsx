@@ -230,20 +230,12 @@ export const MarcarReposicao: React.FC = () => {
     };
 
 const irParaAgendaReposicao = () => {
-   // ✅ 1º PRIORIDADE: State da página (sempre válido)
-  const professorID = aulaOriginal?.professorId || Number(router.query.professorId); // Seu state atual
-  
-  // ✅ 2º PRIORIDADE: aulaOriginal (fallback)
-  const alunoId = aulaOriginal?.alunoId || alunoSelecionado?.id || Number(router.query.alunoId);
-  
-  
-  console.log('🔍 PRIORIDADES:', {
-    professorState: professorID,      // ✅ 1 (válido)
-    aulaOriginalProfessor: professorID,  // undefined
-    alunoId,
-    aulaOriginalId: aulaOriginal?.id
-  });
-  
+  const alunoId =  aulaOriginal?.alunoId
+  const professorID = aulaOriginal?.professorId
+
+  console.log(aulaOriginal)
+ 
+  // ✅ Igual ao que funciona: professorId direto do state (não aulaOriginal)
   if (!alunoId || !professorID) {  // professorId do state da página
     showError('Selecione aluno E professor primeiro');
     return;
