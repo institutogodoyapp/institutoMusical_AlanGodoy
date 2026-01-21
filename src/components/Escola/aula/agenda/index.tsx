@@ -91,9 +91,11 @@ export const AgendaPage = () => {
   useEffect(() => {
     const loadConfigAgenda = async () => {
       try {
+        
         setLoadingConfig(true)
         const config = await configAgendaService.getConfig();
         setConfigAgenda(config);
+        console.log('configAgenda', config)
 
       } catch (error) {
         showError(`Erro ao carregar configuração da agenda: ${error}`);
@@ -136,7 +138,7 @@ export const AgendaPage = () => {
 
 
         const response = await service.getReposições(professorIdNovo);
-
+console.log('reposicoes', response)
         const reposicoesFormatadas = Array.isArray(response)
           ? response.map((reposicao) => ({
             id: reposicao.id,
@@ -173,6 +175,7 @@ export const AgendaPage = () => {
         }
         setLoading(true);
         const response = await service.getAulasPorProfessor(professorIdNovo, dataInicio, dataFim);
+        console.log('aulas', response)
         const aulasFormatadas = Array.isArray(response)
           ? response.map((aula) => ({
             id: aula.id,
@@ -218,9 +221,12 @@ export const AgendaPage = () => {
   }, [dataInicio, dataFim]);
 
   useEffect(() => {
+     console.log('route', router.query)
     if (typeof window !== 'undefined') {
+          console.log('window', window)
       const { mode, returnUrl } = router.query;
       if (mode === 'select') {
+                console.log('mode', mode)
         setSelectionMode(true);
         setReturnUrl(returnUrl as string || '/');
       }
@@ -238,6 +244,7 @@ export const AgendaPage = () => {
 
   // useEffect separado para horários que depende de configAgenda
   useEffect(() => {
+     console.log('config agenda', configAgenda)
     if (configAgenda) {
       const novosHorarios = gerarHorariosDia();
       setHorarios(novosHorarios);
