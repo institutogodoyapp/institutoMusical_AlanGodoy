@@ -20,7 +20,6 @@ import { converterTipoAulaParaTexto } from '@/util/statusETipos';
 import { CampoModal, DadosModal } from '@/components/common/modal/modal-generico';
 import LoadingSpinner from '@/components/common/loading';
 
-export const dynamic = 'force-dynamic';
 export const AgendaPage = () => {
   // ========== SERVICES E HOOKS ==========
   const service = useAulaService();
@@ -123,31 +122,16 @@ export const AgendaPage = () => {
 
   }, []);
 
-  useEffect(() => {
-    if (!isClient || !router.isReady) return;
-
-    const { mode, returnUrl } = router.query;
-    if (mode === 'select') {
-      setSelectionMode(true);
-      setReturnUrl(returnUrl as string || '/');
-    } else {
-      setSelectionMode(false);  // ✅ Reset se não for select
-    }
-  }, [isClient, router.isReady, router.asPath]);
-
-  const getProfessorId = useCallback(() => {
-    return Number((router.query.professorId as string[])?.[0] ??
-      (router.query.id as string) ??
-      String(professorId));
-  }, [router.query.id, router.query.professorId, professorId]);
-
+      const getProfessorId = useCallback(() => {
+      return Number((router.query.professorId as string[])?.[0] ?? router.query.id ?? professorId);
+    }, [router.query.professorId, router.query.id, professorId]);
 
   let professorIdNovo
-  
-const fetchData = useCallback(async () => {
-      const profId = getProfessorId();
-      if (!profId || !isClient) return;  // ✅ Ignora SSR
 
+  useEffect(() => {
+    const fetchData = async () => {
+      const profId = getProfessorId();
+      if (!profId) return;
 
       setAgendaLoad(true);
       try {
@@ -168,32 +152,28 @@ const fetchData = useCallback(async () => {
       } finally {
         setAgendaLoad(false);
       }
-    }, [getProfessorId, isClient, profService, showError]);
-
-
-  useEffect(() => {
-    
+    };
     fetchData();
-  }, [fetchData]);
+  }, [dataInicio, dataFim, getProfessorId]);
 
-   const fetchAulas = useCallback(async () => {
+   useEffect(() => {
+    const fetchAulas = async () => {
       const profId = getProfessorId();
-      if (!profId || !isClient) return;
-
+      if (!profId) return;
 
       try {
         const response = await service.getAulasPorProfessor(profId, dataInicio, dataFim);
         const aulasFormatadas = Array.isArray(response)
           ? response.map((aula: any) => ({
-            id: aula.id, tipoAula: aula.tipoAula, dataHora: aula.dataHora,
-            horarioAula: aula.horarioAula, duracao: aula.duracao || 60,
-            alunoNome: `${isMobile ? getPrimeiroEUltimoNome(aula.alunoNome) : aula.alunoNome}`,
-            professorNome: aula.professorNome, observacoes: aula.observacoes,
-            instrumentoNome: aula.instrumentoNome, matricula: aula.matricula,
-            professorId: aula.professorId, status: mapearStatus(aula.status),
-            statusOriginal: aula.statusOriginal, diaSemanaAula: aula.diaSemanaAula,
-            alunoId: aula.alunoId,
-          }))
+              id: aula.id, tipoAula: aula.tipoAula, dataHora: aula.dataHora,
+              horarioAula: aula.horarioAula, duracao: aula.duracao || 60,
+              alunoNome: `${isMobile ? getPrimeiroEUltimoNome(aula.alunoNome) : aula.alunoNome}`,
+              professorNome: aula.professorNome, observacoes: aula.observacoes,
+              instrumentoNome: aula.instrumentoNome, matricula: aula.matricula,
+              professorId: aula.professorId, status: mapearStatus(aula.status),
+              statusOriginal: aula.statusOriginal, diaSemanaAula: aula.diaSemanaAula,
+              alunoId: aula.alunoId,
+            }))
           : [response];
         setAulas(aulasFormatadas);
       } catch (error) {
@@ -201,13 +181,18 @@ const fetchData = useCallback(async () => {
       } finally {
         setLoading(false);
       }
-    }, [getProfessorId, isClient, dataInicio, dataFim, isMobile, service, showError]);
-    
-  useEffect(() => {
- 
+    };
     fetchAulas();
-  }, [fetchAulas]);
-
+  }, [dataInicio, dataFim, getProfessorId, isMobile]);
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const { mode, returnUrl } = router.query;
+      if (mode === 'select') {
+        setSelectionMode(true);
+        setReturnUrl(returnUrl as string || '/');
+      }
+    }
+  }, [router.query]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -226,7 +211,14 @@ const fetchData = useCallback(async () => {
     }
   }, [configAgenda, dataInicio, dataFim]);
 
-
+  useEffect(() => {
+    if (!router.isReady || !isClient) return;
+    const { mode, returnUrl: url } = router.query;
+    if (mode === 'select') {
+      setSelectionMode(true);
+      setReturnUrl(url as string || '/');
+    }
+  }, [router.isReady, router.asPath]);
 
   useEffect(() => {
     const diasArray: string[] = [];
@@ -249,7 +241,7 @@ const fetchData = useCallback(async () => {
       setDiaSelecionadoMobile(diasArray[0]);
     }
   }, [dataInicio, dataFim]);
-  console.log('🔍 RENDER:', { isClient, routerIsReady: router.isReady, profId: getProfessorId(), selectionMode, query: router.query });
+
 
 
   // ========== CONFIGURAÇÕES ==========
@@ -458,28 +450,24 @@ const fetchData = useCallback(async () => {
 
   // ========== FUNÇÕES DE MANIPULAÇÃO DE AULAS ==========
   const handleClicarCelula = (dia: string, horario: string) => {
-
     const aulaExistente = getAulaNoHorario(dia, horario);
+
     if (selectionMode) {
+      const { pathname, params } = parseReturnUrl(returnUrl);
       const alunoId = (router.query.alunoId as string[])?.[0];
-      if (!alunoId) {
-        console.error('❌ alunoId missing in query:', router.query); // Debug prod
+      if (!alunoId && (router.query.tipo as string) === 'reposicao') {
         showError('alunoId não encontrado para reposição');
         return;
       }
-
-      const { pathname, params } = parseReturnUrl(returnUrl);
-
 
       router.push({
         pathname,
         query: aulaExistente
           ? { ...params, aulaId: aulaExistente.id, tipo: 'original', data: formatarDataIso(dia), horario: aulaExistente.horarioAula, alunoId }
-          : { ...params, selectedDate: formatarDataIso(dia), selectedTime: horario, tipo: 'reposicao', alunoId }
-      }); // Sem shallow: true - causa loops em prod[web:14][web:18]
+          : { ...params, selectedDate: formatarDataIso(dia), selectedTime: horario, tipo: 'reposicao', alunoId },
+      }); // ❌ REMOVIDO shallow: true
       return;
     }
-
     if (aulaExistente) {
 
       setAulaSelecionada(aulaExistente);
@@ -513,11 +501,11 @@ const fetchData = useCallback(async () => {
   const diasFiltrados = dias;
 
 
-  if (loading || loadingConfig || agendaLoad || !isClient || !router.isReady) {
+  if (loading) {
     return (
       <div className="section">
         <div className="container">
-          <LoadingSpinner show={true} />
+          <LoadingSpinner show={loading} />
         </div>
       </div>
     );
