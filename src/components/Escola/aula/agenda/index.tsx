@@ -1,5 +1,5 @@
 import { Layout } from '@/components/layout';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { FaFilter, FaCalendarAlt, FaPlus, FaEdit, FaSpinner, FaCog, FaTrash, FaClock, FaUser, FaMusic, FaSquare } from 'react-icons/fa';
 import { CustomButton, ModalGenerico, useNotifications } from '@/components';
 import { useRouter } from 'next/router';
@@ -62,7 +62,6 @@ export const AgendaPage = () => {
   const [selectionMode, setSelectionMode] = useState<boolean>(false);
   const [returnUrl, setReturnUrl] = useState<string>('');
 
-
   // ========== ESTADOS DE FORMULÁRIOS ==========
   const [observacoes, setObservacoes] = useState<AulaObs>({
     observacoes: ''
@@ -89,21 +88,12 @@ export const AgendaPage = () => {
   const INTERVALO = 60;
 
   // ========== EFEITOS ==========
-
-  const getProfessorId = useCallback(() => {
-    return Number(router.query.professorId || router.query.id || 0);
-  }, [router.query.professorId, router.query.id]);
-
-  const professorIdNovo = getProfessorId()
-
   useEffect(() => {
     const loadConfigAgenda = async () => {
       try {
-
         setLoadingConfig(true)
         const config = await configAgendaService.getConfig();
         setConfigAgenda(config);
-        console.log('configAgenda', config)
 
       } catch (error) {
         showError(`Erro ao carregar configuração da agenda: ${error}`);
@@ -124,22 +114,29 @@ export const AgendaPage = () => {
 
   }, []);
 
-
+  let professorIdNovo
 
   useEffect(() => {
     const fetchReposicoes = async () => {
 
+      const professorIdQuery = Number(router.query.professorId) || Number(router.query.id);
+
       try {
+        const { mode } = router.query;
 
+        if (mode === 'select') {
 
-
+          professorIdNovo = professorIdQuery
+        } else {
+          professorIdNovo = professorId
+        }
         setLoading(true);
         const responseProf = await profService.getProfessor(professorIdNovo)
         setProfessor(responseProf)
 
 
         const response = await service.getReposições(professorIdNovo);
-        console.log('reposicoes', response)
+
         const reposicoesFormatadas = Array.isArray(response)
           ? response.map((reposicao) => ({
             id: reposicao.id,
@@ -158,7 +155,6 @@ export const AgendaPage = () => {
         showError('Erro ao buscar88 aulas');
       } finally {
         setLoading(false);
-
       }
     };
     fetchReposicoes();
@@ -169,10 +165,14 @@ export const AgendaPage = () => {
 
       const professorIdQuery = Number(router.query.professorId) || Number(router.query.id);
       try {
-
+        const { mode } = router.query;
+        if (mode === 'select') {
+          professorIdNovo = professorIdQuery
+        } else {
+          professorIdNovo = professorId
+        }
         setLoading(true);
         const response = await service.getAulasPorProfessor(professorIdNovo, dataInicio, dataFim);
-        console.log('aulas', response)
         const aulasFormatadas = Array.isArray(response)
           ? response.map((aula) => ({
             id: aula.id,
@@ -212,26 +212,17 @@ export const AgendaPage = () => {
         showError('Erro ao buscar aulas');
       } finally {
         setLoading(false);
-
       }
     };
     fetchAulas();
   }, [dataInicio, dataFim]);
 
   useEffect(() => {
-    console.log('router.query no AgendaPage:', router.query);
-
     if (typeof window !== 'undefined') {
       const { mode, returnUrl } = router.query;
-      console.log('Mode detectado:', mode, 'ReturnUrl:', returnUrl);
-
       if (mode === 'select') {
-        console.log('Modo seleção ativado');
         setSelectionMode(true);
         setReturnUrl(returnUrl as string || '/');
-      } else {
-        console.log('Modo normal');
-        setSelectionMode(false);
       }
     }
   }, [router.query]);
@@ -247,7 +238,6 @@ export const AgendaPage = () => {
 
   // useEffect separado para horários que depende de configAgenda
   useEffect(() => {
-    console.log('config agenda', configAgenda)
     if (configAgenda) {
       const novosHorarios = gerarHorariosDia();
       setHorarios(novosHorarios);
@@ -291,7 +281,7 @@ export const AgendaPage = () => {
 
   ];
 
-
+  
 
 
   const fecharModal = () => {
@@ -300,10 +290,10 @@ export const AgendaPage = () => {
   };
   const salvarObservacao = async (dados: DadosModal) => {
 
-    console.log('salvo1')
+  console.log('salvo1')
     if (!aulaSelecionada) return
 
-    console.log('salvo1', aulaSelecionada)
+  console.log('salvo1', aulaSelecionada)
     setLoading(true)
     try {
       const doc = await service.salvarObservacao(dados, aulaSelecionada.id)
@@ -455,7 +445,6 @@ export const AgendaPage = () => {
   };
 
   function parseReturnUrl(returnUrl: string) {
-    console.log('chamei parseurl')
     try {
       const url = new URL(returnUrl, window.location.origin);
       const params: Record<string, string> = {};
@@ -485,7 +474,6 @@ export const AgendaPage = () => {
 
   // ========== FUNÇÕES DE MANIPULAÇÃO DE AULAS ==========
   const handleClicarCelula = (dia: string, horario: string) => {
-    console.log('cliquei celular')
     const aulaExistente = getAulaNoHorario(dia, horario);
 
     if (selectionMode) {
@@ -496,7 +484,7 @@ export const AgendaPage = () => {
         return;
       }
 
-      console.log(aulaExistente, 'aulaexistente')
+
       router.push({
         pathname,
         query: aulaExistente
@@ -551,9 +539,6 @@ export const AgendaPage = () => {
   // Modifique a renderização dos dias para filtrar por dias de trabalho
   const diasFiltrados = dias;
 
-  if (loading || loadingConfig || !router.isReady || selectionMode) {
-    return <LoadingSpinner show={true} />;
-  }
 
 
   // ========== RENDERIZAÇÃO PRINCIPAL ==========
@@ -753,7 +738,7 @@ export const AgendaPage = () => {
                                 handleClicarCelula(dia, horario);
                               }}
                             >
-                              <FaPlus className={"has-text-grey-light"} />
+                              <FaPlus className="has-text-grey-light" />
                             </button>}
 
                           </div>
