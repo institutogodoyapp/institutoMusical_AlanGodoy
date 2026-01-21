@@ -1,5 +1,5 @@
 import { Layout } from '@/components/layout';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { FaFilter, FaCalendarAlt, FaPlus, FaEdit, FaSpinner, FaCog, FaTrash, FaClock, FaUser, FaMusic, FaSquare } from 'react-icons/fa';
 import { CustomButton, ModalGenerico, useNotifications } from '@/components';
 import { useRouter } from 'next/router';
@@ -88,6 +88,10 @@ export const AgendaPage = () => {
   const INTERVALO = 60;
 
   // ========== EFEITOS ==========
+const getProfessorId = useCallback(() => {
+  return Number(router.query.professorId || router.query.id || 0);
+}, [router.query.professorId, router.query.id]);
+  const professorIdNovo = getProfessorId();
   useEffect(() => {
     const loadConfigAgenda = async () => {
       try {
@@ -114,22 +118,15 @@ export const AgendaPage = () => {
 
   }, []);
 
-  let professorIdNovo
+ 
 
   useEffect(() => {
     const fetchReposicoes = async () => {
 
-      const professorIdQuery = Number(router.query.professorId) || Number(router.query.id);
+
 
       try {
-        const { mode } = router.query;
-
-        if (mode === 'select') {
-
-          professorIdNovo = professorIdQuery
-        } else {
-          professorIdNovo = professorId
-        }
+    
         setLoading(true);
         const responseProf = await profService.getProfessor(professorIdNovo)
         setProfessor(responseProf)
@@ -163,14 +160,9 @@ export const AgendaPage = () => {
   useEffect(() => {
     const fetchAulas = async () => {
 
-      const professorIdQuery = Number(router.query.professorId) || Number(router.query.id);
       try {
-        const { mode } = router.query;
-        if (mode === 'select') {
-          professorIdNovo = professorIdQuery
-        } else {
-          professorIdNovo = professorId
-        }
+
+   
         setLoading(true);
         const response = await service.getAulasPorProfessor(professorIdNovo, dataInicio, dataFim);
         const aulasFormatadas = Array.isArray(response)
