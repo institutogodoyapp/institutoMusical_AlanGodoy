@@ -260,7 +260,7 @@ console.log("----->>>", alunoId, professorId,`${router.pathname}?alunoId=${aluno
 
     // ========== FUNÇÕES DE SUBMISSÃO ==========
     const handleSubmit = async () => {
-    
+    console.log('handle')
         if (!alunoSelecionado || !aulaOriginal || !novaData || !novoHorario) {
             showError('Preencha todos os campos obrigatórios.');
             return;
