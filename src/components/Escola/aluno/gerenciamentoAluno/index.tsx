@@ -505,7 +505,7 @@ return (
                                 {aluno.ativo && <p><strong>Horário da Aula:</strong> {instAluno.horarioAula}</p>}
                                 {aluno.ativo && <p><strong>Professor:</strong> {instAluno.professor?.nome}</p>}
                                 {aluno.ativo && <p><strong>Dia da Aula:</strong> {traduzirDiaSemana(instAluno.diaSemanaAula)}</p>}
-                                {aluno.ativo && <p><strong>Data Matrícula:</strong> {instAluno.dataMatricula}</p>}
+                                {aluno.ativo && <p><strong>Data Matrícula:</strong> {formatarDataString(instAluno.dataMatricula ? instAluno.dataMatricula : '')}</p>}
 
 
                                 <button className="button is-danger  is-small mt-5"
