@@ -86,10 +86,10 @@ export const useAlunoService = () => {
         await httpClient.delete(`${resourceURL}alunos/matricula/${id}`)
     }
 
-     const matricular = async (matricula: DadosModal): Promise<Matricula> => {
-        console.log(matricula)
+    const matricular = async (matricula: DadosModal): Promise<Matricula> => {
+
         const response: AxiosResponse<Matricula> = await httpClient.post(`${resourceURL}alunos/matricula`, matricula)
-         return response.data
+        return response.data
     }
 
 

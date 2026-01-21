@@ -41,6 +41,7 @@ export const GerenciamentoAlunos: React.FC = () => {
   const [alunoIdMatricula, setAlunoIdMatricula] = useState<number>()
   const [formData, setFormData] = useState<Matricula>({
     id: 0,
+    numeroMatricula: 0,
     professorId: 0,
     instrumentoId: 0,
     diaSemanaAula: '',
@@ -208,6 +209,13 @@ export const GerenciamentoAlunos: React.FC = () => {
 
 
   const camposMatricula: CampoModal[] = [
+
+      {
+      tipo: 'number',
+      nome: 'numeroMatricula',
+      label: 'Matricula',
+      required: true
+    },
     {
       tipo: 'select',
       nome: 'professorId',
@@ -245,16 +253,7 @@ export const GerenciamentoAlunos: React.FC = () => {
       //placeholder: "Ex: Violão..",
       required: true
     },
-    {
-      tipo: 'date',
-      nome: 'dataMatricula',
-      label: 'Data da Matrícula',
-      //placeholder: "Ex: Violão..",
-      required: false
-    },
-
-
-
+  
   ];
 
   // ========== FUNÇÕES DE CRUD ==========
@@ -294,10 +293,6 @@ export const GerenciamentoAlunos: React.FC = () => {
         instrumentoId: Number(dados.instrumentoId),
         professorId: Number(dados.professorId),
         alunoId: Number(alunoIdMatricula),
-      
-        dataMatricula: dados.dataMatricula && dados.dataMatricula !== 'NaN/NaN/NaN' 
-    ? formatarDataString(dados.dataMatricula) 
-    : dados.dataMatricula
         
     }
 
@@ -315,14 +310,16 @@ export const GerenciamentoAlunos: React.FC = () => {
       setLoading(false)
       showSuccess('Aluno matriculado com sucesso!');
       fecharModalAção()
+    
     } else {
       showError('Aluno já cadastrado neste Instrumento')
+      
     }
 
   } catch (error) {
     showError('Erro ao matricular');
 
-  }
+  } finally{setLoading(false)}
 }
 
 
@@ -548,7 +545,7 @@ return (
               )) : (
                 <tr>
                   <td colSpan={7} className="has-text-centered">
-                    {alunos.length === 0 && <div className="notification is-light">Nenhum aluno encontrado com os filtros atuais</div>}
+                    {alunos.length > 0 && <div className="notification is-light">Nenhum aluno encontrado com os filtros atuais</div>}
                   </td>
                 </tr>
               )}
