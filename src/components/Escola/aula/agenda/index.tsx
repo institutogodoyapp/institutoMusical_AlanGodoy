@@ -61,6 +61,7 @@ export const AgendaPage = () => {
   const [aulaSelecionada, setAulaSelecionada] = useState<AulaForm | null>(null);
   const [selectionMode, setSelectionMode] = useState<boolean>(false);
   const [returnUrl, setReturnUrl] = useState<string>('');
+  const [dadosProntos, setDadosProntos] = useState(false);
 
   // ========== ESTADOS DE FORMULÁRIOS ==========
   const [observacoes, setObservacoes] = useState<AulaObs>({
@@ -157,6 +158,7 @@ console.log('reposicoes', response)
         showError('Erro ao buscar88 aulas');
       } finally {
         setLoading(false);
+            setDadosProntos(true);
       }
     };
     fetchReposicoes();
@@ -215,6 +217,7 @@ console.log('reposicoes', response)
         showError('Erro ao buscar aulas');
       } finally {
         setLoading(false);
+            setDadosProntos(true);
       }
     };
     fetchAulas();
@@ -548,6 +551,9 @@ console.log(aulaExistente, 'aulaexistente')
   // Modifique a renderização dos dias para filtrar por dias de trabalho
   const diasFiltrados = dias;
 
+if (loading || loadingConfig || !router.isReady || (!dadosProntos && selectionMode)) {
+  return <LoadingSpinner show={true} />;
+}
 
 
   // ========== RENDERIZAÇÃO PRINCIPAL ==========
@@ -740,14 +746,14 @@ console.log(aulaExistente, 'aulaexistente')
                           </div>
                         ) : (
                           <div className="add-class">
-                            {selectionMode && <button
+                            {selectionMode && dadosProntos && <button
                               className="button is-small is-text"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleClicarCelula(dia, horario);
                               }}
                             >
-                              <FaPlus className="has-text-grey-light" />
+                               <FaPlus className={!dadosProntos ? "has-text-grey-light" : ""} />
                             </button>}
 
                           </div>
