@@ -229,31 +229,30 @@ export const MarcarReposicao: React.FC = () => {
         });
     };
 
-const irParaAgendaReposicao = () => {
-  const alunoId =  aulaOriginal?.alunoId
-  const professorID = aulaOriginal?.professorId
+    const irParaAgendaReposicao = () => {
+        const alunoId = alunoSelecionado?.id || Number(router.query.alunoId);
+        const professorId = aulaOriginal?.professorId
+        if (!alunoId) {
+            showError('Selecione um aluno válido primeiro');
+            const input = document.querySelector('.aluno-input');
+            if (input) {
+                input.classList.add('is-danger');
+                setTimeout(() => input.classList.remove('is-danger'), 2000);
+            }
+            return;
+        }
 
-  console.log(aulaOriginal)
- 
-  // ✅ Igual ao que funciona: professorId direto do state (não aulaOriginal)
-  if (!alunoId || !professorID) {  // professorId do state da página
-    showError('Selecione aluno E professor primeiro');
-    return;
-  }
-console.log("----->>>", alunoId, professorId,`${router.pathname}?alunoId=${alunoId}` )
-  router.push({
-    
-    pathname: '/instituto-musical/escola/aula/agenda',
-    query: {
-      mode: 'select',
-      tipo: 'reposicao',
-      alunoId: alunoId.toString(),
-      professorId: professorID.toString(),  // ✅ Sempre válido como em AulaOriginal
-      returnUrl: `${router.pathname}?alunoId=${alunoId}`  // Igual ao que funciona
-    }
-  })
-  console.log("fix o pudh----->>>", alunoId, professorID,`${router.pathname}?alunoId=${alunoId}` );
-};
+        router.push({
+            pathname: `/instituto-musical/escola/aula/agenda`,
+            query: {
+                mode: 'select',
+                tipo: 'reposicao',
+                alunoId: alunoId.toString(),
+                professorId: professorId?.toString(),
+                returnUrl: `${router.pathname}?alunoId=${alunoId}`
+            }
+        });
+    };
 
     const voltarParaListagem = () => {
         localStorage.removeItem('reposicaoState');
@@ -261,17 +260,17 @@ console.log("----->>>", alunoId, professorId,`${router.pathname}?alunoId=${aluno
     };
 
     // ========== FUNÇÕES DE SUBMISSÃO ==========
-    const handleSubmit = async () => {
-    console.log('handle')
+    const handleSubmit = async (e: FormEvent) => {
+        e.preventDefault();
         if (!alunoSelecionado || !aulaOriginal || !novaData || !novoHorario) {
             showError('Preencha todos os campos obrigatórios.');
             return;
         }
-        
+        setLoading(true);
 
         try {
 
-setLoading(true);
+
             const response = await serviceAula.marcarReposicao(formData)
 
             showSuccess('Reposição agendada com sucesso!');
@@ -288,8 +287,6 @@ setLoading(true);
             setLoading(false);
         }
     };
-
-    
 
     // ========== RENDERIZAÇÃO PRINCIPAL ==========
     return (
@@ -453,7 +450,7 @@ setLoading(true);
 
                         {/* Formulário de Reposição */}
                         {aulaOriginal && (
-                           <div>
+                            <form onSubmit={handleSubmit}>
                                 <div className="box mb-4">
                                     <label className="label mb-2">Aula que será reposta</label>
                                     <div className="is-flex is-flex-direction-column is-align-items-flex-start">
@@ -489,7 +486,6 @@ setLoading(true);
                                 </div>
 
                                 {/* Seleção de Nova Data/Horário */}
-                            
                                 <div className="box mb-4">
                                     <div className="is-flex is-align-items-center mb-2">
                                         <label className="label mr-2">Reposição para</label>
@@ -523,7 +519,13 @@ setLoading(true);
                                 {novaData && novoHorario && (
                                     <>
                                         <div className="field">
-                                       
+                                            <label className="label">Motivo (opcional)</label>
+                                            <textarea
+                                                className="textarea"
+                                                rows={2}
+                                                value={motivo}
+                                                onChange={(e) => setMotivo(e.target.value)}
+                                            />
                                         </div>
                                         <div className="field is-grouped is-grouped-right">
                                             <div className="control">
@@ -532,15 +534,13 @@ setLoading(true);
                                                     text={loading ? "Agendando..." : "Confirmar Reposição"}
                                                     icon={loading ? <FaSpinner className="fa-spin" /> : <FaCheck />}
                                                     disabled={loading}
-                                                    onClick={handleSubmit}
                                                     className="is-primary"
                                                 />
                                             </div>
                                         </div>
                                     </>
                                 )}
-                                
-                      </div>
+                            </form>
                         )}
 
                         {/* Indicador de Carregamento */}
