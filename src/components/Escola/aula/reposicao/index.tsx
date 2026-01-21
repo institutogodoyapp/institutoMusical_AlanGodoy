@@ -242,6 +242,7 @@ const irParaAgendaReposicao = () => {
   }
 console.log("----->>>", alunoId, professorId,`${router.pathname}?alunoId=${alunoId}` )
   router.push({
+    
     pathname: '/instituto-musical/escola/aula/agenda',
     query: {
       mode: 'select',
@@ -250,7 +251,8 @@ console.log("----->>>", alunoId, professorId,`${router.pathname}?alunoId=${aluno
       professorId: professorID.toString(),  // ✅ Sempre válido como em AulaOriginal
       returnUrl: `${router.pathname}?alunoId=${alunoId}`  // Igual ao que funciona
     }
-  });
+  })
+  console.log("fix o pudh----->>>", alunoId, professorID,`${router.pathname}?alunoId=${alunoId}` );
 };
 
     const voltarParaListagem = () => {
