@@ -234,13 +234,13 @@ const irParaAgendaReposicao = () => {
   const professorID = aulaOriginal?.professorId
 
   console.log(aulaOriginal)
- 
+   console.log('🚀 irParaAgendaReposicao:', { alunoId, professorId, aulaOriginalId: aulaOriginal?.id });
   // ✅ Igual ao que funciona: professorId direto do state (não aulaOriginal)
   if (!alunoId || !professorID) {  // professorId do state da página
     showError('Selecione aluno E professor primeiro');
     return;
   }
-console.log("----->>>", alunoId, professorId,`${router.pathname}?alunoId=${alunoId}` )
+console.log("fix o pudh1----->>>", alunoId, professorID,`${router.pathname}?alunoId=${alunoId}` );
   router.push({
     
     pathname: '/instituto-musical/escola/aula/agenda',
