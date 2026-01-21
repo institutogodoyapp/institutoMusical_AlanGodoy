@@ -229,30 +229,26 @@ export const MarcarReposicao: React.FC = () => {
         });
     };
 
-    const irParaAgendaReposicao = () => {
-        const alunoId = alunoSelecionado?.id || Number(router.query.alunoId);
-        const professorId = aulaOriginal?.professorId
-        if (!alunoId) {
-            showError('Selecione um aluno válido primeiro');
-            const input = document.querySelector('.aluno-input');
-            if (input) {
-                input.classList.add('is-danger');
-                setTimeout(() => input.classList.remove('is-danger'), 2000);
-            }
-            return;
-        }
-
-        router.push({
-            pathname: `/instituto-musical/escola/aula/agenda`,
-            query: {
-                mode: 'select',
-                tipo: 'reposicao',
-                alunoId: alunoId.toString(),
-                professorId: professorId?.toString(),
-                returnUrl: `${router.pathname}?alunoId=${alunoId}`
-            }
-        });
-    };
+const irParaAgendaReposicao = () => {
+  const alunoId = alunoSelecionado?.id || Number(router.query.alunoId);
+  
+  // ✅ Igual ao que funciona: professorId direto do state (não aulaOriginal)
+  if (!alunoId || !professorId) {  // professorId do state da página
+    showError('Selecione aluno E professor primeiro');
+    return;
+  }
+console.log("----->>>", alunoId, professorId,`${router.pathname}?alunoId=${alunoId}` )
+  router.push({
+    pathname: '/instituto-musical/escola/aula/agenda',
+    query: {
+      mode: 'select',
+      tipo: 'reposicao',
+      alunoId: alunoId.toString(),
+      professorId: professorId.toString(),  // ✅ Sempre válido como em AulaOriginal
+      returnUrl: `${router.pathname}?alunoId=${alunoId}`  // Igual ao que funciona
+    }
+  });
+};
 
     const voltarParaListagem = () => {
         localStorage.removeItem('reposicaoState');
@@ -287,6 +283,8 @@ setLoading(true);
             setLoading(false);
         }
     };
+
+    
 
     // ========== RENDERIZAÇÃO PRINCIPAL ==========
     return (
