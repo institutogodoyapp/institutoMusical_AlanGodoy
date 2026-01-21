@@ -266,11 +266,11 @@ export const MarcarReposicao: React.FC = () => {
             showError('Preencha todos os campos obrigatórios.');
             return;
         }
-        setLoading(true);
+        
 
         try {
 
-
+setLoading(true);
             const response = await serviceAula.marcarReposicao(formData)
 
             showSuccess('Reposição agendada com sucesso!');
@@ -450,7 +450,7 @@ export const MarcarReposicao: React.FC = () => {
 
                         {/* Formulário de Reposição */}
                         {aulaOriginal && (
-                            <form onSubmit={handleSubmit}>
+                           <div>
                                 <div className="box mb-4">
                                     <label className="label mb-2">Aula que será reposta</label>
                                     <div className="is-flex is-flex-direction-column is-align-items-flex-start">
@@ -486,6 +486,7 @@ export const MarcarReposicao: React.FC = () => {
                                 </div>
 
                                 {/* Seleção de Nova Data/Horário */}
+                            
                                 <div className="box mb-4">
                                     <div className="is-flex is-align-items-center mb-2">
                                         <label className="label mr-2">Reposição para</label>
@@ -519,13 +520,7 @@ export const MarcarReposicao: React.FC = () => {
                                 {novaData && novoHorario && (
                                     <>
                                         <div className="field">
-                                            <label className="label">Motivo (opcional)</label>
-                                            <textarea
-                                                className="textarea"
-                                                rows={2}
-                                                value={motivo}
-                                                onChange={(e) => setMotivo(e.target.value)}
-                                            />
+                                       
                                         </div>
                                         <div className="field is-grouped is-grouped-right">
                                             <div className="control">
@@ -534,13 +529,15 @@ export const MarcarReposicao: React.FC = () => {
                                                     text={loading ? "Agendando..." : "Confirmar Reposição"}
                                                     icon={loading ? <FaSpinner className="fa-spin" /> : <FaCheck />}
                                                     disabled={loading}
+                                                    onClick={() => handleSubmit}
                                                     className="is-primary"
                                                 />
                                             </div>
                                         </div>
                                     </>
                                 )}
-                            </form>
+                                
+                      </div>
                         )}
 
                         {/* Indicador de Carregamento */}
