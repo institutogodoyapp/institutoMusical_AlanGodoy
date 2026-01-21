@@ -56,7 +56,7 @@ export const GerenciamentoAlunos: React.FC = () => {
   const [ordem, setOrdem] = useState<{ campo: keyof Aluno; direcao: 'asc' | 'desc' }>({ campo: 'nome', direcao: 'asc' });
 
   // ========== EFEITOS ==========
-   useEffect(() => {
+  useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
@@ -75,7 +75,7 @@ export const GerenciamentoAlunos: React.FC = () => {
     const carregarProfessores = async () => {
       try {
 
-         setLoading(true)
+        setLoading(true)
         const resposta = await professorService.getAllProfessores();
         setProfessores(resposta);
       } catch (error) {
@@ -210,7 +210,7 @@ export const GerenciamentoAlunos: React.FC = () => {
 
   const camposMatricula: CampoModal[] = [
 
-      {
+    {
       tipo: 'number',
       nome: 'numeroMatricula',
       label: 'Matricula',
@@ -253,15 +253,18 @@ export const GerenciamentoAlunos: React.FC = () => {
       //placeholder: "Ex: Violão..",
       required: true
     },
-  
+
   ];
 
   // ========== FUNÇÕES DE CRUD ==========
   const handleExcluirAluno = async (id: number) => {
     if (window.confirm('Tem certeza que deseja excluir este aluno? Esta ação não pode ser desfeita.')) {
       try {
+          setLoading(true)
+       
         await service.removerAluno(id);
         setAlunos(alunos.filter(aluno => aluno.id !== id));
+           setLoading(false)
         showSuccess('Aluno excluído com sucesso!');
       } catch (error) {
         showError('Erro ao excluir aluno');
@@ -273,8 +276,11 @@ export const GerenciamentoAlunos: React.FC = () => {
   const cancelarMatricula = async (id: number) => {
     if (window.confirm('Tem certeza que deseja desmatricular aluno deste Curso? Esta ação não pode ser desfeita.')) {
       try {
+        setLoading(true)
         await service.cancelarMatricula(id);
+        setLoading(false)
         showSuccess('Aluno desmatriculado com sucesso!');
+
         fecharModalAção()
       } catch (error) {
         showError('Erro ao desmatricular');
@@ -284,8 +290,8 @@ export const GerenciamentoAlunos: React.FC = () => {
   };
 
   const matricularAluno = async (dados: DadosModal) => {
-    
-   
+
+
     try {
       setLoading(true)
       const dadostypes = {
@@ -293,341 +299,341 @@ export const GerenciamentoAlunos: React.FC = () => {
         instrumentoId: Number(dados.instrumentoId),
         professorId: Number(dados.professorId),
         alunoId: Number(alunoIdMatricula),
-        
-    }
 
-      
-
-     
-
-    const aluno = alunos.find(a => a.id === dadostypes.alunoId)
-    const instrumento = aluno?.instrumentos
-      .flatMap(matricula => matricula.instrumento)
-      .find(instr => instr?.id === dadostypes.instrumentoId);
-
-    if (instrumento?.id !== dadostypes.instrumentoId) {
-      await service.matricular(dadostypes);
-      setLoading(false)
-      showSuccess('Aluno matriculado com sucesso!');
-      fecharModalAção()
-    
-    } else {
-      showError('Aluno já cadastrado neste Instrumento')
-      
-    }
-
-  } catch (error) {
-    showError('Erro ao matricular');
-
-  } finally{setLoading(false)}
-}
+      }
 
 
 
-// ========== FUNÇÕES DE NAVEGAÇÃO ==========
 
 
-const acessarProgressoAluno = async (aluno: Aluno) => {
-  try {
-    if (aluno.instrumentos.length > 0) {
-      await router.push(`/instituto-musical/escola/aluno/progresso-aluno?id=${aluno.id}`);
+      const aluno = alunos.find(a => a.id === dadostypes.alunoId)
+      const instrumento = aluno?.instrumentos
+        .flatMap(matricula => matricula.instrumento)
+        .find(instr => instr?.id === dadostypes.instrumentoId);
 
-    }
-    showError('Aluno não esta matriculado em nenhum curso');
+      if (instrumento?.id !== dadostypes.instrumentoId) {
+        await service.matricular(dadostypes);
+        setLoading(false)
+        showSuccess('Aluno matriculado com sucesso!');
+        fecharModalAção()
 
-  } catch (error) {
-    showError('Falha na navegação');
+      } else {
+        showError('Aluno já cadastrado neste Instrumento')
+
+      }
+
+    } catch (error) {
+      showError('Erro ao matricular');
+
+    } finally { setLoading(false) }
   }
-};
 
-const acessarCadastroAluno = () => router.push('/instituto-musical/escola/aluno/cadastro-aluno');
 
-const editar = (aluno: Aluno) => {
-  const url = `/instituto-musical/escola/aluno/cadastro-aluno?id=${aluno.id}`;
-  router.push(url);
-};
 
-const acessarSalaReposicao = () => router.push('/instituto-musical/escola/reposicao');
+  // ========== FUNÇÕES DE NAVEGAÇÃO ==========
 
-// ========== RENDERIZAÇÃO DE CARREGAMENTO ==========
-   if (loading) {
-        return (
-            <div className="section">
-                <div className="container">
-                           <LoadingSpinner show = {loading}/>
-                </div>
-            </div>
-        );
+
+  const acessarProgressoAluno = async (aluno: Aluno) => {
+    try {
+      if (aluno.instrumentos.length > 0) {
+        await router.push(`/instituto-musical/escola/aluno/progresso-aluno?id=${aluno.id}`);
+
+      }
+      showError('Aluno não esta matriculado em nenhum curso');
+
+    } catch (error) {
+      showError('Falha na navegação');
     }
-// ========== RENDERIZAÇÃO PRINCIPAL ==========
-return (
-  <Layout titulo="Gerenciamento de Alunos">
-    <div className="container mt-6">
-      <NotificationContainer
-        notifications={notifications}
-        onRemove={removeNotification}
-      />
-      <div className="box" style={{ boxShadow: 'none' }}>
-        <div className="level is-mobile">
-          <div className="level-left">
-            {/* Espaço reservado para elementos futuros */}
-          </div>
-          <div className="level-right">
-            <CustomButton
-              text={<span className="is-hidden-mobile">Adicionar Aluno</span>}
-              icon={<FiUserPlus />}
-              onClick={() => acessarCadastroAluno()}
-              className="is-small-mobile"
-              style={{ borderRadius: '6px' }}
-            />
+  };
 
-            <CustomButton
-              text={<span className="is-hidden-mobile">Marcar Reposição</span>}
-              icon={<FaCalendar />}
-              onClick={() => acessarSalaReposicao()}
-              className="is-small-mobile"
-              style={{ borderRadius: '6px', marginLeft: '10px' }}
-            />
-          </div>
+  const acessarCadastroAluno = () => router.push('/instituto-musical/escola/aluno/cadastro-aluno');
+
+  const editar = (aluno: Aluno) => {
+    const url = `/instituto-musical/escola/aluno/cadastro-aluno?id=${aluno.id}`;
+    router.push(url);
+  };
+
+  const acessarSalaReposicao = () => router.push('/instituto-musical/escola/reposicao');
+
+  // ========== RENDERIZAÇÃO DE CARREGAMENTO ==========
+  if (loading) {
+    return (
+      <div className="section">
+        <div className="container">
+          <LoadingSpinner show={loading} />
         </div>
+      </div>
+    );
+  }
+  // ========== RENDERIZAÇÃO PRINCIPAL ==========
+  return (
+    <Layout titulo="Gerenciamento de Alunos">
+      <div className="container mt-6">
+        <NotificationContainer
+          notifications={notifications}
+          onRemove={removeNotification}
+        />
+        <div className="box" style={{ boxShadow: 'none' }}>
+          <div className="level is-mobile">
+            <div className="level-left">
+              {/* Espaço reservado para elementos futuros */}
+            </div>
+            <div className="level-right">
+              <CustomButton
+                text={<span className="is-hidden-mobile">Adicionar Aluno</span>}
+                icon={<FiUserPlus />}
+                onClick={() => acessarCadastroAluno()}
+                className="is-small-mobile"
+                style={{ borderRadius: '6px' }}
+              />
 
-        {/* Filtros */}
-        <div className="columns is-multiline is-mobile">
-          <div className="column is-12-mobile is-6-tablet is-3-desktop">
-            <div className="field">
-              <div className="control">
-                <div className="select is-fullwidth">
-                  <select value={filtroStatus} onChange={e => setFiltroStatus(e.target.value)}>
-                    <option value="ativo">Ativos</option>
-                    <option value="inativo">Inativos</option>
-                    <option value="todos">Todos status</option>
-                  </select>
+              <CustomButton
+                text={<span className="is-hidden-mobile">Marcar Reposição</span>}
+                icon={<FaCalendar />}
+                onClick={() => acessarSalaReposicao()}
+                className="is-small-mobile"
+                style={{ borderRadius: '6px', marginLeft: '10px' }}
+              />
+            </div>
+          </div>
+
+          {/* Filtros */}
+          <div className="columns is-multiline is-mobile">
+            <div className="column is-12-mobile is-6-tablet is-3-desktop">
+              <div className="field">
+                <div className="control">
+                  <div className="select is-fullwidth">
+                    <select value={filtroStatus} onChange={e => setFiltroStatus(e.target.value)}>
+                      <option value="ativo">Ativos</option>
+                      <option value="inativo">Inativos</option>
+                      <option value="todos">Todos status</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="column is-12-mobile is-6-tablet is-3-desktop">
+              <div className="field">
+                <div className="control">
+                  <div className="select is-fullwidth">
+
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="column is-12-mobile is-6-tablet is-3-desktop">
+              <div className="field">
+                <div className="control has-icons-left">
+                  <input className="input is-fullwidth" type="text" placeholder="Filtrar por nome" value={filtroNome} onChange={e => setFiltroNome(e.target.value)} />
+                  <span className="icon is-left"><FiSearch /></span>
+                </div>
+              </div>
+            </div>
+
+            <div className="column is-12-mobile is-6-tablet is-3-desktop">
+              <div className="field">
+                <div className="control">
+                  <input className="input is-fullwidth" type="text" placeholder="Filtrar por CPF" value={filtroCPF} onChange={e => setFiltroCPF(e.target.value)} />
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="column is-12-mobile is-6-tablet is-3-desktop">
-            <div className="field">
-              <div className="control">
-                <div className="select is-fullwidth">
-
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="column is-12-mobile is-6-tablet is-3-desktop">
-            <div className="field">
-              <div className="control has-icons-left">
-                <input className="input is-fullwidth" type="text" placeholder="Filtrar por nome" value={filtroNome} onChange={e => setFiltroNome(e.target.value)} />
-                <span className="icon is-left"><FiSearch /></span>
-              </div>
-            </div>
-          </div>
-
-          <div className="column is-12-mobile is-6-tablet is-3-desktop">
-            <div className="field">
-              <div className="control">
-                <input className="input is-fullwidth" type="text" placeholder="Filtrar por CPF" value={filtroCPF} onChange={e => setFiltroCPF(e.target.value)} />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Tabela de Alunos */}
-        <div className="table-container is-scrollable">
-          <table className="table is-fullwidth is-striped is-hoverable is-hidden-mobile">
-            <thead>
-              <tr>
-                <th></th>
-                <th onClick={() => ordenarAlunos('nome')} className="is-clickable">
-                  <div className="is-flex is-align-items-center">
-                    <span>Nome</span>
-                    {getIconeOrdenacao('nome')}
-                  </div>
-                </th>
-                <th onClick={() => ordenarAlunos('cpf')} className="is-clickable">
-                  <div className="is-flex is-align-items-center">
-                    <span>CPF</span>
-                    {getIconeOrdenacao('cpf')}
-                  </div>
-                </th>
-                <th onClick={() => ordenarAlunos('email')} className="is-clickable">
-                  <div className="is-flex is-align-items-center">
-                    <span>E-mail</span>
-                    {getIconeOrdenacao('email')}
-                  </div>
-                </th>
-                <th>Status</th>
-                <th>Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              {alunos.length > 0 ? alunosFiltradosOrdenados.map(aluno => (
-                <React.Fragment key={aluno.id}>
-                  <tr className="is-clickable" onClick={() => toggleExpandirAluno(aluno.id)}>
-                    <td style={{ borderBottomWidth: '0', border: 'none', padding: '1.5rem' }}><span className="icon">{alunosExpandidos.has(aluno.id) ? <FiChevronDown /> : <FiChevronRight />}</span></td>
-                    <td>{aluno.nome}</td>
-                    <td>{aluno.cpf}</td>
-                    <td>{aluno.email}</td>
-                    <td>{<div className={`tag ${getColorTag(aluno.ativo)}`}>{`${aluno.ativo === false ? 'Inativo' : 'Ativo'}`}</div>}</td>
-                    <td>
-                      <div className="buttons are-small">
-                        <button className="button is-info is-light" title="Editar aluno" onClick={(e) => { e.stopPropagation(); editar(aluno); }}><span className="icon"><FiEdit /></span></button>
-                        {aluno.ativo === true ? <button className="button is-primary is-light"
-                          title="Ver progresso"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            acessarProgressoAluno(aluno);
-                          }}><span className="icon"><FiBarChart2 /></span></button> : ''}
-                        {aluno.ativo === true ? <button className="button is-danger is-light"
-                          title="Excluir aluno"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleExcluirAluno(aluno.id);
-                          }}><span className="icon"><FiTrash2 /></span></button> : ''}
-                      </div>
-                    </td>
-                  </tr>
-                  {alunosExpandidos.has(aluno.id) && (
-                    <tr>
-                      <td colSpan={7}>
-                        <div className="box">
-                          <div className="columns is-multiline">
-                            <div className="column is-6">
-                              <p><strong>Telefone:</strong> {aluno.telefone}</p>
-                              <p><strong>Data de Cadastro:</strong> {aluno.dataCadastro || ''}</p>
-                              {aluno.ativo && <p><strong>Mensalidade:</strong> {formatarMoeda(aluno.mensalidades?.[0]?.valor || 0)}</p>}
-                              {aluno.instrumentos.map(instAluno => <div className="box is-6" style={{ margin: '19px', padding: '1.2rem' }}>
-                                <h1><strong>Matrícula: </strong> {instAluno.numeroMatricula}</h1>
-                                <h1><strong>Curso: </strong>{instAluno.instrumento?.nome}</h1>
-                                {aluno.ativo && <p><strong>Horário da Aula:</strong> {instAluno.horarioAula}</p>}
-                                {aluno.ativo && <p><strong>Professor:</strong> {instAluno.professor?.nome}</p>}
-                                {aluno.ativo && <p><strong>Dia da Aula:</strong> {traduzirDiaSemana(instAluno.diaSemanaAula)}</p>}
-                                {aluno.ativo && <p><strong>Data Matrícula:</strong> {instAluno.dataMatricula}</p>}
-
-
-                                <button className="button is-danger  is-small mt-5"
-                                  onClick={() => cancelarMatricula(instAluno.id ? instAluno.id : 0)}>
-                                  <span className="icon"><FiX /></span>
-                                  <span>Cancelar</span>
-                                </button>
-
-
-                              </div>)}
-                              {aluno.ativo &&
-                                <button className="button is-primary-custom is-small mt-5"
-                                  onClick={() => acessarProgressoAluno(aluno)}>
-                                  <span className="icon"><FiBarChart2 /></span>
-                                  <span>Ver Progresso Completo</span>
-                                </button>
-
-                              }
-
-                              {aluno.ativo &&
-                                <button className="button is-primary-custom is-small mt-5"
-                                  style={{ margin: '.2rem' }}
-                                  onClick={() => abriModal(aluno)}>
-                                  <span className="icon"><FiPlus /></span>
-                                  <span>Nova Matrícula</span>
-                                </button>
-
-                              }
-                            </div>
-
-                          </div>
+          {/* Tabela de Alunos */}
+          <div className="table-container is-scrollable">
+            <table className="table is-fullwidth is-striped is-hoverable is-hidden-mobile">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th onClick={() => ordenarAlunos('nome')} className="is-clickable">
+                    <div className="is-flex is-align-items-center">
+                      <span>Nome</span>
+                      {getIconeOrdenacao('nome')}
+                    </div>
+                  </th>
+                  <th onClick={() => ordenarAlunos('cpf')} className="is-clickable">
+                    <div className="is-flex is-align-items-center">
+                      <span>CPF</span>
+                      {getIconeOrdenacao('cpf')}
+                    </div>
+                  </th>
+                  <th onClick={() => ordenarAlunos('email')} className="is-clickable">
+                    <div className="is-flex is-align-items-center">
+                      <span>E-mail</span>
+                      {getIconeOrdenacao('email')}
+                    </div>
+                  </th>
+                  <th>Status</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                {alunos.length > 0 ? alunosFiltradosOrdenados.map(aluno => (
+                  <React.Fragment key={aluno.id}>
+                    <tr className="is-clickable" onClick={() => toggleExpandirAluno(aluno.id)}>
+                      <td style={{ borderBottomWidth: '0', border: 'none', padding: '1.5rem' }}><span className="icon">{alunosExpandidos.has(aluno.id) ? <FiChevronDown /> : <FiChevronRight />}</span></td>
+                      <td>{aluno.nome}</td>
+                      <td>{aluno.cpf}</td>
+                      <td>{aluno.email}</td>
+                      <td>{<div className={`tag ${getColorTag(aluno.ativo)}`}>{`${aluno.ativo === false ? 'Inativo' : 'Ativo'}`}</div>}</td>
+                      <td>
+                        <div className="buttons are-small">
+                          <button className="button is-info is-light" title="Editar aluno" onClick={(e) => { e.stopPropagation(); editar(aluno); }}><span className="icon"><FiEdit /></span></button>
+                          {aluno.ativo === true ? <button className="button is-primary is-light"
+                            title="Ver progresso"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              acessarProgressoAluno(aluno);
+                            }}><span className="icon"><FiBarChart2 /></span></button> : ''}
+                          {aluno.ativo === true ? <button className="button is-danger is-light"
+                            title="Excluir aluno"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleExcluirAluno(aluno.id);
+                            }}><span className="icon"><FiTrash2 /></span></button> : ''}
                         </div>
                       </td>
                     </tr>
-                  )}
-                </React.Fragment>
-              )) : (
-                <tr>
-                  <td colSpan={7} className="has-text-centered">
-                    {alunos.length > 0 && <div className="notification is-light">Nenhum aluno encontrado com os filtros atuais</div>}
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                    {alunosExpandidos.has(aluno.id) && (
+                      <tr>
+                        <td colSpan={7}>
+                          <div className="box">
+                            <div className="columns is-multiline">
+                              <div className="column is-6">
+                                <p><strong>Telefone:</strong> {aluno.telefone}</p>
+                                <p><strong>Data de Cadastro:</strong> {aluno.dataCadastro || ''}</p>
+                                {aluno.ativo && <p><strong>Mensalidade:</strong> {formatarMoeda(aluno.mensalidades?.[0]?.valor || 0)}</p>}
+                                {aluno.instrumentos.map(instAluno => <div className="box is-6" style={{ margin: '19px', padding: '1.2rem' }}>
+                                  <h1><strong>Matrícula: </strong> {instAluno.numeroMatricula}</h1>
+                                  <h1><strong>Curso: </strong>{instAluno.instrumento?.nome}</h1>
+                                  {aluno.ativo && <p><strong>Horário da Aula:</strong> {instAluno.horarioAula}</p>}
+                                  {aluno.ativo && <p><strong>Professor:</strong> {instAluno.professor?.nome}</p>}
+                                  {aluno.ativo && <p><strong>Dia da Aula:</strong> {traduzirDiaSemana(instAluno.diaSemanaAula)}</p>}
+                                  {aluno.ativo && <p><strong>Data Matrícula:</strong> {instAluno.dataMatricula}</p>}
+
+
+                                  <button className="button is-danger  is-small mt-5"
+                                    onClick={() => cancelarMatricula(instAluno.id ? instAluno.id : 0)}>
+                                    <span className="icon"><FiX /></span>
+                                    <span>Cancelar</span>
+                                  </button>
+
+
+                                </div>)}
+                                {aluno.ativo &&
+                                  <button className="button is-primary-custom is-small mt-5"
+                                    onClick={() => acessarProgressoAluno(aluno)}>
+                                    <span className="icon"><FiBarChart2 /></span>
+                                    <span>Ver Progresso Completo</span>
+                                  </button>
+
+                                }
+
+                                {aluno.ativo &&
+                                  <button className="button is-primary-custom is-small mt-5"
+                                    style={{ margin: '.2rem' }}
+                                    onClick={() => abriModal(aluno)}>
+                                    <span className="icon"><FiPlus /></span>
+                                    <span>Nova Matrícula</span>
+                                  </button>
+
+                                }
+                              </div>
+
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+                )) : (
+                  <tr>
+                    <td colSpan={7} className="has-text-centered">
+                      {alunos.length > 0 && <div className="notification is-light">Nenhum aluno encontrado com os filtros atuais</div>}
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
 
 
 
-          {alunosFiltradosOrdenados.length > 0 ? (
-            <CardList
-              data={alunosFiltradosOrdenados}
-              titleField='nome'
-              icon={<FaUserGraduate />}
-              iconColor='is-primary-custom'
-              subtitleField='instrumentoNome'
-              fields={[
-                { label: 'CPF:', key: 'cpf' },
-                { label: 'Email:', key: 'email' },
-                { label: 'Contato:', key: 'telefone' }
-              ]}
-              tags={[
-                { label: 'Cadastro', key: 'dataCadastro', color: 'has-primary-custom' },
+            {alunosFiltradosOrdenados.length > 0 ? (
+              <CardList
+                data={alunosFiltradosOrdenados}
+                titleField='nome'
+                icon={<FaUserGraduate />}
+                iconColor='is-primary-custom'
+                subtitleField='instrumentoNome'
+                fields={[
+                  { label: 'CPF:', key: 'cpf' },
+                  { label: 'Email:', key: 'email' },
+                  { label: 'Contato:', key: 'telefone' }
+                ]}
+                tags={[
+                  { label: 'Cadastro', key: 'dataCadastro', color: 'has-primary-custom' },
 
-                {
-                  label: 'Status', key: 'ativo',
-                  color: (item: any) => getColorTag(item.ativo),
-                  format: (ativo: boolean) => ativo ? 'Ativo' : 'Inativo'
-                }
+                  {
+                    label: 'Status', key: 'ativo',
+                    color: (item: any) => getColorTag(item.ativo),
+                    format: (ativo: boolean) => ativo ? 'Ativo' : 'Inativo'
+                  }
 
 
-              ]}
-              actions={[
-                {
-                  label: '',
-                  color: 'is-success is-light',
-                  onClick: (item) => acessarProgressoAluno(item.id),
-                  icon: <FiBarChart2 />,
-                  itemAtivo: alunosFiltradosOrdenados.some(aluno => aluno.ativo)
-                },
-                {
-                  label: '',
-                  color: 'is-info is-light',
-                  onClick: (item) => editar(item),
-                  icon: <FiEdit />,
-                  itemAtivo: true
-                },
-                {
-                  label: '',
-                  color: 'is-danger is-light',
-                  onClick: (item) => handleExcluirAluno(item.id),
-                  icon: <FiTrash2 />,
-                  itemAtivo: alunosFiltradosOrdenados.some(aluno => aluno.ativo)
-                }
-              ]}
-            />
-          ) : (
-            <div className="column is-12">
-             {isMobile && <div className="notification is-light">
-                Nenhum Aluno encontrado
-              </div>}
-            </div>
-          )}
+                ]}
+                actions={[
+                  {
+                    label: '',
+                    color: 'is-success is-light',
+                    onClick: (item) => acessarProgressoAluno(item.id),
+                    icon: <FiBarChart2 />,
+                    itemAtivo: alunosFiltradosOrdenados.some(aluno => aluno.ativo)
+                  },
+                  {
+                    label: '',
+                    color: 'is-info is-light',
+                    onClick: (item) => editar(item),
+                    icon: <FiEdit />,
+                    itemAtivo: true
+                  },
+                  {
+                    label: '',
+                    color: 'is-danger is-light',
+                    onClick: (item) => handleExcluirAluno(item.id),
+                    icon: <FiTrash2 />,
+                    itemAtivo: alunosFiltradosOrdenados.some(aluno => aluno.ativo)
+                  }
+                ]}
+              />
+            ) : (
+              <div className="column is-12">
+                {isMobile && <div className="notification is-light">
+                  Nenhum Aluno encontrado
+                </div>}
+              </div>
+            )}
 
+          </div>
         </div>
       </div>
-    </div>
 
 
-    <ModalGenerico
-      isOpen={modalAberto}
-      onClose={() => fecharModal()}
-      dados={formData}
-      instrumentosPorProfessor={(item) => carregarInstrumento(item)}
-      onSave={matricularAluno}
-      titulo={'Nova Matrícula'}
-      campos={camposMatricula}
-      isEdit={false}
-      textoBotaoSalvar="Salvar"
-    />
+      <ModalGenerico
+        isOpen={modalAberto}
+        onClose={() => fecharModal()}
+        dados={formData}
+        instrumentosPorProfessor={(item) => carregarInstrumento(item)}
+        onSave={matricularAluno}
+        titulo={'Nova Matrícula'}
+        campos={camposMatricula}
+        isEdit={false}
+        textoBotaoSalvar="Salvar"
+      />
 
-  </Layout>
-);
+    </Layout>
+  );
 };
 
 export default GerenciamentoAlunos;
