@@ -241,6 +241,11 @@ const irParaAgendaReposicao = () => {
     return;
   }
 console.log("fix o pudh1----->>>", alunoId, professorID,`${router.pathname}?alunoId=${alunoId}` );
+
+  const returnUrl = `${router.pathname}?alunoId=${alunoId}`;
+  
+  console.log("Redirecionando para agenda - returnUrl:", returnUrl);
+
   router.push({
     
     pathname: '/instituto-musical/escola/aula/agenda',
@@ -249,7 +254,8 @@ console.log("fix o pudh1----->>>", alunoId, professorID,`${router.pathname}?alun
       tipo: 'reposicao',
       alunoId: alunoId.toString(),
       professorId: professorID.toString(),  // ✅ Sempre válido como em AulaOriginal
-      returnUrl: `${router.pathname}?alunoId=${alunoId}`  // Igual ao que funciona
+      returnUrl: returnUrl,  // Igual ao que funciona
+      aulaOriginalId: aulaOriginal.id
     }
   })
   console.log("fix o pudh----->>>", alunoId, professorID,`${router.pathname}?alunoId=${alunoId}` );

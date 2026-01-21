@@ -61,7 +61,7 @@ export const AgendaPage = () => {
   const [aulaSelecionada, setAulaSelecionada] = useState<AulaForm | null>(null);
   const [selectionMode, setSelectionMode] = useState<boolean>(false);
   const [returnUrl, setReturnUrl] = useState<string>('');
-  const [dadosProntos, setDadosProntos] = useState(false);
+
 
   // ========== ESTADOS DE FORMULÁRIOS ==========
   const [observacoes, setObservacoes] = useState<AulaObs>({
@@ -91,15 +91,15 @@ export const AgendaPage = () => {
   // ========== EFEITOS ==========
 
   const getProfessorId = useCallback(() => {
-  return Number(router.query.professorId || router.query.id || 0);
-}, [router.query.professorId, router.query.id]);
+    return Number(router.query.professorId || router.query.id || 0);
+  }, [router.query.professorId, router.query.id]);
 
-const professorIdNovo = getProfessorId()
+  const professorIdNovo = getProfessorId()
 
   useEffect(() => {
     const loadConfigAgenda = async () => {
       try {
-        
+
         setLoadingConfig(true)
         const config = await configAgendaService.getConfig();
         setConfigAgenda(config);
@@ -130,16 +130,16 @@ const professorIdNovo = getProfessorId()
     const fetchReposicoes = async () => {
 
       try {
-       
 
-     
+
+
         setLoading(true);
         const responseProf = await profService.getProfessor(professorIdNovo)
         setProfessor(responseProf)
 
 
         const response = await service.getReposições(professorIdNovo);
-console.log('reposicoes', response)
+        console.log('reposicoes', response)
         const reposicoesFormatadas = Array.isArray(response)
           ? response.map((reposicao) => ({
             id: reposicao.id,
@@ -158,7 +158,7 @@ console.log('reposicoes', response)
         showError('Erro ao buscar88 aulas');
       } finally {
         setLoading(false);
-            setDadosProntos(true);
+
       }
     };
     fetchReposicoes();
@@ -169,7 +169,7 @@ console.log('reposicoes', response)
 
       const professorIdQuery = Number(router.query.professorId) || Number(router.query.id);
       try {
-       
+
         setLoading(true);
         const response = await service.getAulasPorProfessor(professorIdNovo, dataInicio, dataFim);
         console.log('aulas', response)
@@ -212,21 +212,26 @@ console.log('reposicoes', response)
         showError('Erro ao buscar aulas');
       } finally {
         setLoading(false);
-            setDadosProntos(true);
+
       }
     };
     fetchAulas();
   }, [dataInicio, dataFim]);
 
   useEffect(() => {
-     console.log('route', router.query)
+    console.log('router.query no AgendaPage:', router.query);
+
     if (typeof window !== 'undefined') {
-          console.log('window', window)
       const { mode, returnUrl } = router.query;
+      console.log('Mode detectado:', mode, 'ReturnUrl:', returnUrl);
+
       if (mode === 'select') {
-                console.log('mode', mode)
+        console.log('Modo seleção ativado');
         setSelectionMode(true);
         setReturnUrl(returnUrl as string || '/');
+      } else {
+        console.log('Modo normal');
+        setSelectionMode(false);
       }
     }
   }, [router.query]);
@@ -242,7 +247,7 @@ console.log('reposicoes', response)
 
   // useEffect separado para horários que depende de configAgenda
   useEffect(() => {
-     console.log('config agenda', configAgenda)
+    console.log('config agenda', configAgenda)
     if (configAgenda) {
       const novosHorarios = gerarHorariosDia();
       setHorarios(novosHorarios);
@@ -286,7 +291,7 @@ console.log('reposicoes', response)
 
   ];
 
-  
+
 
 
   const fecharModal = () => {
@@ -295,10 +300,10 @@ console.log('reposicoes', response)
   };
   const salvarObservacao = async (dados: DadosModal) => {
 
-  console.log('salvo1')
+    console.log('salvo1')
     if (!aulaSelecionada) return
 
-  console.log('salvo1', aulaSelecionada)
+    console.log('salvo1', aulaSelecionada)
     setLoading(true)
     try {
       const doc = await service.salvarObservacao(dados, aulaSelecionada.id)
@@ -491,7 +496,7 @@ console.log('reposicoes', response)
         return;
       }
 
-console.log(aulaExistente, 'aulaexistente')
+      console.log(aulaExistente, 'aulaexistente')
       router.push({
         pathname,
         query: aulaExistente
@@ -546,9 +551,9 @@ console.log(aulaExistente, 'aulaexistente')
   // Modifique a renderização dos dias para filtrar por dias de trabalho
   const diasFiltrados = dias;
 
-if (loading || loadingConfig || !router.isReady || (!dadosProntos && selectionMode)) {
-  return <LoadingSpinner show={true} />;
-}
+  if (loading || loadingConfig || !router.isReady || selectionMode) {
+    return <LoadingSpinner show={true} />;
+  }
 
 
   // ========== RENDERIZAÇÃO PRINCIPAL ==========
@@ -741,14 +746,14 @@ if (loading || loadingConfig || !router.isReady || (!dadosProntos && selectionMo
                           </div>
                         ) : (
                           <div className="add-class">
-                            {selectionMode && dadosProntos && <button
+                            {selectionMode && <button
                               className="button is-small is-text"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleClicarCelula(dia, horario);
                               }}
                             >
-                               <FaPlus className={!dadosProntos ? "has-text-grey-light" : ""} />
+                              <FaPlus className={"has-text-grey-light"} />
                             </button>}
 
                           </div>
