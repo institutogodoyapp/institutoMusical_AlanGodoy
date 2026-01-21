@@ -260,8 +260,8 @@ export const MarcarReposicao: React.FC = () => {
     };
 
     // ========== FUNÇÕES DE SUBMISSÃO ==========
-    const handleSubmit = async (e: FormEvent) => {
-        e.preventDefault();
+    const handleSubmit = async () => {
+    
         if (!alunoSelecionado || !aulaOriginal || !novaData || !novoHorario) {
             showError('Preencha todos os campos obrigatórios.');
             return;
@@ -529,7 +529,7 @@ setLoading(true);
                                                     text={loading ? "Agendando..." : "Confirmar Reposição"}
                                                     icon={loading ? <FaSpinner className="fa-spin" /> : <FaCheck />}
                                                     disabled={loading}
-                                                    onClick={() => handleSubmit}
+                                                    onClick={handleSubmit}
                                                     className="is-primary"
                                                 />
                                             </div>
