@@ -230,10 +230,13 @@ export const MarcarReposicao: React.FC = () => {
     };
 
 const irParaAgendaReposicao = () => {
-  const alunoId = alunoSelecionado?.id || Number(router.query.alunoId);
-  
+  const alunoId =  aulaOriginal?.alunoId
+  const professorID = aulaOriginal?.professorId
+
+  console.log(aulaOriginal)
+ 
   // ✅ Igual ao que funciona: professorId direto do state (não aulaOriginal)
-  if (!alunoId || !professorId) {  // professorId do state da página
+  if (!alunoId || !professorID) {  // professorId do state da página
     showError('Selecione aluno E professor primeiro');
     return;
   }
@@ -244,7 +247,7 @@ console.log("----->>>", alunoId, professorId,`${router.pathname}?alunoId=${aluno
       mode: 'select',
       tipo: 'reposicao',
       alunoId: alunoId.toString(),
-      professorId: professorId.toString(),  // ✅ Sempre válido como em AulaOriginal
+      professorId: professorID.toString(),  // ✅ Sempre válido como em AulaOriginal
       returnUrl: `${router.pathname}?alunoId=${alunoId}`  // Igual ao que funciona
     }
   });
