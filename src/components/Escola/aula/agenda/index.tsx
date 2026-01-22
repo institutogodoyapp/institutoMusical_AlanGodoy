@@ -62,6 +62,10 @@ export const AgendaPage = () => {
   const [selectionMode, setSelectionMode] = useState<boolean>(false);
   const [returnUrl, setReturnUrl] = useState<string>('');
 
+  const [isModoReposicao, setIsModoReposicao] = useState(false);
+
+
+
   // ========== ESTADOS DE FORMULÁRIOS ==========
   const [observacoes, setObservacoes] = useState<AulaObs>({
     observacoes: ''
@@ -88,6 +92,27 @@ export const AgendaPage = () => {
   const INTERVALO = 60;
 
   // ========== EFEITOS ==========
+
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const origem = sessionStorage.getItem('agendaOrigem') || (router.query.origem as string);
+      setIsModoReposicao(origem === 'reposicao');
+    }
+  }, []);
+
+
+    useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const { mode, returnUrl } = router.query;
+      if (mode === 'select') {
+        setSelectionMode(true);
+        setReturnUrl(returnUrl as string || '/');
+      }
+    }
+  }, [router.query]);
+
+
   useEffect(() => {
     const loadConfigAgenda = async () => {
       try {
@@ -217,15 +242,7 @@ export const AgendaPage = () => {
     fetchAulas();
   }, [dataInicio, dataFim]);
 
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const { mode, returnUrl } = router.query;
-      if (mode === 'select') {
-        setSelectionMode(true);
-        setReturnUrl(returnUrl as string || '/');
-      }
-    }
-  }, [router.query]);
+
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -281,7 +298,7 @@ export const AgendaPage = () => {
 
   ];
 
-  
+
 
 
   const fecharModal = () => {
@@ -290,14 +307,13 @@ export const AgendaPage = () => {
   };
   const salvarObservacao = async (dados: DadosModal) => {
 
-  console.log('salvo1')
     if (!aulaSelecionada) return
 
-  console.log('salvo1', aulaSelecionada)
+
     setLoading(true)
     try {
       const doc = await service.salvarObservacao(dados, aulaSelecionada.id)
-      console.log('salvo', doc)
+
     } catch (error) {
       showError('Falha em salvar: ' + error)
     } finally {
@@ -508,7 +524,7 @@ export const AgendaPage = () => {
     }
 
     if (aulaExistente) {
-      console.log("chm", aulaExistente)
+   
       setAulaSelecionada(aulaExistente);
       setNovaAula({
         ...aulaExistente,
@@ -532,6 +548,12 @@ export const AgendaPage = () => {
     }
     setModalAberto(true);
   };
+
+  const modoSelect = () => {
+
+    setIsModoReposicao(false)
+    router.back()
+  }
 
 
 
@@ -561,6 +583,17 @@ export const AgendaPage = () => {
           </div>
         )}
 
+        {isModoReposicao && !selectionMode && (
+          <div className="notification is-info">
+            <div className="is-flex is-justify-content-space-between is-align-items-center">
+              <p>Verifique a disponibilidade de Horário</p>
+              <button className="button is-small is-light" onClick={() => modoSelect()}>
+                Prosseguir
+              </button>
+            </div>
+          </div>
+        )}
+
 
 
         {/* Filtros */}
@@ -575,13 +608,13 @@ export const AgendaPage = () => {
             </div>
 
             {/* Botão de Configuração */}
-            <CustomButton
-              type="button"
-              text={'Configurar Agenda'}
-              icon={<FaCog className="mr-2" />}
-              className="is-primary is-outlined is-rounded"
-              onClick={() => setModalConfigAberto(true)}
-            />
+           { !isModoReposicao &&   <CustomButton
+                type="button"
+                text={'Configurar Agenda'}
+                icon={<FaCog className="mr-2" />}
+                className="is-primary is-outlined is-rounded"
+                onClick={() => setModalConfigAberto(true)}
+              />}
           </div>
 
 

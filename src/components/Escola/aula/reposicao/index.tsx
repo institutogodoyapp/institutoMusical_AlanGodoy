@@ -1,17 +1,19 @@
 import { useState, useEffect, useRef, FormEvent } from 'react';
 import { useRouter } from 'next/router';
 import { CustomButton, Layout, useNotifications } from '@/components';
-import { FaUser, FaSpinner, FaCheck, FaTimes, FaCalendarAlt, FaLock, FaArrowLeft, FaGraduationCap, FaChalkboardTeacher } from 'react-icons/fa';
+import { FaUser, FaSpinner, FaCheck, FaTimes, FaCalendarAlt, FaLock, FaArrowLeft, FaGraduationCap, FaChalkboardTeacher, FaIdCard, FaClock } from 'react-icons/fa';
 import { useAlunoService } from '@/app/services';
 import { useAulaService } from '@/app/services/escola/aula/aula.service';
 import { AulaForm as AulaOriginal } from '@/app/models/escola/aula';
-import { extrairData } from '@/util';
+import { extrairData, getDataAtual } from '@/util';
 import { StatusReposicao } from '@/app/models/escola/reposicao';
 import { Aluno } from '@/app/models/escola/aluno';
 import NotificationContainer from '@/components/common/notificacao/mutiplasNotifacoes';
 import { FaX } from 'react-icons/fa6';
 import { Professor } from '@/app/models';
 import { useProfessorService } from '@/app/services/escola/professor/professor.service';
+import { Input } from '@/components/common/input';
+import { FiTrash } from 'react-icons/fi';
 
 export const MarcarReposicao: React.FC = () => {
     // ========== SERVICES E HOOKS ==========
@@ -92,24 +94,17 @@ export const MarcarReposicao: React.FC = () => {
 
     const carregarProfessoresDoAluno = () => {
         const professores: Professor[] = (
-            alunoSelecionado?.instrumentos || [] 
+            alunoSelecionado?.instrumentos || []
         )
             .map(item => item.professor)
-            .filter((prof): prof is Professor => Boolean(prof?.id)) 
+            .filter((prof): prof is Professor => Boolean(prof?.id))
             .filter((prof, index, self) =>
-                self.findIndex(p => p.id === prof.id) === index 
+                self.findIndex(p => p.id === prof.id) === index
             );
-        setProfessores(professores); 
+        setProfessores(professores);
     };
 
-useEffect(() => {
-  console.log('=== FLUXO MARCAR REPOSIÇÃO ===');
-  console.log('1. alunoSelecionado atualizado:', alunoSelecionado);
-  console.log('2. professorId atualizado:', professorId);
-  console.log('3. aulaOriginal atualizado:', aulaOriginal);
-  console.log('4. Router query:', router.query);
-}, [alunoSelecionado, professorId, aulaOriginal, router.query]);
-
+    
     useEffect(() => {
 
         if (!buscaAluno.trim()) {
@@ -236,54 +231,29 @@ useEffect(() => {
     };
 
     const irParaAgendaReposicao = () => {
-    const alunoId = alunoSelecionado?.id || Number(router.query.alunoId);
-    const professorId = aulaOriginal?.professorId;
-    
-    console.log('=== irParaAgendaReposicao DEBUG ===');
-    console.log('alunoId:', alunoId);
-    console.log('professorId:', professorId);
-    console.log('aulaOriginal:', aulaOriginal);
-    
-    if (!alunoId) {
-        showError('Selecione um aluno válido primeiro');
-        const input = document.querySelector('.aluno-input');
-        if (input) {
-            input.classList.add('is-danger');
-            setTimeout(() => input.classList.remove('is-danger'), 2000);
+        const alunoId = alunoSelecionado?.id || Number(router.query.alunoId);
+        const professorId = aulaOriginal?.professorId;
+
+
+        if (!professorId) {
+            showError('Professor não encontrado na aula original. Selecione novamente a aula original.');
+            return;
         }
-        return;
-    }
-    
-    if (!professorId) {
-        showError('Professor não encontrado na aula original. Selecione novamente a aula original.');
-        return;
-    }
 
-    // Criar os parâmetros de query
-    const queryParams = new URLSearchParams({
-        mode: 'select',
-        tipo: 'reposicao',
-        alunoId: alunoId.toString(),
-        professorId: professorId.toString(),
-        returnUrl: `${window.location.pathname}?alunoId=${alunoId}`
-    });
+        sessionStorage.setItem('agendaOrigem', 'reposicao')
 
-    // Adicionar aulaOriginalId se existir (opcional, para referência)
-    if (aulaOriginal?.id) {
-        queryParams.append('aulaOriginalId', aulaOriginal.id.toString());
-    }
-
-    // Navegação completa usando window.location
-    const agendaUrl = `/instituto-musical/escola/aula/agenda?${queryParams.toString()}`;
-    
-    console.log('Navegando para:', agendaUrl);
-    
-    // Forçar navegação completa (reload da página)
-    window.location.href = agendaUrl;
-    // Ou alternativamente: window.location.assign(agendaUrl);
-};
+        router.push({
+            pathname: '/instituto-musical/escola/aula/agenda',
+            query: {
+                id: professorId,
+                origem: 'reposicao'
+            }
+        })
+        // Ou alternativamente: window.location.assign(agendaUrl);
+    };
     const voltarParaListagem = () => {
         localStorage.removeItem('reposicaoState');
+        sessionStorage.removeItem('agendaOrigem');
         router.push('/instituto-musical/escola/aluno/gerenciamento-aluno');
     };
 
@@ -345,8 +315,15 @@ useEffect(() => {
                         </h1>
 
                         {/* Busca de Aluno */}
-                        <div className="field mb-4" ref={buscaAlunoRef}>
-                            <label className="label">Buscar Aluno</label>
+                        <div className=" field mb-4" ref={buscaAlunoRef}>
+                            <label>
+                                <span className="icon-text mb-2 has-text-descrition-cinza-custom has-text-bold-normal">
+                                    <span className="icon"><FaGraduationCap /></span>
+                                    <span className="label">Buscar Aluno</span>
+                                </span>
+
+                            </label>
+
                             <div className="control has-icons-left has-icons-right">
                                 <input
                                     className="input aluno-input"
@@ -464,7 +441,10 @@ useEffect(() => {
                         {/* Seleção de Aula Original */}
                         {alunoSelecionado &&
                             <div className="field mb-4">
-                                <label className="label">Aula Original</label>
+                                <label className="label has-text-weight-bold is-size-5 mb-3">
+
+                                    Aula Original
+                                </label>
                                 {!aulaOriginal &&
                                     <CustomButton
                                         text="Selecionar Aula Original na Agenda"
@@ -480,7 +460,7 @@ useEffect(() => {
                         {aulaOriginal && (
                             <form onSubmit={handleSubmit}>
                                 <div className="box mb-4">
-                                    <label className="label mb-2">Aula que será reposta</label>
+
                                     <div className="is-flex is-flex-direction-column is-align-items-flex-start">
                                         <input
                                             className="input mb-2"
@@ -514,46 +494,66 @@ useEffect(() => {
                                 </div>
 
                                 {/* Seleção de Nova Data/Horário */}
-                                <div className="box mb-4">
+
+                                <div className="mb-4" style={{ marginTop: '50px' }}>
                                     <div className="is-flex is-align-items-center mb-2">
-                                        <label className="label mr-2">Reposição para</label>
-                                        <CustomButton
-                                            text="Selecionar nova data/hora na Agenda"
-                                            icon={<FaCalendarAlt />}
-                                            onClick={irParaAgendaReposicao}
-                                            type="button"
-                                            className="ml-2"
-                                        />
+                                        <label className="label has-text-weight-bold is-size-5 mb-3">
+
+                                            Reposição
+                                        </label>
+                                        <button
+                                            className={`button is-small is-primary-custom   has-secundary-custom ml-4`}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                               irParaAgendaReposicao()
+                                            }}
+                                        >
+                                            <span className="icon doc-mini-icon ">
+                                                <FaCalendarAlt size={14} />
+                                            </span>
+                                        </button>
                                     </div>
-                                    <input
-                                        className="input mb-2"
-                                        type="text"
-                                        value={novaData ? `Data: ${novaData}` : ''}
-                                        placeholder="Data da Reposição"
-                                        disabled
-                                        readOnly
-                                    />
-                                    <input
-                                        className="input mb-2"
-                                        type="text"
-                                        value={novoHorario ? `Horário: ${novoHorario}` : ''}
-                                        placeholder="Horário da Reposição"
-                                        disabled
-                                        readOnly
+                                </div>
+
+                                <div className="column">
+                                    <Input
+                                        label="Data"
+                                        type="date"
+                                        className="input is-rounded"
+                                        aditionalClasseslabel="has-text-weight-semibold"
+                                        aditionalClassesControl="has-icons-left"
+                                        iconLeft={<FaCalendarAlt className="has-primary-custom" />}
+                                        value={novaData}  // ex: "2026-01-22"
+                                        onChange={(e) => {
+                                            setNovaData(e.target.value);
+                                            // Auto-preenche horário se vazio
+                                            if (!novoHorario) setNovoHorario("09:00");
+                                        }}
+                                        min={getDataAtual()}  // Hoje em diante
                                     />
                                 </div>
+
+                                {/* Horário */}
+                                <div className="column">
+                                    <Input
+                                        label="Horário"
+                                        type="time"
+                                        className="input is-rounded"
+                                        aditionalClasseslabel="has-text-weight-semibold"
+                                        aditionalClassesControl="has-icons-left"
+                                        iconLeft={<FaClock className="has-primary-custom" />}
+                                        value={novoHorario}  // ex: "09:00"
+                                        onChange={(e) => setNovoHorario(e.target.value)}
+                                        step="1800"  // Intervalo 30min (1800s)
+                                    />
+                                </div>
+
 
                                 {/* Motivo e Confirmação */}
                                 {novaData && novoHorario && (
                                     <>
                                         <div className="field">
-                                            <label className="label">Motivo (opcional)</label>
-                                            <textarea
-                                                className="textarea"
-                                                rows={2}
-                                                value={motivo}
-                                                onChange={(e) => setMotivo(e.target.value)}
-                                            />
+                                           
                                         </div>
                                         <div className="field is-grouped is-grouped-right">
                                             <div className="control">

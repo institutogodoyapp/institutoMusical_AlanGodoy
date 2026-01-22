@@ -209,7 +209,17 @@ export const GerenciamentoProfessores: React.FC = () => {
 
   // ========== FUNÇÕES DE NAVEGAÇÃO ==========
   const irParaAgenda = (id: number) => {
-    router.push(`/instituto-musical/escola/aula/agenda?id=${id}`)
+
+     sessionStorage.setItem('agendaOrigem', 'professor')
+
+        router.push({
+            pathname: '/instituto-musical/escola/aula/agenda',
+            query: {
+                id: id,
+                origem: 'reposicao'
+            }
+        })
+   
   }
 
   // ========== RENDERIZAÇÃO DE CARREGAMENTO ==========

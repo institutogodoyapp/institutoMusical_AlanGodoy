@@ -114,22 +114,12 @@ export const GerenciamentoMensalidades: React.FC<MensalidadesTabProps> = () => {
 setLoading(true)
     const responseMensalidades: Mensalidades[] = await mensalidadeService.listarMensalidadePorAluno(alunoSelecionado?.id)
 
-    console.log(responseMensalidades)
+
     setMensalidades(responseMensalidades)
     setLoading(false)
   };
 
-  const handleBuscarPorPeriodoHistorico = async () => {
-    console.log("chamei1")
-    if (alunoSelecionado?.id == null) {
-      return
-    }
-    console.log("chamei")
-    const responseMensalidades: MensalidadesHistorico[] = await mensalidadeService.listarMensalidade(alunoSelecionado?.id)
-
-    console.log(responseMensalidades)
-    setMensalidadesHistorico(responseMensalidades)
-  };
+ 
 
   const handleSelecionarAluno = async (aluno: Aluno) => {
     setAlunoSelecionado(aluno);
