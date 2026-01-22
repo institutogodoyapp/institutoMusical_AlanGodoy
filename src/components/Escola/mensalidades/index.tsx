@@ -99,6 +99,7 @@ export const GerenciamentoMensalidades: React.FC<MensalidadesTabProps> = () => {
       setMensalidadesEmAberto(mensalidades)
       setAlunos(responseAlunos);
     } catch (error) {
+        setLoading(false);
       showError(`Erro ao buscar os dados: ${error}`);
     } finally {
       setLoading(false);

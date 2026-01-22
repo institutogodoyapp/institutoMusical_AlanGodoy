@@ -119,6 +119,7 @@ useEffect(() => {
         setConfigAgenda(config);
 
       } catch (error) {
+        setLoadingConfig(false)
         showError(`Erro ao carregar configuração da agenda: ${error}`);
         // Usa configuração padrão se não conseguir carregar
         setConfigAgenda(configAgendaService.getDefaultConfig());
@@ -182,6 +183,7 @@ useEffect(() => {
         setReposicao(reposicoesFormatadas);
 
       } catch (error: any) {
+        setLoading(false);
         showError('Erro ao buscar88 aulas');
       } finally {
         setLoading(false);
@@ -234,6 +236,7 @@ useEffect(() => {
         setAulas(aulasFormatadas);
 
       } catch (error) {
+           setLoading(false);
         showError('Erro ao buscar aulas');
       } finally {
         setLoading(false);
@@ -315,6 +318,7 @@ useEffect(() => {
       const doc = await service.salvarObservacao(dados, aulaSelecionada.id)
 
     } catch (error) {
+         setLoading(false);
       showError('Falha em salvar: ' + error)
     } finally {
       fecharModal()

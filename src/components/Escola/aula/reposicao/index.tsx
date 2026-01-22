@@ -13,7 +13,8 @@ import { FaX } from 'react-icons/fa6';
 import { Professor } from '@/app/models';
 import { useProfessorService } from '@/app/services/escola/professor/professor.service';
 import { Input } from '@/components/common/input';
-import { FiTrash } from 'react-icons/fi';
+import { FiTrash, FiX, FiXCircle } from 'react-icons/fi';
+import LoadingSpinner from '@/components/common/loading';
 
 export const MarcarReposicao: React.FC = () => {
     // ========== SERVICES E HOOKS ==========
@@ -104,7 +105,7 @@ export const MarcarReposicao: React.FC = () => {
         setProfessores(professores);
     };
 
-    
+
     useEffect(() => {
 
         if (!buscaAluno.trim()) {
@@ -202,6 +203,7 @@ export const MarcarReposicao: React.FC = () => {
                         setBuscaAluno(alunoEncontrado.nome);
                     }
                 } catch (error) {
+                    
                     showError('Erro ao carregar aluno');
                 }
             };
@@ -214,6 +216,11 @@ export const MarcarReposicao: React.FC = () => {
 
         if (!alunoSelecionado?.id) {
             showError('Selecione um aluno primeiro');
+            return;
+        }
+
+        if (!professorId) {
+            showError('Selecione um professor primeiro');
             return;
         }
 
@@ -240,15 +247,15 @@ export const MarcarReposicao: React.FC = () => {
             return;
         }
 
-       window.open(
-        `/instituto-musical/escola/aula/agenda?id=${professorId}`,
-        '_blank'  // Abre em nova aba
-    );
-    
+        window.open(
+            `/instituto-musical/escola/aula/agenda?id=${professorId}`,
+            '_blank'  // Abre em nova aba
+        );
+
         // Ou alternativamente: window.location.assign(agendaUrl);
     };
     const voltarParaListagem = () => {
-   
+        localStorage.removeItem('reposicaoState')
         router.push('/instituto-musical/escola/aluno/gerenciamento-aluno');
     };
 
@@ -264,7 +271,7 @@ export const MarcarReposicao: React.FC = () => {
         try {
 
 
-            const response = await serviceAula.marcarReposicao(formData)
+            await serviceAula.marcarReposicao(formData)
 
             showSuccess('Reposição agendada com sucesso!');
             setAulaOriginal(null);
@@ -275,6 +282,7 @@ export const MarcarReposicao: React.FC = () => {
             setAlunoSelecionado(null);
             localStorage.removeItem('reposicaoState');
         } catch {
+               setLoading(false);
             showError('Erro ao agendar reposição. Tente novamente.');
         } finally {
             setLoading(false);
@@ -284,6 +292,7 @@ export const MarcarReposicao: React.FC = () => {
     // ========== RENDERIZAÇÃO PRINCIPAL ==========
     return (
         <Layout titulo="Marcar Reposição">
+            <LoadingSpinner show={loading} />
             <section className="section">
                 <NotificationContainer
                     notifications={notifications}
@@ -293,21 +302,19 @@ export const MarcarReposicao: React.FC = () => {
                     <div className="box" style={{ boxShadow: 'none' }}>
                         {/* Botão Voltar */}
                         <div className="control mb-6">
-                            <CustomButton
-                                text=""
-                                icon={<FaX />}
-                                onClick={voltarParaListagem}
-                                className="control"
-                            />
+                            <button
+                                className={`button is-small is-primary-custom   has-secundary-custom `}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    voltarParaListagem()
+                                }}
+                            >
+                                <span className="icon doc-mini-icon ">
+                                    <FiX size={14} />
+                                </span>
+                            </button>
                         </div>
 
-                        {/* Título */}
-                        <h1 className="title is-4">
-                            <span className="icon-text">
-                                <span className="icon"><FaCalendarAlt /></span>
-                                <span>Agendar Reposição</span>
-                            </span>
-                        </h1>
 
                         {/* Busca de Aluno */}
                         <div className=" field mb-4" ref={buscaAlunoRef}>
@@ -434,11 +441,10 @@ export const MarcarReposicao: React.FC = () => {
                         )}
 
                         {/* Seleção de Aula Original */}
-                        {alunoSelecionado &&
-                            <div className="field mb-4">
-                                <label className="label has-text-weight-bold is-size-5 mb-3">
-
-                                    Aula Original
+                        {alunoSelecionado && !!professorId && professorId > 0 &&
+                            <div className="field mb-4" style={{marginTop: '30px'}}>
+                                <label className="label has-text-weight-bold is-light is-size-5 mb-3">
+                                   
                                 </label>
                                 {!aulaOriginal &&
                                     <CustomButton
@@ -446,7 +452,7 @@ export const MarcarReposicao: React.FC = () => {
                                         icon={<FaCalendarAlt />}
                                         onClick={irParaAgendaAulaOriginal}
                                         type="button"
-                                        className="is-fullwidth"
+                                        className="button  is-light "
                                     />
                                 }
                             </div>}
@@ -500,7 +506,7 @@ export const MarcarReposicao: React.FC = () => {
                                             className={`button is-small is-primary-custom   has-secundary-custom ml-4`}
                                             onClick={(e) => {
                                                 e.stopPropagation();
-                                               irParaAgendaReposicao()
+                                                irParaAgendaReposicao()
                                             }}
                                         >
                                             <span className="icon doc-mini-icon ">
@@ -548,7 +554,7 @@ export const MarcarReposicao: React.FC = () => {
                                 {novaData && novoHorario && (
                                     <>
                                         <div className="field">
-                                           
+
                                         </div>
                                         <div className="field is-grouped is-grouped-right">
                                             <div className="control">
@@ -564,13 +570,6 @@ export const MarcarReposicao: React.FC = () => {
                                     </>
                                 )}
                             </form>
-                        )}
-
-                        {/* Indicador de Carregamento */}
-                        {loading && (
-                            <div className="has-text-centered mt-4">
-                                <FaSpinner className="fa-spin" />
-                            </div>
                         )}
                     </div>
                 </div>

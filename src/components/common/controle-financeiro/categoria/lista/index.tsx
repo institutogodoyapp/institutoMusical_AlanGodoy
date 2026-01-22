@@ -1,4 +1,5 @@
 import CardList from "@/components/common/tableMobile";
+import { FaTag } from "react-icons/fa";
 import { FaGear } from "react-icons/fa6";
 import { FiEdit, FiTrash } from "react-icons/fi";
 
@@ -11,7 +12,7 @@ export const ListaCategorias = ({ categorias, abrirModalCategoria, handleDeleteC
     ) : (
       <CardList
         data={categorias}
-        icon={<FaGear />}
+        icon={<FaTag            />}
         iconColor='has-warning'
         hiddenBreakpoint='none'
         titleField='nome'
@@ -25,14 +26,16 @@ export const ListaCategorias = ({ categorias, abrirModalCategoria, handleDeleteC
             label: '',
             color: 'is-warning is-light',
             onClick: (item: any) => abrirModalCategoria(item),
-            icon: <FiEdit />
+            icon: <FiEdit />,
+               itemAtivo: true 
           },
           {
             label: '',
             color: 'is-danger is-light',
             onClick: (item: any) => handleDeleteCategoria(item),
             disabled: false,
-            icon: <FiTrash />
+            icon: <FiTrash />,
+            itemAtivo: true
           }
         ]}
       />

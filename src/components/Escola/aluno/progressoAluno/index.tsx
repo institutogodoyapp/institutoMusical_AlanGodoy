@@ -51,11 +51,13 @@ export const ProgressoAlunos: React.FC = () => {
 
   // ========== EFEITOS ==========
 
-  useEffect(() => {
-    if (progressos && progressos.length > 0) {
-      setActiveTab(progressos[0].instrumentoId);
-    }
-  }, [progressos]);
+useEffect(() => {
+  if (progressos && progressos.length > 0 && !activeTab) {
+    // Só define a primeira tab se NENHUMA estiver ativa
+    setActiveTab(progressos[0].instrumentoId);
+  }
+}, [progressos, activeTab]);
+
 const fetchProgresso = async () => {
         setLoading(true);
         try {
@@ -69,6 +71,7 @@ const fetchProgresso = async () => {
             showError('Dados não encontrados');
           }
         } catch (err) {
+          setLoading(false);
           showError('Erro ao carregar os dados do aluno');
         } finally {
           setLoading(false);
@@ -86,16 +89,18 @@ const fetchProgresso = async () => {
 
   // ========== FUNÇÕES DE ATUALIZAÇÃO DE PROGRESSO ==========
 const atualizarStatusTopico = async (topicoId: number, novoStatus: StatusTopico) => {
-  setUpdating(true);
+ setUpdating(true); // ✅ Adicionado
+  setLoading(false);
   try {
 
-    setLoading(true)
+  
     // Atualização OTIMISTA no progressos (corrige progressoAtivo)
     setProgressos(prev => {
       if (!prev) return prev;
       
       return prev.map(p => {
-        if (p.instrumentoId === activeTab) {
+        if (p.instrumentoId === activeTab) { // ✅ Mantém a tab ativa atual
+          console.log(activeTab)
           const disciplinasAtualizadas = p.disciplinas.map(disciplina => ({
             ...disciplina,
             topicos: disciplina.topicos.map(topico =>
@@ -111,17 +116,18 @@ const atualizarStatusTopico = async (topicoId: number, novoStatus: StatusTopico)
     });
 
     // API em background
-    novoStatus === StatusTopico.TOPICO_CONCLUIDO
-      ? serviceProgresso.concluirTopico(topicoId)
-      : serviceProgresso.IniciarTopico(topicoId, parseId);
-      
+    if (novoStatus === StatusTopico.TOPICO_CONCLUIDO) {
+      await serviceProgresso.concluirTopico(topicoId);
+    } else {
+      await serviceProgresso.IniciarTopico(topicoId, parseId);
+       }
 
   } catch (error) {
     showError(`Erro na atualização: ${error}`);
     // ✅ Remova o setProgresso daqui
   } finally {
     setUpdating(false);
-    setLoading(false)
+ 
   }
 };
 

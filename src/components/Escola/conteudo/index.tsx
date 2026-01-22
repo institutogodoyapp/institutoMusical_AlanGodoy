@@ -133,6 +133,7 @@ export const GerenciamentoConteudo: React.FC = () => {
 
       setConteudoCompleto(conteudo);
     } catch (error) {
+         setLoadingConteudo(false);
       showError("Erro ao buscar conteúdo completo");
     } finally {
       setLoadingConteudo(false);
@@ -175,6 +176,7 @@ export const GerenciamentoConteudo: React.FC = () => {
       setDocumentoAtual(doc);
 
     } catch (error) {
+         setLoading(false);
       showError('Erro ao carregar PDF: ' + (error as Error).message);
       console.error(error);
     } finally {
@@ -191,6 +193,7 @@ export const GerenciamentoConteudo: React.FC = () => {
       const doc = await docsService.upload(dados.file, topicoParaUp)
       showSuccess('Sucesso!')
     } catch (error) {
+         setLoading(false);
       showError('Falha no upload: ' + error)
     } finally {
       fecharModalAddDoc()
@@ -208,6 +211,7 @@ export const GerenciamentoConteudo: React.FC = () => {
         await docsService.deletarArquivo(docId)
         showSuccess('Excluído com sucesso!')
       } catch (err) {
+           setLoading(false);
         showError('Erro ao excluir');
       } finally {
         setLoading(false)
@@ -235,6 +239,7 @@ export const GerenciamentoConteudo: React.FC = () => {
       setInstrumentos(response);
 
     } catch (error) {
+         setLoading(false);
       showError("Erro ao carregar instrumentos");
     } finally {
       setLoading(false);
@@ -329,11 +334,12 @@ export const GerenciamentoConteudo: React.FC = () => {
       ...disciplinaEditando,
       instrumentoId: instrumentoSelecionado.id
     };
-
+   setLoading(true);
     await gradeService.atualizarDisciplina(disciplinaEditando.id, dadosCompletosAtualização);
     showSuccess('Atualizado com sucesso!')
     setShowDisciplinaForm(false);
     setShowEditDisciplinaForm(false);
+       setLoading(false);
     setFormData({
       nome: '',
       descricao: '',
@@ -354,9 +360,11 @@ export const GerenciamentoConteudo: React.FC = () => {
     };
 
     try {
+         setLoading(true);
       await gradeService.adicionarDiciplinas(dadosCompletos);
       setShowDisciplinaForm(false);
       setShowEditDisciplinaForm(false);
+         setLoading(false);
       setFormData({
         nome: '',
         descricao: '',
@@ -368,6 +376,7 @@ export const GerenciamentoConteudo: React.FC = () => {
       await buscarConteudoInstrumento(instrumentoSelecionado.id);
 
     } catch (error) {
+         setLoading(false);
       showError("Erro ao adicionar disciplina")
     };
   }
@@ -375,9 +384,12 @@ export const GerenciamentoConteudo: React.FC = () => {
   const excluirDisciplina = async (disciplinaId: number) => {
     if (confirm('Tem certeza que deseja excluir este disciplina?')) {
       try {
+           setLoading(true);
         await gradeService.deletarDisciplina(disciplinaId)
+           setLoading(false);
         showSuccess('Excluída com sucesso!')
       } catch (err) {
+           setLoading(false);
         showError('Erro ao excluir disciplina');
       }
     }
@@ -395,8 +407,13 @@ export const GerenciamentoConteudo: React.FC = () => {
 
 
     try {
+      setLoading(true);
       await gradeService.adicionarTopicos(dadosCompletos)
+      setLoading(false);
+      showSuccess("Topico Adicionado")
     } catch (error) {
+
+      setLoading(false);
       showError("erro ao adicionar topicos!")
     }
     setShowTopicoForm(false);
@@ -434,9 +451,12 @@ export const GerenciamentoConteudo: React.FC = () => {
 
     if (confirm('Tem certeza que deseja excluir este topico?')) {
       try {
+        setLoading(true);
         await gradeService.deletarTopico(topicoId)
+        setLoading(false);
         showSuccess('Excluído com sucesso!')
       } catch (err) {
+        setLoading(false);
         showError('Erro ao excluir topico!');
       }
     }
@@ -497,29 +517,29 @@ export const GerenciamentoConteudo: React.FC = () => {
   // ========== RENDERIZAÇÃO DE CARREGAMENTO ==========
 
   if (!instrumentoSelecionado && !loadingConteudo) {
-  
-      return (
-        <Layout titulo="Gerenciamento de Conteúdo">
-          <div className="section">
-            <div className="container">
-              <div className="box has-text-centered">
-               <LoadingSpinner show={true}/>
-              </div>
+
+    return (
+      <Layout titulo="Gerenciamento de Conteúdo">
+        <div className="section">
+          <div className="container">
+            <div className="box has-text-centered">
+              <LoadingSpinner show={true} />
             </div>
           </div>
-        </Layout>
-      );
-    
+        </div>
+      </Layout>
+    );
+
   }
 
   // ========== CÁLCULOS E DERIVAÇÕES ==========
   const disciplinasParaExibir = conteudoCompleto?.disciplinas || [];
-if (!instrumentoSelecionado) return 
+  if (!instrumentoSelecionado) return
   // ========== RENDERIZAÇÃO PRINCIPAL ==========
   return (
 
 
-    <Layout titulo={`Gerenciamento: ${instrumentoSelecionado.nome}`} >
+    <Layout titulo={`Conteudo Programático`} >
       <LoadingSpinner show={loading} />
       <section className="section">
         <div className="container">
@@ -575,9 +595,9 @@ if (!instrumentoSelecionado) return
 
           {/* Indicador de Carregamento do Conteúdo */}
           {loadingConteudo && (
-     
-              <LoadingSpinner show={loadingConteudo} />
-     
+
+            <LoadingSpinner show={loadingConteudo} />
+
           )}
 
           {/* Tabs de Navegação */}

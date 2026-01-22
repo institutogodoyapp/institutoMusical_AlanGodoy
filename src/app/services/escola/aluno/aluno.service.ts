@@ -32,7 +32,7 @@ export const useAlunoService = () => {
 
     const getAlunos = async (): Promise<Aluno[]> => {
         const response: AxiosResponse<Aluno[]> = await httpClient.get<Aluno[]>(
-            resourceURL + 'alunos/ativos'
+            resourceURL + 'alunos'
         )
         return response.data
     }

@@ -107,6 +107,7 @@ export const CadastroAlunos: React.FC = () => {
             try {
                 await Promise.all([fetchProfessores()]);
             } catch (err) {
+                   setLoading(false);
                 showError('Erro ao carregar dados necessários');
             } finally {
                 setLoading(false);
@@ -197,7 +198,9 @@ export const CadastroAlunos: React.FC = () => {
             if (alunoId) {
 
                 const response = await service.atualizarAluno(alunoId, formData);
+                
                 setFormData(response);
+                router.back()
             } else {
 
                 const response = await service.cadastrarAluno(formData);
@@ -222,6 +225,7 @@ export const CadastroAlunos: React.FC = () => {
             });
 
         } catch (err: any) {
+               setLoading(false);
             let errorMsg = 'Erro ao cadastrar aluno';
             showError(errorMsg + ": " + err.message);
         } finally {
@@ -374,7 +378,7 @@ export const CadastroAlunos: React.FC = () => {
 
 
 
-                                {id && <div className="column">
+                                {id && !formData.ativo &&<div className="column">
                                     <div className="field">
                                         <label className="label">
                                             <span className="icon-text has-text-descrition-cinza-custom has-text-bold-normal">

@@ -5,7 +5,7 @@ export const CabecalhoCategorias = ({ abrirModalCategoria }: any) => (
   <div className="box" style={{ display: 'inline', boxShadow: 'none' }}>
     <div className="level">
       <div className="level-left mb-3">
-        <h2 className="title is-5">Categorias das Despesas</h2>
+        <h2 className="title is-5"></h2>
       </div>
       <div className="level-right">
         <div className="buttons">

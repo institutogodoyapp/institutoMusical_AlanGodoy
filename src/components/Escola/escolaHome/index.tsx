@@ -42,6 +42,7 @@ export const HomeEscolaMusica = () => {
                 setAulasAgendadas(Array.isArray(responseAulas) ? responseAulas : [responseAulas]);
 
             } catch (error) {
+                  setLoading(false);
                  showError(`Erro ao buscar os dados`);
             } finally {
                 setLoading(false);

@@ -23,7 +23,8 @@ import {
   FaSlidersH,
   FaCog,
   FaArrowDown,
-  FaArrowUp
+  FaArrowUp,
+  FaTag
 } from 'react-icons/fa';
 import { format, parse } from 'date-fns';
 import { CategoriaDespesaCadastro, Despesas, DespesasCadastro, CategoriaDespesa } from '@/app/models/escola/financeiro/Despesas';
@@ -114,6 +115,7 @@ export const ControleFinanceiro: React.FC = () => {
       setResumo(mockResumo);
       setResumoFiltrado(mockResumo);
     } catch (error) {
+      setLoading(false);
       showError('Erro ao carregar dados');
     } finally {
       setLoading(false);
@@ -144,6 +146,7 @@ export const ControleFinanceiro: React.FC = () => {
         setResumoFiltrado(resumo);
       }
     } catch (error) {
+     setCarregandoResumo(true);
       showError('Falha ao salvar dados. Tente novamente.');
       console.error("Erro ao buscar resumo por período:", error);
     } finally {
@@ -405,7 +408,7 @@ export const ControleFinanceiro: React.FC = () => {
               </li>
               <li className={activeTab === 'categorias' ? 'is-active' : ''}>
                 <a onClick={() => setActiveTab('categorias')}>
-                  <span className="icon is-small"><FaCog /></span>
+                  <span className="icon is-small"><FaTag            /></span>
                   <span>Categorias</span>
                 </a>
               </li>

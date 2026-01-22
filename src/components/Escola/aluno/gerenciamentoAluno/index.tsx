@@ -17,6 +17,7 @@ import { parseApiDate } from '@/util';
 import { formatarDataString } from '@/util/Datas';
 import LoadingSpinner from '@/components/common/loading';
 import { set } from 'date-fns';
+import { Console } from 'console';
 
 export const GerenciamentoAlunos: React.FC = () => {
   // ========== SERVICES E HOOKS ==========
@@ -27,6 +28,7 @@ export const GerenciamentoAlunos: React.FC = () => {
     notifications,
     showSuccess,
     showError,
+    showWarning,
     removeNotification
   } = useNotifications();
 
@@ -79,6 +81,7 @@ export const GerenciamentoAlunos: React.FC = () => {
         const resposta = await professorService.getAllProfessores();
         setProfessores(resposta);
       } catch (error) {
+        setLoading(false);
         showError('Falha ao carregar dados.');
       } finally {
         setLoading(false);
@@ -103,9 +106,12 @@ export const GerenciamentoAlunos: React.FC = () => {
     try {
       setLoading(true);
       const resposta = await service.getAlunos();
+      console.log(resposta)
       setAlunos(Array.isArray(resposta) ? resposta : [resposta]);
     } catch (error) {
+      setLoading(false);
       showError('Falha ao carregar dados.');
+
     } finally {
       setLoading(false);
     }
@@ -257,18 +263,25 @@ export const GerenciamentoAlunos: React.FC = () => {
   ];
 
   // ========== FUNÇÕES DE CRUD ==========
-  const handleExcluirAluno = async (id: number) => {
+  const handleExcluirAluno = async (aluno: Aluno) => {
     if (window.confirm('Tem certeza que deseja excluir este aluno? Esta ação não pode ser desfeita.')) {
-      try {
+      if (aluno.instrumentos.length > 0) {
+        showWarning('Aluno deve ser desmatriculado primeiro!')
+      } else {
+        try {
           setLoading(true)
-       
-        await service.removerAluno(id);
-        setAlunos(alunos.filter(aluno => aluno.id !== id));
-           setLoading(false)
-        showSuccess('Aluno excluído com sucesso!');
-      } catch (error) {
-        showError('Erro ao excluir aluno');
 
+          await service.removerAluno(aluno.id);
+          setAlunos(alunos.filter(aluno => aluno.id !== aluno.id));
+          setLoading(false)
+          showSuccess('Aluno excluído com sucesso!');
+        } catch (error) {
+          setLoading(false);
+          showError('Erro ao excluir aluno');
+
+        } finally {
+          await carregarAlunos()
+        }
       }
     }
   };
@@ -283,6 +296,7 @@ export const GerenciamentoAlunos: React.FC = () => {
 
         fecharModalAção()
       } catch (error) {
+        setLoading(false);
         showError('Erro ao desmatricular');
 
       }
@@ -323,6 +337,7 @@ export const GerenciamentoAlunos: React.FC = () => {
       }
 
     } catch (error) {
+      setLoading(false);
       showError('Erro ao matricular');
 
     } finally { setLoading(false) }
@@ -491,7 +506,7 @@ export const GerenciamentoAlunos: React.FC = () => {
                             title="Excluir aluno"
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleExcluirAluno(aluno.id);
+                              handleExcluirAluno(aluno);
                             }}><span className="icon"><FiTrash2 /></span></button> : ''}
                         </div>
                       </td>
@@ -505,7 +520,7 @@ export const GerenciamentoAlunos: React.FC = () => {
                                 <p><strong>Telefone:</strong> {aluno.telefone}</p>
                                 <p><strong>Data de Cadastro:</strong> {aluno.dataCadastro || ''}</p>
                                 {aluno.ativo && <p><strong>Mensalidade:</strong> {formatarMoeda(aluno.mensalidades?.[0]?.valor || 0)}</p>}
-                                {aluno.instrumentos.map(instAluno => <div className="box is-6" style={{ margin: '19px', padding: '1.2rem' }}>
+                                {aluno.instrumentos.map(instAluno => <div key={instAluno.id} className="box is-6" style={{ margin: '19px', padding: '1.2rem' }}>
                                   <h1><strong>Matrícula: </strong> {instAluno.numeroMatricula}</h1>
                                   <h1><strong>Curso: </strong>{instAluno.instrumento?.nome}</h1>
                                   {aluno.ativo && <p><strong>Horário da Aula:</strong> {instAluno.horarioAula}</p>}

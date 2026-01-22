@@ -115,6 +115,7 @@ export const GerenciamentoProfessores: React.FC = () => {
       setProfessores(responseProf);
 
     } catch (error) {
+        setLoading(false);
       showError('Erro ao carregar dados');
     } finally {
       setLoading(false);
@@ -140,6 +141,7 @@ export const GerenciamentoProfessores: React.FC = () => {
       await fetchData();
       fecharModal();
     } catch (error) {
+        setLoading(false);
       showError('Não foi possível realizar a operação');
     }
   };
@@ -158,6 +160,7 @@ export const GerenciamentoProfessores: React.FC = () => {
           
           await fetchData();
         } catch (err) {
+            setLoading(false);
           showError('Erro ao excluir professor');
         }
       } else {

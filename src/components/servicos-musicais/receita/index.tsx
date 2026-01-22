@@ -423,6 +423,7 @@ export const ControleFinanceiroServicos: React.FC = () => {
               categorias={categorias}
               abrirModalCategoria={abrirModalCategoria}
               handleDeleteCategoria={handleDeleteCategoria}
+        
             />
           )}
         </div>

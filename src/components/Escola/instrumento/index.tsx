@@ -89,6 +89,7 @@ export const GerenciamentoInstrumentos: React.FC = () => {
     
       setInstrumentos(Array.isArray(response) ? response : [response]);
     } catch (err) {
+        setLoading(false);
       showError('Erro ao buscar instrumentos');
     } finally {
       setLoading(false);
@@ -160,7 +161,7 @@ export const GerenciamentoInstrumentos: React.FC = () => {
   // ========== FUNÇÕES DE CRUD ==========
   const salvarInstrumento = async (dados: DadosModal) => {
     try {
-      
+        setLoading(true);
       let response;
       if (instrumentoEditando?.id) {
       
@@ -170,10 +171,11 @@ export const GerenciamentoInstrumentos: React.FC = () => {
         response = await instrumentoService.cadastrarInstrumento(dados as InstrumentoCadastro);
         showSuccess("Instrumento salvo com sucesso!");
       }
-
+  setLoading(false);
       await fetchInstrumentos();
       fecharModal();
     } catch (err) {
+        setLoading(false);
       showError('Erro ao salvar instrumento');
     }
   };
@@ -181,10 +183,13 @@ export const GerenciamentoInstrumentos: React.FC = () => {
   const excluirInstrumento = async (id: number) => {
     if (confirm('Tem certeza que deseja excluir este instrumento?')) {
       try {
+          setLoading(true);
         await instrumentoService.removerInstrumento(id);
         showSuccess("Instrumento excluído com sucesso!");
+          setLoading(false);
         await fetchInstrumentos();
       } catch (err) {
+          setLoading(false);
         showError('Erro ao excluir instrumento');
       }
     }
