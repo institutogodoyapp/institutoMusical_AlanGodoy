@@ -240,20 +240,15 @@ export const MarcarReposicao: React.FC = () => {
             return;
         }
 
-        sessionStorage.setItem('agendaOrigem', 'reposicao')
-
-        router.push({
-            pathname: '/instituto-musical/escola/aula/agenda',
-            query: {
-                id: professorId,
-                origem: 'reposicao'
-            }
-        })
+       window.open(
+        `/instituto-musical/escola/aula/agenda?id=${professorId}`,
+        '_blank'  // Abre em nova aba
+    );
+    
         // Ou alternativamente: window.location.assign(agendaUrl);
     };
     const voltarParaListagem = () => {
-        localStorage.removeItem('reposicaoState');
-        sessionStorage.removeItem('agendaOrigem');
+   
         router.push('/instituto-musical/escola/aluno/gerenciamento-aluno');
     };
 

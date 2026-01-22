@@ -1,5 +1,5 @@
 import { Layout } from '@/components/layout';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { FaFilter, FaCalendarAlt, FaPlus, FaEdit, FaSpinner, FaCog, FaTrash, FaClock, FaUser, FaMusic, FaSquare } from 'react-icons/fa';
 import { CustomButton, ModalGenerico, useNotifications } from '@/components';
 import { useRouter } from 'next/router';
@@ -62,7 +62,7 @@ export const AgendaPage = () => {
   const [selectionMode, setSelectionMode] = useState<boolean>(false);
   const [returnUrl, setReturnUrl] = useState<string>('');
 
-  const [isModoReposicao, setIsModoReposicao] = useState(false);
+
 
 
 
@@ -92,14 +92,12 @@ export const AgendaPage = () => {
   const INTERVALO = 60;
 
   // ========== EFEITOS ==========
+const getProfessorId = useCallback(() => {
+  return Number(router.query.professorId || router.query.id || 0);
+}, [router.query.professorId, router.query.id]);
 
+const professorIdNovo = getProfessorId()
 
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const origem = sessionStorage.getItem('agendaOrigem') || (router.query.origem as string);
-      setIsModoReposicao(origem === 'reposicao');
-    }
-  }, []);
 
 
     useEffect(() => {
@@ -139,22 +137,15 @@ export const AgendaPage = () => {
 
   }, []);
 
-  let professorIdNovo
+  
 
   useEffect(() => {
     const fetchReposicoes = async () => {
 
-      const professorIdQuery = Number(router.query.professorId) || Number(router.query.id);
+  
 
       try {
-        const { mode } = router.query;
-
-        if (mode === 'select') {
-
-          professorIdNovo = professorIdQuery
-        } else {
-          professorIdNovo = professorId
-        }
+      
         setLoading(true);
         const responseProf = await profService.getProfessor(professorIdNovo)
         setProfessor(responseProf)
@@ -188,14 +179,8 @@ export const AgendaPage = () => {
   useEffect(() => {
     const fetchAulas = async () => {
 
-      const professorIdQuery = Number(router.query.professorId) || Number(router.query.id);
       try {
-        const { mode } = router.query;
-        if (mode === 'select') {
-          professorIdNovo = professorIdQuery
-        } else {
-          professorIdNovo = professorId
-        }
+       
         setLoading(true);
         const response = await service.getAulasPorProfessor(professorIdNovo, dataInicio, dataFim);
         const aulasFormatadas = Array.isArray(response)
@@ -549,11 +534,7 @@ export const AgendaPage = () => {
     setModalAberto(true);
   };
 
-  const modoSelect = () => {
 
-    setIsModoReposicao(false)
-    router.back()
-  }
 
 
 
@@ -583,17 +564,7 @@ export const AgendaPage = () => {
           </div>
         )}
 
-        {isModoReposicao && !selectionMode && (
-          <div className="notification is-info">
-            <div className="is-flex is-justify-content-space-between is-align-items-center">
-              <p>Verifique a disponibilidade de Horário</p>
-              <button className="button is-small is-light" onClick={() => modoSelect()}>
-                Prosseguir
-              </button>
-            </div>
-          </div>
-        )}
-
+     
 
 
         {/* Filtros */}
@@ -607,14 +578,13 @@ export const AgendaPage = () => {
 
             </div>
 
-            {/* Botão de Configuração */}
-           { !isModoReposicao &&   <CustomButton
+             <CustomButton
                 type="button"
                 text={'Configurar Agenda'}
                 icon={<FaCog className="mr-2" />}
                 className="is-primary is-outlined is-rounded"
                 onClick={() => setModalConfigAberto(true)}
-              />}
+              />
           </div>
 
 
