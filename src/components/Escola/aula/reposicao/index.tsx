@@ -102,7 +102,13 @@ export const MarcarReposicao: React.FC = () => {
         setProfessores(professores); 
     };
 
-
+useEffect(() => {
+  console.log('=== FLUXO MARCAR REPOSIÇÃO ===');
+  console.log('1. alunoSelecionado atualizado:', alunoSelecionado);
+  console.log('2. professorId atualizado:', professorId);
+  console.log('3. aulaOriginal atualizado:', aulaOriginal);
+  console.log('4. Router query:', router.query);
+}, [alunoSelecionado, professorId, aulaOriginal, router.query]);
 
     useEffect(() => {
 
@@ -230,30 +236,52 @@ export const MarcarReposicao: React.FC = () => {
     };
 
     const irParaAgendaReposicao = () => {
-        const alunoId = alunoSelecionado?.id || Number(router.query.alunoId);
-        const professorId = aulaOriginal?.professorId
-        if (!alunoId) {
-            showError('Selecione um aluno válido primeiro');
-            const input = document.querySelector('.aluno-input');
-            if (input) {
-                input.classList.add('is-danger');
-                setTimeout(() => input.classList.remove('is-danger'), 2000);
-            }
-            return;
+    const alunoId = alunoSelecionado?.id || Number(router.query.alunoId);
+    const professorId = aulaOriginal?.professorId;
+    
+    console.log('=== irParaAgendaReposicao DEBUG ===');
+    console.log('alunoId:', alunoId);
+    console.log('professorId:', professorId);
+    console.log('aulaOriginal:', aulaOriginal);
+    
+    if (!alunoId) {
+        showError('Selecione um aluno válido primeiro');
+        const input = document.querySelector('.aluno-input');
+        if (input) {
+            input.classList.add('is-danger');
+            setTimeout(() => input.classList.remove('is-danger'), 2000);
         }
+        return;
+    }
+    
+    if (!professorId) {
+        showError('Professor não encontrado na aula original. Selecione novamente a aula original.');
+        return;
+    }
 
-        router.push({
-            pathname: `/instituto-musical/escola/aula/agenda`,
-            query: {
-                mode: 'select',
-                tipo: 'reposicao',
-                alunoId: alunoId.toString(),
-                professorId: professorId?.toString(),
-                returnUrl: `${router.pathname}?alunoId=${alunoId}`
-            }
-        });
-    };
+    // Criar os parâmetros de query
+    const queryParams = new URLSearchParams({
+        mode: 'select',
+        tipo: 'reposicao',
+        alunoId: alunoId.toString(),
+        professorId: professorId.toString(),
+        returnUrl: `${window.location.pathname}?alunoId=${alunoId}`
+    });
 
+    // Adicionar aulaOriginalId se existir (opcional, para referência)
+    if (aulaOriginal?.id) {
+        queryParams.append('aulaOriginalId', aulaOriginal.id.toString());
+    }
+
+    // Navegação completa usando window.location
+    const agendaUrl = `/instituto-musical/escola/aula/agenda?${queryParams.toString()}`;
+    
+    console.log('Navegando para:', agendaUrl);
+    
+    // Forçar navegação completa (reload da página)
+    window.location.href = agendaUrl;
+    // Ou alternativamente: window.location.assign(agendaUrl);
+};
     const voltarParaListagem = () => {
         localStorage.removeItem('reposicaoState');
         router.push('/instituto-musical/escola/aluno/gerenciamento-aluno');
