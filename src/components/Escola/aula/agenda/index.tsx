@@ -44,6 +44,7 @@ export const AgendaPage = () => {
   const [loadingConfig, setLoadingConfig] = useState(true);
 
 
+
   // ========== ESTADOS DE FILTROS E CONFIGURAÇÕES ==========
   const [dataInicio, setDataInicio] = useState<string>(getDataAtual());
   const [dataFim, setDataFim] = useState<string>(adicionarDias(getDataAtual(), 7));
@@ -92,24 +93,23 @@ export const AgendaPage = () => {
   const INTERVALO = 60;
 
   // ========== EFEITOS ==========
-const getProfessorId = useCallback(() => {
-  return Number(router.query.professorId || router.query.id || 0);
-}, [router.query.professorId, router.query.id]);
+  const getProfessorId = useCallback(() => {
+    return Number(router.query.professorId || router.query.id || professorId || 0);
+  }, [router.query.professorId, router.query.id]);
 
-const professorIdNovo = getProfessorId()
+  const professorIdNovo = getProfessorId()
 
 
 
-    useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const { mode, returnUrl } = router.query;
-      if (mode === 'select') {
-        setSelectionMode(true);
-        setReturnUrl(returnUrl as string || '/');
-      }
-    }
-  }, [router.query]);
-
+useEffect(() => {
+  if (!router.isReady || typeof window === 'undefined') return;
+  
+  const { mode, returnUrl } = router.query;
+  if (mode === 'select') {
+    setSelectionMode(true);
+    setReturnUrl(returnUrl as string || '/');
+  }
+}, [router.isReady]);
 
   useEffect(() => {
     const loadConfigAgenda = async () => {
@@ -137,22 +137,36 @@ const professorIdNovo = getProfessorId()
 
   }, []);
 
-  
+
 
   useEffect(() => {
     const fetchReposicoes = async () => {
+     // 🔑 Aguarda router hidratar (200ms máx, não 10s!)
+    if (!router.isReady) {
+      return;
+    }
 
-  
+    const professorIdRepo = Number(
+      (router.query.professorId as string) || 
+      (router.query.id as string) || 
+      0
+    );
+    
+   
+
+    if (professorIdRepo === 0) {
+      return;
+    }
 
       try {
-      
+
         setLoading(true);
         const responseProf = await profService.getProfessor(professorIdNovo)
         setProfessor(responseProf)
 
 
         const response = await service.getReposições(professorIdNovo);
-
+ 
         const reposicoesFormatadas = Array.isArray(response)
           ? response.map((reposicao) => ({
             id: reposicao.id,
@@ -167,20 +181,21 @@ const professorIdNovo = getProfessorId()
           : [];
         setReposicao(reposicoesFormatadas);
 
-      } catch (error) {
+      } catch (error: any) {
         showError('Erro ao buscar88 aulas');
       } finally {
         setLoading(false);
       }
     };
     fetchReposicoes();
-  }, [dataInicio, dataFim]);
+  },
+  [router.isReady, dataInicio, dataFim]);;
 
   useEffect(() => {
     const fetchAulas = async () => {
 
       try {
-       
+
         setLoading(true);
         const response = await service.getAulasPorProfessor(professorIdNovo, dataInicio, dataFim);
         const aulasFormatadas = Array.isArray(response)
@@ -509,7 +524,7 @@ const professorIdNovo = getProfessorId()
     }
 
     if (aulaExistente) {
-   
+
       setAulaSelecionada(aulaExistente);
       setNovaAula({
         ...aulaExistente,
@@ -564,7 +579,7 @@ const professorIdNovo = getProfessorId()
           </div>
         )}
 
-     
+
 
 
         {/* Filtros */}
@@ -578,13 +593,13 @@ const professorIdNovo = getProfessorId()
 
             </div>
 
-             <CustomButton
-                type="button"
-                text={'Configurar Agenda'}
-                icon={<FaCog className="mr-2" />}
-                className="is-primary is-outlined is-rounded"
-                onClick={() => setModalConfigAberto(true)}
-              />
+            <CustomButton
+              type="button"
+              text={'Configurar Agenda'}
+              icon={<FaCog className="mr-2" />}
+              className="is-primary is-outlined is-rounded"
+              onClick={() => setModalConfigAberto(true)}
+            />
           </div>
 
 
