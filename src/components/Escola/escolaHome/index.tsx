@@ -40,10 +40,12 @@ export const HomeEscolaMusica = () => {
             try {
                 const responseAulas = await service.getAulasSemana();
                 setAulasAgendadas(Array.isArray(responseAulas) ? responseAulas : [responseAulas]);
-
-            } catch (error) {
+              console.log(responseAulas)
+                
+   setLoading(false)
+            } catch (error: any) {
                   setLoading(false);
-                 showError(`Erro ao buscar os dados`);
+                 showError(`Erro: ${error.message}`);
             } finally {
                 setLoading(false);
             }
@@ -58,7 +60,7 @@ export const HomeEscolaMusica = () => {
         return (
             <div className="section">
                 <div className="container">
-                           <LoadingSpinner show = {loading}/>
+                           <LoadingSpinner show = {loading} isMobile={isMobileView}/>
                 </div>
             </div>
         );

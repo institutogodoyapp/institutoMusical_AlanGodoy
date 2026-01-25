@@ -26,19 +26,15 @@ export const useDocsService = () => {
     const upload = async (file: File, topicoId: number): Promise<Documento> => {
         const formData = new FormData()
         formData.append('file', file)
-
-        const token = authService.getTokens() // seu storage
-        const tokenDefinido = token.refreshToken
-        if (!token) throw new Error('Token não encontrado - faça login');
        
 
         const response = await fetch(
             `${url}${resourceURL}/topicos/${topicoId}/documentos`,
             {
                 method: 'POST',
+                credentials: "include",
                 body: formData,
                 headers: {
-                    'Authorization': `${tokenDefinido}`,  // ← ADICIONE
                     'Accept': 'application/json, text/plain, */*'   // força binário
                 }
 

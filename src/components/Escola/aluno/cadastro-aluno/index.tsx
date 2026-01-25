@@ -239,7 +239,7 @@ export const CadastroAlunos: React.FC = () => {
         return (
             <div className="section">
                 <div className="container">
-                           <LoadingSpinner show = {loading}/>
+                           <LoadingSpinner show = {loading}isMobile={isMobile}/>
                 </div>
             </div>
         );
@@ -410,20 +410,42 @@ export const CadastroAlunos: React.FC = () => {
                             {/* Botões de Ação */}
                             <div className="field is-grouped is-grouped-right">
                                 <div className="control mb-6">
+                                       {isMobile ? <button
+                                                    className="button is-primary-custom has-secundary-custom" style={{ boxShadow: 'none' }}
+                                                    onClick={voltar
+                                                    }
+                                                  >
+                                                    <span className="icon">
+                                                      <FiX size={14} />
+                                                    </span>
+                                                  </button> :
                                     <CustomButton
                                         text={`${isMobile ? '' : 'Cancelar'}`}
                                         icon={<FiX className="mr-2" />}
                                         onClick={voltar}
                                         className="control"
-                                    />
+                                    />}
                                 </div>
                                 <div className="control">
+
+                                        {isMobile ? <button
+                                                    className="button is-primary-custom has-secundary-custom" style={{ boxShadow: 'none' }}
+                                                    type='submit'
+                                                  
+                                                    onClick={voltar
+                                                    }
+                                                  >
+                                                    <span className="">
+                                                      <FaSave size={16} className='mr-2'/>
+                                                      {`${id ? 'Atualiza' : 'Cadastrar'}`}
+                                                    </span>
+                                                  </button> :
                                     <CustomButton
                                         text={`${id ? 'Atualizar' : 'Cadastrar'} `}
                                         icon={<FaSave />}
                                         type="submit"
                                         className="control"
-                                    />
+                                    />}
                                 </div>
                             </div>
                         </form>

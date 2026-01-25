@@ -53,6 +53,7 @@ export const ControleFinanceiro: React.FC = () => {
   const [showCategoriaModal, setShowCategoriaModal] = useState(false);
   const [showDespesaModal, setShowDespesaModal] = useState(false);
   const [showDespesaPorCategoria, setShowDespesaPorCategoria] = useState(false);
+  const [isMobile, setIsMobile] = useState<boolean>(false)
   const [activeTab, setActiveTab] = useState<'dashboard' | 'despesas' | 'categorias' | 'mensalidades' | 'configuracoes'>('dashboard');
   const [carregandoResumo, setCarregandoResumo] = useState(false);
 
@@ -94,6 +95,19 @@ export const ControleFinanceiro: React.FC = () => {
   });
 
   // ========== EFEITOS ==========
+
+useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -370,7 +384,7 @@ export const ControleFinanceiro: React.FC = () => {
         return (
             <div className="section">
                 <div className="container">
-                           <LoadingSpinner show = {loading}/>
+                           <LoadingSpinner show = {loading} isMobile={isMobile}/>
                 </div>
             </div>
         );

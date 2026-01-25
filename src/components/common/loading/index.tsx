@@ -5,10 +5,12 @@ import { FaSpinner } from 'react-icons/fa';
 
 export interface LoadingSpinnerProps {
     show: boolean
+    isMobile: boolean
 }
 
 const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
-    show
+    show,
+    isMobile
 }) => {
 
 if(show){
@@ -24,7 +26,7 @@ if(show){
         }}>
             <div style={{
                 position: 'absolute',
-                left: '42%',
+                left: `${isMobile? '33%' : '42%'}`,
                 top:'28%'
             }}>
                 <div className="lds-hourglass"></div>

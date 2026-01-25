@@ -133,7 +133,7 @@ export const GerenciamentoConteudo: React.FC = () => {
 
       setConteudoCompleto(conteudo);
     } catch (error) {
-         setLoadingConteudo(false);
+      setLoadingConteudo(false);
       showError("Erro ao buscar conteúdo completo");
     } finally {
       setLoadingConteudo(false);
@@ -145,18 +145,21 @@ export const GerenciamentoConteudo: React.FC = () => {
 
 
       setLoading(true)
-      const token = authService.getTokens() // seu storage
-      const tokenDefinido = token.refreshToken
-      if (!token) throw new Error('Token não encontrado - faça login');
-      const urlProd = "https://studio-godoy-app-production.up.railway.app"
+
+      const urlProd = process.env.NEXT_PUBLIC_INSTITUTOMUSICAL_GODOY_APP
+
       const response = await fetch(
         `${urlProd}/admin/escola-musica/conteudo-programatico/documentos/${doc.id}`,
         {
           method: 'GET',
+          credentials: 'include',
           headers: {
-            'Authorization': `${tokenDefinido}`,  // ← ADICIONE
-            'Accept': 'application/pdf'  // força binário
+
+            'Accept': 'application/pdf',
+            // força binário
           }
+
+
 
         }
       );
@@ -176,7 +179,7 @@ export const GerenciamentoConteudo: React.FC = () => {
       setDocumentoAtual(doc);
 
     } catch (error) {
-         setLoading(false);
+      setLoading(false);
       showError('Erro ao carregar PDF: ' + (error as Error).message);
       console.error(error);
     } finally {
@@ -192,9 +195,9 @@ export const GerenciamentoConteudo: React.FC = () => {
     try {
       const doc = await docsService.upload(dados.file, topicoParaUp)
       showSuccess('Sucesso!')
-    } catch (error) {
-         setLoading(false);
-      showError('Falha no upload: ' + error)
+    } catch (error: any) {
+      setLoading(false);
+      showError('Falha no upload: ' + error.message)
     } finally {
       fecharModalAddDoc()
       setLoading(false)
@@ -211,7 +214,7 @@ export const GerenciamentoConteudo: React.FC = () => {
         await docsService.deletarArquivo(docId)
         showSuccess('Excluído com sucesso!')
       } catch (err) {
-           setLoading(false);
+        setLoading(false);
         showError('Erro ao excluir');
       } finally {
         setLoading(false)
@@ -239,7 +242,7 @@ export const GerenciamentoConteudo: React.FC = () => {
       setInstrumentos(response);
 
     } catch (error) {
-         setLoading(false);
+      setLoading(false);
       showError("Erro ao carregar instrumentos");
     } finally {
       setLoading(false);
@@ -334,12 +337,12 @@ export const GerenciamentoConteudo: React.FC = () => {
       ...disciplinaEditando,
       instrumentoId: instrumentoSelecionado.id
     };
-   setLoading(true);
+    setLoading(true);
     await gradeService.atualizarDisciplina(disciplinaEditando.id, dadosCompletosAtualização);
     showSuccess('Atualizado com sucesso!')
     setShowDisciplinaForm(false);
     setShowEditDisciplinaForm(false);
-       setLoading(false);
+    setLoading(false);
     setFormData({
       nome: '',
       descricao: '',
@@ -360,11 +363,11 @@ export const GerenciamentoConteudo: React.FC = () => {
     };
 
     try {
-         setLoading(true);
+      setLoading(true);
       await gradeService.adicionarDiciplinas(dadosCompletos);
       setShowDisciplinaForm(false);
       setShowEditDisciplinaForm(false);
-         setLoading(false);
+      setLoading(false);
       setFormData({
         nome: '',
         descricao: '',
@@ -376,7 +379,7 @@ export const GerenciamentoConteudo: React.FC = () => {
       await buscarConteudoInstrumento(instrumentoSelecionado.id);
 
     } catch (error) {
-         setLoading(false);
+      setLoading(false);
       showError("Erro ao adicionar disciplina")
     };
   }
@@ -384,12 +387,12 @@ export const GerenciamentoConteudo: React.FC = () => {
   const excluirDisciplina = async (disciplinaId: number) => {
     if (confirm('Tem certeza que deseja excluir este disciplina?')) {
       try {
-           setLoading(true);
+        setLoading(true);
         await gradeService.deletarDisciplina(disciplinaId)
-           setLoading(false);
+        setLoading(false);
         showSuccess('Excluída com sucesso!')
       } catch (err) {
-           setLoading(false);
+        setLoading(false);
         showError('Erro ao excluir disciplina');
       }
     }
@@ -523,7 +526,7 @@ export const GerenciamentoConteudo: React.FC = () => {
         <div className="section">
           <div className="container">
             <div className="box has-text-centered">
-              <LoadingSpinner show={true} />
+              <LoadingSpinner show={true} isMobile={isMobile} />
             </div>
           </div>
         </div>
@@ -540,7 +543,7 @@ export const GerenciamentoConteudo: React.FC = () => {
 
 
     <Layout titulo={`Conteudo Programático`} >
-      <LoadingSpinner show={loading} />
+      <LoadingSpinner show={loading} isMobile={isMobile} />
       <section className="section">
         <div className="container">
 
@@ -581,13 +584,24 @@ export const GerenciamentoConteudo: React.FC = () => {
               </div>
               <div className="column is-narrow">
                 <div className="buttons">
+                  {isMobile ? <button
+                                className="button is-primary-custom has-secundary-custom" style={{boxShadow: 'none'}}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                 abrirModal()
+                                }}
+                              >
+                                <span className="icon">
+                                  <FaPlus size={14} />
+                                </span>
+                              </button> :
                   <CustomButton
                     text={`${!isMobile ? 'Adicionar Disciplina' : ''}`}
                     icon={<FaPlus size={isMobile ? 12 : 16} />}
                     onClick={() => abrirModal()}
                     className={`is-fullwidth  ${isMobile ? 'is-small' : ''}`}
                     style={{ borderRadius: '6px' }}
-                  />
+                  />}
                 </div>
               </div>
             </div>
@@ -596,7 +610,7 @@ export const GerenciamentoConteudo: React.FC = () => {
           {/* Indicador de Carregamento do Conteúdo */}
           {loadingConteudo && (
 
-            <LoadingSpinner show={loadingConteudo} />
+            <LoadingSpinner show={loadingConteudo} isMobile={isMobile} />
 
           )}
 
@@ -624,7 +638,7 @@ export const GerenciamentoConteudo: React.FC = () => {
 
           {/* Conteúdo das Tabs */}
           {activeTab === 'conteudo' ? (
-            <div className="box" style={{ boxShadow: 'none' }}>
+            <div className="box" style={{ boxShadow: 'none', padding: '0px' }}>
               {!loadingConteudo && disciplinasParaExibir.length === 0 ? (
                 <div className="has-text-centered py-6">
                   <p className="mb-4">Nenhuma disciplina cadastrada para este instrumento.</p>
@@ -662,7 +676,7 @@ export const GerenciamentoConteudo: React.FC = () => {
                     </header>
 
                     {expandedDisciplinas.includes(disciplina.id) && (
-                      <div className="card-content">
+                      <div className="card-content" style={{ padding: '0' }}>
                         <div className="content">
                           <p className={` ${isMobile ? 'is-size-7' : 'is-size-6'} has-text-grey has-text-weight-light
                                                 border-left-3
@@ -672,16 +686,27 @@ export const GerenciamentoConteudo: React.FC = () => {
 
                           <div className="level is-mobile">
                             <div className="level-left">
-                              <h3 className={`title ${isMobile ? 'is-7' : 'is-6'}`}>Tópicos</h3>
+                              <h3 className={`title ${isMobile ? 'is-5' : 'is-6'}`}>Tópicos</h3>
                             </div>
                             <div className="level-right">
-                              <CustomButton
-                                text={`${!isMobile ? 'Adicionar Tópico' : ''}`}
-                                icon={<FaPlus size={isMobile ? 12 : 14} />}
-                                onClick={() => handleAddTopico(disciplina.id)}
-                                className={`${isMobile ? 'is-small is-light' : 'is-small is-info'}`}
-                                style={{ borderRadius: '6px' }}
-                              />
+                              {isMobile ? <button
+                                className="button is-primary-custom has-secundary-custom" style={{boxShadow: 'none'}}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleAddTopico(disciplina.id);
+                                }}
+                              >
+                                <span className="icon">
+                                  <FaPlus size={14} />
+                                </span>
+                              </button> :
+                                <CustomButton
+                                  text={`${!isMobile ? 'Adicionar Tópico' : ''}`}
+                                  icon={<FaPlus size={isMobile ? 12 : 14} />}
+                                  onClick={() => handleAddTopico(disciplina.id)}
+                                  className={`${isMobile ? 'is-small is-light' : 'is-small is-info'}`}
+                                  style={{ borderRadius: '6px' }}
+                                />}
                             </div>
                           </div>
 
@@ -690,9 +715,9 @@ export const GerenciamentoConteudo: React.FC = () => {
                               <thead>
                                 <tr>
                                   {!isMobile && <th className={isMobile ? 'is-size-7' : ''}>Ordem</th>}
-                                  <th className={isMobile ? 'is-size-7' : ''}>Nome</th>
+                                  <th className={isMobile ? 'is-size-6' : ''}>Nome</th>
 
-                                  {!isMobile && <th>Ações</th>}
+                                   <th>Ações</th>
 
 
                                 </tr>
@@ -721,7 +746,7 @@ export const GerenciamentoConteudo: React.FC = () => {
                                         >
                                           {!isMobile && <td className={isMobile ? 'is-size-7' : ''}>{topico.ordem}</td>}
 
-                                          <td className={isMobile ? 'is-size-7' : ''}>
+                                          <td className={isMobile ? 'is-size-6' : ''}>
                                             <div className="is-flex is-align-items-center is-justify-content-space-between">
                                               <span>{topico.nome}</span>
 
@@ -729,7 +754,7 @@ export const GerenciamentoConteudo: React.FC = () => {
                                             </div>
                                           </td>
 
-                                          {!isMobile && (
+                                         
                                             <td>
                                               <div className="buttons are-small">
                                                 <button
@@ -741,7 +766,7 @@ export const GerenciamentoConteudo: React.FC = () => {
                                                   }}
                                                 >
                                                   <span className="icon">
-                                                    <FaEdit size={14} />
+                                                    <FaEdit size={isMobile ? 10 : 14} />
                                                   </span>
                                                 </button>
 
@@ -756,12 +781,12 @@ export const GerenciamentoConteudo: React.FC = () => {
                                                   }}
                                                 >
                                                   <span className="icon">
-                                                    <FaUpload size={14} />
+                                                    <FaUpload size={isMobile ? 10 : 14} />
                                                   </span>
                                                 </button>
                                               </div>
                                             </td>
-                                          )}
+                                       
                                         </tr>
 
                                         {/* ÁREA COLAPSÁVEL (sempre renderizada para animar abrir/fechar) */}
@@ -794,7 +819,7 @@ export const GerenciamentoConteudo: React.FC = () => {
                                                         <FaFileInvoice size={16} />
                                                       </span>
 
-                                                      <span className="doc-name is-clipped" title={doc.nome}>
+                                                      <span className="doc-name is-clipped is-size-6" title={doc.nome}>
                                                         {doc.nome}
                                                       </span>
                                                       {!isMobile &&
@@ -840,6 +865,8 @@ export const GerenciamentoConteudo: React.FC = () => {
                           </div>
 
                         </div>
+
+
 
                       </div>
 

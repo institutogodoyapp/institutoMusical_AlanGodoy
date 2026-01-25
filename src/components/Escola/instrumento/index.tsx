@@ -12,7 +12,7 @@ import {
   FaCalendar,
   FaBook
 } from 'react-icons/fa';
-import { FiSearch, FiTrash2, FiEdit, FiUserPlus, FiToggleLeft, FiToggleRight, FiChevronUp, FiChevronRight, FiChevronDown, FiBarChart2, FiMoreVertical } from 'react-icons/fi';
+import { FiSearch, FiTrash2, FiEdit, FiUserPlus, FiToggleLeft, FiToggleRight, FiChevronUp, FiChevronRight, FiChevronDown, FiBarChart2, FiMoreVertical, FiBook } from 'react-icons/fi';
 
 import { FaArrowPointer } from 'react-icons/fa6';
 import { Instrumento, InstrumentoTipo, InstrumentoCadastro } from '@/app/models/escola/instrumentos';
@@ -21,6 +21,7 @@ import { getInstrumentoIcon } from '@/util'
 import NotificationContainer from '@/components/common/notificacao/mutiplasNotifacoes';
 import { CampoModal, DadosModal } from '@/components/common/modal/modal-generico';
 import LoadingSpinner from '@/components/common/loading';
+import CardList from '@/components/common/tableMobile';
 
 export const GerenciamentoInstrumentos: React.FC = () => {
   // ========== SERVICES E HOOKS ==========
@@ -53,6 +54,7 @@ export const GerenciamentoInstrumentos: React.FC = () => {
   // ========== ESTADOS DE UI ==========
   const [loading, setLoading] = useState<boolean>(true);
   const [modalAberto, setModalAberto] = useState<boolean>(false);
+  const [isMobile, setIsMobile] = useState<boolean>(false);
   const [dropdownAberto, setDropdownAberto] = useState<number | null>(null);
 
   // ========== CONSTANTES ==========
@@ -65,6 +67,18 @@ export const GerenciamentoInstrumentos: React.FC = () => {
   ];
 
   // ========== EFEITOS ==========
+
+useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   useEffect(() => {
     const handleClickFora = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -97,22 +111,23 @@ export const GerenciamentoInstrumentos: React.FC = () => {
   };
 
   // ========== FUNÇÕES AUXILIARES ==========
-  const getInstrumentoIcon = (tipo: string) => {
-    switch (tipo) {
-      case 'CORDA':
-        return '/icons/instrumentos.svg';
-      case 'SOPRO':
-        return '/icons/sopro.svg';
-      case 'PERCUSSAO':
-        return '/icons/percussão.svg';
-      case 'TECLAS':
-        return '/icons/teclas.svg';
-      case 'VOCAL':
-        return '/icons/voz.svg';
-      default:
-        return '/icons/others.svg';
-    }
-  };
+const getInstrumentoIcon = (tipo: string) => {
+  switch (tipo) {
+    case 'CORDA':
+      return <img src="/icons/instrumentos.svg" alt="Cordas" className="w-6 h-6" />;
+    case 'SOPRO':
+      return <img src="/icons/sopro.svg" alt="Sopro" className="w-6 h-6" />;
+    case 'PERCUSSAO':
+      return <img src="/icons/percussão.svg" alt="Percussão" className="w-6 h-6" />;
+    case 'TECLAS':
+      return <img src="/icons/teclas.svg" alt="Teclas" className="w-6 h-6" />;
+    case 'VOCAL':
+      return <img src="/icons/voz.svg" alt="Voz" className="w-6 h-6" />;
+    default:
+      return <img src="/icons/others.svg" alt="Outros" className="w-6 h-6" />;
+  }
+};
+
 
   // ========== FUNÇÕES DE CONTROLE DE UI ==========
   const toggleDropdown = (instrumentoId: number) => {
@@ -208,12 +223,17 @@ export const GerenciamentoInstrumentos: React.FC = () => {
     return matchTipo && matchBusca;
   });
 
+  const instrumentosComIcon = instrumentosFiltrados.map(instrumento => ({
+  ...instrumento,
+  icon: getInstrumentoIcon(instrumento.tipo)  // Adiciona ícone ao objeto
+}));
+
   // ========== RENDERIZAÇÃO DE CARREGAMENTO ==========
    if (loading) {
         return (
             <div className="section">
                 <div className="container">
-                           <LoadingSpinner show = {loading}/>
+                           <LoadingSpinner show = {loading} isMobile={isMobile}/>
                 </div>
             </div>
         );
@@ -354,101 +374,55 @@ export const GerenciamentoInstrumentos: React.FC = () => {
 
           {/* Cards para Mobile */}
           <div className="columns is-multiline is-hidden-tablet">
-            {instrumentosFiltrados.length > 0 ? instrumentosFiltrados.map(instrumento => (
-              <div className="column is-12" key={instrumento.id}>
-                <div className="card" style={{ position: 'relative' }}>
-                  <div className="dropdown" style={{ position: 'absolute', top: '10px', right: '10px' }}>
-                    <div className="dropdown-trigger">
-                      <button
-                        className="button is-small"
-                        aria-haspopup="true"
-                        aria-controls={`dropdown-menu-${instrumento.id}`}
-                        onClick={() => toggleDropdown(instrumento.id)}
-                      >
-                        <span className="icon"><FiMoreVertical /></span>
-                      </button>
-                    </div>
+            
+              {instrumentosFiltrados.length > 0 ? (
+              <CardList
+                data={instrumentosComIcon}
+                titleField='nome'
+                icon={null}
+                iconColor='is-primary-custom'
+                subtitleField=''
+                fields={[
+                 
+                ]}
+                tags={[
+                  { label: '', key: 'tipo', color: 'has-primary-custom' },
+                  { label: 'Alunos', key: 'quantidadeAlunos', color: 'has-primary-custom' },
 
-                    {dropdownAberto === instrumento.id && (
-                      <div
-                        className="dropdown-menu"
-                        id={`dropdown-menu-${instrumento.id}`}
-                        ref={dropdownRef}
-                        role="menu"
-                        style={{ display: 'block', top: '10px', right: '100px', left: '-170px' }}
-                      >
-                        <div className="dropdown-content">
-                          <a
-                            className="dropdown-item"
-                            onClick={() => abrirModal(instrumento)}
-                          >
-                            <span className="icon"><FiEdit /></span> Editar
-                          </a>
 
-                          <a
-                            className="dropdown-item"
-                            onClick={() => excluirInstrumento(instrumento.id)}
-                          >
-                            <span className="icon"><FaTrash /></span> Excluir
-                          </a>
-                        </div>
-                      </div>
-                    )}
-                  </div>
 
-                  <div className="card-content">
-                    <div className="media">
-                      <div className="media-left">
-                        <img
-                          src={getInstrumentoIcon(instrumento.tipo)}
-                          alt={instrumento.nome}
-                          className="icon-img"
-                          style={{
-                            width: '50px',
-                            height: '50px',
-                            objectFit: 'contain',
-                            maxWidth: '200%',
-                            padding: '9px'
-                          }}
-                        />
-                      </div>
-                      <div className="media-content">
-                        <p className="title is-4 mb-2">{instrumento.nome}</p>
-                        <p className={`subtitle is-7 tag ${instrumento.tipo === 'CORDA'
-                          ? 'is-primary'
-                          : instrumento.tipo === 'SOPRO'
-                            ? 'is-info'
-                            : instrumento.tipo === 'PERCUSSAO'
-                              ? 'is-warning'
-                              : instrumento.tipo === 'TECLAS'
-                                ? 'is-danger'
-                                : 'is-light'
-                          }`}>
-                          {instrumento.tipo ? instrumento.tipo : 'Não especificado'}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="content">
-                      <p><strong>Alunos:</strong> {instrumento.quantidadeDeAluno}</p>
-                      <p><strong>Conteúdo:</strong>
-                        <span className="buttons">
-                          <button className="button is-small is-primary-custom"
-                            onClick={() => irParaConteudo(instrumento.id)}>
-                            <span className="icon">
-                              <FaBook />
-                            </span>
-                          </button>
-                        </span>
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )) : (
+                ]}
+                actions={[
+                  {
+                    label: '',
+                    color: 'is-success is-light',
+                    onClick: (item) => irParaConteudo(item.id),
+                    icon: <FaBook />,
+                    itemAtivo: true
+                  },
+                  {
+                    label: '',
+                    color: 'is-info is-light',
+                    onClick: (item) => abrirModal(item),
+                    icon: <FiEdit />,
+                    itemAtivo: true
+                  },
+                  {
+                    label: '',
+                    color: 'is-danger is-light',
+                    onClick: (item) => excluirInstrumento(item.id),
+                    icon: <FiTrash2 />,
+                    itemAtivo:true
+                  }
+                ]}
+              />
+            ) : (
               <div className="column is-12">
-                <div className="notification is-light">Nenhum aluno encontrado com os filtros atuais</div>
+                {isMobile && <div className="notification is-light">
+                  Nenhum Aluno encontrado
+                </div>}
               </div>
+            
             )}
           </div>
         </div>

@@ -44,12 +44,26 @@ export const ProgressoAlunos: React.FC = () => {
   const [progressos, setProgressos] = useState<ProgressoAluno[] | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [updating, setUpdating] = useState<boolean>(false);
+  const [isMobile, setIsMobile] = useState<boolean>(false)
 
   // ========== ESTADOS DE CONTROLE DE UI ==========
   const [expandedDisciplinas, setExpandedDisciplinas] = useState<number[]>([]);
   const [activeTab, setActiveTab] = useState<number | null>(null);
 
   // ========== EFEITOS ==========
+useEffect(() => {
+
+  const checkMobile = () => {
+    setIsMobile(window.innerWidth < 768)
+  }
+
+  checkMobile()
+  window.addEventListener('resize', checkMobile)
+
+  return () => window.removeEventListener('resize', checkMobile)
+}, [])
+
+
 
 useEffect(() => {
   if (progressos && progressos.length > 0 && !activeTab) {
@@ -199,7 +213,7 @@ const atualizarStatusTopico = async (topicoId: number, novoStatus: StatusTopico)
         return (
             <div className="section">
                 <div className="container">
-                           <LoadingSpinner show = {loading}/>
+                           <LoadingSpinner show = {loading} isMobile={isMobile}/>
                 </div>
             </div>
         );

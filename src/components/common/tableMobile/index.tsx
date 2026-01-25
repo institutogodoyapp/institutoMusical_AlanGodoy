@@ -151,8 +151,8 @@ const CardList: React.FC<CardListProps> = ({
                     {icon}
                   </span>
                 </div>
-                <div className="media-content">
-                  <p className="title is-6">{item[titleField]}</p>
+                <div className="media-content" style={{overflowX: 'clip'}}>
+                  <p className="title is-5">{item[titleField]}</p>
                   {subtitleField && (
                     <p className="subtitle is-7">{item[subtitleField]}</p>
                   )}

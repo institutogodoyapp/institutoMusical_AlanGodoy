@@ -28,6 +28,7 @@ interface CardsAvisosProps {
 export const CardsAvisos: React.FC<CardsAvisosProps> = ({
   title,
   icon,
+  loading,
   proximasAulas
 }) => {
   const {
@@ -38,7 +39,6 @@ export const CardsAvisos: React.FC<CardsAvisosProps> = ({
   } = useNotifications();
   const [isMobile, setIsMobile] = useState(false);
   const [aulasAgendadas, setAulasAgendadas] = useState<any[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
   const service = useAlunoService();
 
   const checkScreenWidth = () => {
@@ -77,42 +77,7 @@ export const CardsAvisos: React.FC<CardsAvisosProps> = ({
     return aulaData.toLocaleDateString();
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const responseAulas = await service.getAulasSemana();
 
-        // Obter a data/hora atual para comparar
-        const agora = new Date().getTime();
-
-        // Converter, filtrar e ordenar as aulas por data/hora
-        const aulasOrdenadas = Array.isArray(responseAulas)
-          ? responseAulas
-            .map(aula => ({
-              ...aula,
-              // Criar um timestamp para ordenação
-              timestamp: new Date(convertToISOFormat(aula.dataHora)).getTime()
-            }))
-            .filter(aula => aula.timestamp > agora) // Filtrar apenas aulas futuras
-            .sort((a, b) => a.timestamp - b.timestamp) // Ordenar do mais próximo para o mais distante
-            .slice(0, 3) // Limitar a 3 aulas
-          : [responseAulas]
-            .filter(aula => {
-              const timestamp = new Date(convertToISOFormat(aula.dataHora)).getTime();
-              return timestamp > agora;
-            })
-            .slice(0, 3);
-
-
-        setAulasAgendadas(aulasOrdenadas);
-      } catch (error) {
-        showError(`Erro ao buscar os dados: ${error}`);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
 
   //=========================== ROTAS ===============================//
 

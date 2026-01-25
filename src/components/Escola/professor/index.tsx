@@ -22,7 +22,7 @@ import { useProfessorService } from '@/app/services/escola/professor/professor.s
 import NotificationContainer from '@/components/common/notificacao/mutiplasNotifacoes';
 import { Input } from '@/components/common/input';
 import CardList from '@/components/common/tableMobile';
-import { FiEdit, FiMessageCircle, FiTrash2, FiUser } from 'react-icons/fi';
+import { FiEdit, FiMessageCircle, FiPlus, FiTrash2, FiUser } from 'react-icons/fi';
 import { FaX } from 'react-icons/fa6';
 import { TfiAgenda } from 'react-icons/tfi';
 import LoadingSpinner from '@/components/common/loading';
@@ -111,11 +111,11 @@ export const GerenciamentoProfessores: React.FC = () => {
       setInstrumentos(responseInst);
 
       const responseProf = await serviceProfessor.getAllProfessores();
-   
+
       setProfessores(responseProf);
 
     } catch (error) {
-        setLoading(false);
+      setLoading(false);
       showError('Erro ao carregar dados');
     } finally {
       setLoading(false);
@@ -141,26 +141,26 @@ export const GerenciamentoProfessores: React.FC = () => {
       await fetchData();
       fecharModal();
     } catch (error) {
-        setLoading(false);
+      setLoading(false);
       showError('Não foi possível realizar a operação');
     }
   };
 
   const handleDelete = async (prof: Professor) => {
     if (confirm('Tem certeza que deseja excluir este professor?')) {
- 
+
       if (!prof.alunos) return
       if (prof.alunos.length === 0) {
         try {
           setLoading(true)
           if (!prof.id) return
           await serviceProfessor.exluirProfessor(prof.id);
-           setLoading(false)
+          setLoading(false)
           showSuccess("Professor excluído com sucesso!");
-          
+
           await fetchData();
         } catch (err) {
-            setLoading(false);
+          setLoading(false);
           showError('Erro ao excluir professor');
         }
       } else {
@@ -213,28 +213,28 @@ export const GerenciamentoProfessores: React.FC = () => {
   // ========== FUNÇÕES DE NAVEGAÇÃO ==========
   const irParaAgenda = (id: number) => {
 
-     sessionStorage.setItem('agendaOrigem', 'professor')
+    sessionStorage.setItem('agendaOrigem', 'professor')
 
-        router.push({
-            pathname: '/instituto-musical/escola/aula/agenda',
-            query: {
-                id: id,
-                origem: 'reposicao'
-            }
-        })
-   
+    router.push({
+      pathname: '/instituto-musical/escola/aula/agenda',
+      query: {
+        id: id,
+        origem: 'reposicao'
+      }
+    })
+
   }
 
   // ========== RENDERIZAÇÃO DE CARREGAMENTO ==========
-   if (loading) {
-        return (
-            <div className="section">
-                <div className="container">
-                           <LoadingSpinner show = {loading}/>
-                </div>
-            </div>
-        );
-    }
+  if (loading) {
+    return (
+      <div className="section">
+        <div className="container">
+          <LoadingSpinner show={loading} isMobile={isMobileView} />
+        </div>
+      </div>
+    );
+  }
 
   // ========== RENDERIZAÇÃO PRINCIPAL ==========
   return (
@@ -247,18 +247,29 @@ export const GerenciamentoProfessores: React.FC = () => {
           />
 
           {/* Cabeçalho e Busca */}
-          <div className="box mb-4">
+          <div className="box mb-4" style={{boxShadow: 'none'}}>
             <div className="level is-mobile">
               <div className="level-left">
               </div>
               <div className="level-right">
-                <CustomButton
-                  className={`my-custom-class ${isMobileView ? 'is-small' : ''}`}
-                  icon={<FaPlus />}
-                  text={`${isMobileView ? '' : 'Novo Professor'}`}
-                  onClick={() => abrirModal()}
-                  aria-label="Adicionar novo professor"
-                />
+                {isMobileView ? <button
+                  className="button is-primary-custom has-secundary-custom" style={{ boxShadow: 'none' }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    abrirModal()
+                  }}
+                >
+                  <span className="icon">
+                    <FiPlus size={14} />
+                  </span>
+                </button> :
+                  <CustomButton
+                    className={`my-custom-class ${isMobileView ? 'is-small' : ''}`}
+                    icon={<FaPlus />}
+                    text={`${isMobileView ? '' : 'Novo Professor'}`}
+                    onClick={() => abrirModal()}
+                    aria-label="Adicionar novo professor"
+                  />}
               </div>
             </div>
             <Input
@@ -273,7 +284,7 @@ export const GerenciamentoProfessores: React.FC = () => {
           </div>
 
           {/* Lista de Professores */}
-          <div className="box" style={{ boxShadow: 'none' }}>
+          <div className="box" style={{ boxShadow: 'none', padding: '0.25rem' }}>
             {professoresFiltrados.length === 0 ? (
               <div className="has-text-centered py-6">
                 <p>Nenhum professor encontrado.</p>

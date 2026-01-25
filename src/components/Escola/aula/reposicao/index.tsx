@@ -52,6 +52,7 @@ export const MarcarReposicao: React.FC = () => {
     // ========== ESTADOS DE UI ==========
     const [mostrarSugestoes, setMostrarSugestoes] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [isMobile, setIsMobile] = useState<boolean>(false)
 
     // ========== DADOS DO FORMULÁRIO ==========
     const formData = {
@@ -67,6 +68,18 @@ export const MarcarReposicao: React.FC = () => {
 
 
     // ========== EFEITOS ==========
+
+    useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth < 768)
+        }
+
+        window.addEventListener('resize', checkMobile)
+
+        return () =>  window.removeEventListener('resize', checkMobile)
+    }, [])
+
+
     useEffect(() => {
         const savedState = localStorage.getItem('reposicaoState');
         if (savedState) {
@@ -292,7 +305,7 @@ export const MarcarReposicao: React.FC = () => {
     // ========== RENDERIZAÇÃO PRINCIPAL ==========
     return (
         <Layout titulo="Marcar Reposição">
-            <LoadingSpinner show={loading} />
+            <LoadingSpinner show={loading} isMobile={isMobile}/>
             <section className="section">
                 <NotificationContainer
                     notifications={notifications}

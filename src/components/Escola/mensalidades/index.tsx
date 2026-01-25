@@ -23,7 +23,7 @@ import { useMensalidadeService } from '@/app/services/escola/finanças/mensalida
 import { useRouter } from 'next/router';
 import NotificationContainer from '@/components/common/notificacao/mutiplasNotifacoes';
 import LoadingSpinner from '@/components/common/loading';
-import { FiTrendingDown, FiTrendingUp } from 'react-icons/fi';
+import { FiFilter, FiTrendingDown, FiTrendingUp } from 'react-icons/fi';
 import { set } from 'date-fns';
 
 // type Aluno = {
@@ -81,8 +81,22 @@ export const GerenciamentoMensalidades: React.FC<MensalidadesTabProps> = () => {
   // ========== ESTADOS DE UI ==========
   const [loading, setLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
+  const [isMobile, setIsMobile] = useState<boolean>(false)
 
   // ========== EFEITOS ==========
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -165,7 +179,7 @@ setLoading(true)
     return (
       <div className="section">
         <div className="container">
-          <LoadingSpinner show={loading} />
+          <LoadingSpinner show={loading} isMobile={isMobile}/>
         </div>
       </div>
     );
@@ -218,13 +232,21 @@ setLoading(true)
               value={buscaAluno}
               onChange={(e) => setBuscaAluno(e.target.value)}
             />
-            <div className='field' style={{ marginLeft: '10px' }}>
+            <div className='field' style={{ marginLeft: '0px' }}>
+                {isMobile ? <button
+                                className="button is-primary-custom has-secundary-custom" style={{ boxShadow: 'none' }}
+                                onClick={handleBuscarPorPeriodo}
+                              >
+                                <span className="icon">
+                                  <FiFilter size={14} />
+                                </span>
+                              </button> :
               <CustomButton
                 className="is-hidden-mobile"
                 onClick={handleBuscarPorPeriodo}
                 text={'Filtrar'}
                 icon={<FaFilter />}
-              />
+              />}
             </div>
           </div>
         </div>
@@ -332,8 +354,8 @@ setLoading(true)
                 {/* Cards para Mobile */}
                 <div className="is-hidden-tablet">
                   {mensalidadesFiltradas.map(mensalidade => (
-                    <div key={mensalidade.id} className="card mb-4" >
-                      <div className="card-content">
+                    <div key={mensalidade.id} className="card mb-4"  >
+                      <div className="card-content" style={{ padding: '1.5rem' }}>
                         <div className="media">
                           <div className="media-content">
                             <p className="title is-6">{mensalidade.alunoNome}</p>
@@ -442,8 +464,8 @@ setLoading(true)
                 {/* Cards para Mobile */}
                 <div className="is-hidden-tablet" >
                   {mensalidadesEmAberto.map(mensalidade => (
-                    <div key={mensalidade.id} className="card" style={{ padding: '.2rem', marginBottom: '30px' }}>
-                      <div className="card-content">
+                    <div key={mensalidade.id} className="card" >
+                      <div className="card-content" style={{ padding: '1.5rem' }}>
                         <div className="media">
                           <div className="" >
                             <p className="title is-6">{mensalidade.alunoNome}</p>

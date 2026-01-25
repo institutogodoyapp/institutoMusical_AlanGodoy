@@ -11,70 +11,36 @@ export interface AuthResponse {
   refreshToken: string;
 }
 const service = useUsuarioService()
-   
+
 export const authService = {
 
-  
+
 
   // Login
-  login: async (loginData: LoginData): Promise<AuthResponse> => {
+  login: async (loginData: LoginData): Promise<void> => {
 
-    const response = await httpClient.post('/usuario/login', loginData);
-       
-    return response.data;
+    await httpClient.post(
+      '/usuario/login',
+      loginData,
+      { withCredentials: true });
+
+
   },
 
   logout: async (): Promise<void> => {
-   
+
     try {
-      const pubi = localStorage.getItem('refreshToken')
-      if(!pubi) return
 
+      await service.logout();
+    } catch { }
 
-    await service.logout(pubi);
-    } catch (error) {
-      // Não importa se falhar, faz logout local de qualquer forma
-      
-    }
+    window.location.href = '/instituto-musical/autenticacao/login'
 
-    // Limpeza local (ESSENCIAL)
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('jwt');
-    localStorage.removeItem('_usuario_logado');
-
-    // Redireciona para login
-    window.location.href = '/instituto-musical/autenticacao/login';
   },
 
+  
+  // isAuthenticated: (): boolean => {
+  //   return 
+  // }
 
-  // Verifica se usuário está autenticado
-  isAuthenticated: (): boolean => {
-    if (typeof window === 'undefined') return false;
- const refreshToken = localStorage.getItem('refreshToken');
- const accessToken = localStorage.getItem('accessToken');
-   
-
-    return !!(accessToken && refreshToken);
-  },
-
-  // Obtém tokens
-  getTokens: (): { accessToken: string | null; refreshToken: string | null } => {
-    if (typeof window === 'undefined') {
-      return { accessToken: null, refreshToken: null };
-    }
-
-    return {
-      accessToken: localStorage.getItem('accessToken'),
-      refreshToken: localStorage.getItem('refreshToken')
-    };
-  },
-
-  // Salva tokens
-  setTokens: (accessToken: string, refreshToken: string): void => {
-    if (typeof window === 'undefined') return;
-
-    localStorage.setItem('accessToken', accessToken);
-    localStorage.setItem('refreshToken', refreshToken);
-  }
-};
+}

@@ -6,7 +6,7 @@ import { useRouter } from 'next/router';
 import { Aluno, Instrumento, Professor } from '@/app/models/escola';
 import { useAlunoService } from '@/app/services';
 import { traduzirDiaSemana } from '@/util/traduçãoApi';
-import { FaCalendar, FaUserGraduate } from 'react-icons/fa';
+import { FaCalendar, FaClock, FaUserGraduate } from 'react-icons/fa';
 import { formatarMoeda } from '@/util/moeda';
 import CardList from '@/components/common/tableMobile';
 import NotificationContainer from '@/components/common/notificacao/mutiplasNotifacoes';
@@ -108,6 +108,7 @@ export const GerenciamentoAlunos: React.FC = () => {
       const resposta = await service.getAlunos();
       console.log(resposta)
       setAlunos(Array.isArray(resposta) ? resposta : [resposta]);
+      setLoading(false);
     } catch (error) {
       setLoading(false);
       showError('Falha ao carregar dados.');
@@ -375,7 +376,7 @@ export const GerenciamentoAlunos: React.FC = () => {
     return (
       <div className="section">
         <div className="container">
-          <LoadingSpinner show={loading} />
+          <LoadingSpinner show={loading} isMobile={isMobile} />
         </div>
       </div>
     );
@@ -394,21 +395,45 @@ export const GerenciamentoAlunos: React.FC = () => {
               {/* Espaço reservado para elementos futuros */}
             </div>
             <div className="level-right">
-              <CustomButton
-                text={<span className="is-hidden-mobile">Adicionar Aluno</span>}
-                icon={<FiUserPlus />}
-                onClick={() => acessarCadastroAluno()}
-                className="is-small-mobile"
-                style={{ borderRadius: '6px' }}
-              />
+              {isMobile ? <button
+                className="button is-primary-custom has-secundary-custom" style={{ boxShadow: 'none' }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  acessarCadastroAluno()
+                }}
+              >
+                <span className="icon">
+                  <FiUserPlus size={14} />
+                </span>
+              </button> :
+                <CustomButton
+                  text={<span className="is-hidden-mobile">Adicionar Aluno</span>}
+                  icon={<FiUserPlus />}
+                  onClick={() => acessarCadastroAluno()}
+                  className="is-small-mobile"
+                  style={{ borderRadius: '6px' }}
+                />}
 
-              <CustomButton
-                text={<span className="is-hidden-mobile">Marcar Reposição</span>}
-                icon={<FaCalendar />}
-                onClick={() => acessarSalaReposicao()}
-                className="is-small-mobile"
-                style={{ borderRadius: '6px', marginLeft: '10px' }}
-              />
+
+              {isMobile ? <button
+                className="button is-primary-custom has-secundary-custom" style={{ boxShadow: 'none', marginLeft: '10px' }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  acessarSalaReposicao()
+                }}
+              >
+                <span className="icon">
+                  <FaClock size={14} />
+                </span>
+              </button> :
+
+                <CustomButton
+                  text={<span className="is-hidden-mobile">Marcar Reposição</span>}
+                  icon={<FaClock />}
+                  onClick={() => acessarSalaReposicao()}
+                  className="is-small-mobile"
+                  style={{ borderRadius: '6px', marginLeft: '10px' }}
+                />}
             </div>
           </div>
 
@@ -429,13 +454,7 @@ export const GerenciamentoAlunos: React.FC = () => {
             </div>
 
             <div className="column is-12-mobile is-6-tablet is-3-desktop">
-              <div className="field">
-                <div className="control">
-                  <div className="select is-fullwidth">
-
-                  </div>
-                </div>
-              </div>
+              
             </div>
 
             <div className="column is-12-mobile is-6-tablet is-3-desktop">
@@ -448,11 +467,7 @@ export const GerenciamentoAlunos: React.FC = () => {
             </div>
 
             <div className="column is-12-mobile is-6-tablet is-3-desktop">
-              <div className="field">
-                <div className="control">
-                  <input className="input is-fullwidth" type="text" placeholder="Filtrar por CPF" value={filtroCPF} onChange={e => setFiltroCPF(e.target.value)} />
-                </div>
-              </div>
+             
             </div>
           </div>
 

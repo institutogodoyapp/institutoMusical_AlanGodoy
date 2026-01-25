@@ -33,13 +33,9 @@ export const useUsuarioService = () => {
         return response.data;
     };
 
-    const logout = async (token: string): Promise<void> => {
+    const logout = async (): Promise<void> => {
         const response: AxiosResponse<void> =
-            await httpClient.post<void>(`${resourceURL}/logout`, {}, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
+            await httpClient.post<void>(`${resourceURL}/logout`);
         return response.data;
     };
 

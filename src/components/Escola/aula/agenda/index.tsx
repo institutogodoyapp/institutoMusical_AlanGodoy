@@ -566,7 +566,7 @@ useEffect(() => {
   // ========== RENDERIZAÇÃO PRINCIPAL ==========
   return (
     <Layout titulo={` ${isMobile ? 'Agenda' : 'Agenda de Aulas'} - ${isMobile ? '' : 'Professor'} ${getPrimeiroEUltimoNome(professor?.nome ? professor.nome : '')}`}>
-      <LoadingSpinner show={loading} />
+      <LoadingSpinner show={loading} isMobile={isMobile}/>
       <div className="container">
         <NotificationContainer
           notifications={notifications}
@@ -589,10 +589,9 @@ useEffect(() => {
         {/* Filtros */}
         <div className="box " style={{ boxShadow: 'none' }}>
           <div className="is-flex is-align-items-center mb-4">
-            <FaFilter className="mr-2 has-primary-custom" />
-            <h2 className="subtitle is-4 has-text-grey">Filtros</h2>
+             
           </div>
-          <div className="is-flex is-justify-content-space-between is-align-items-center mb-4">
+          <div className="is-flex is-justify-content-space-between is-align-items-center mb-3" style={{paddingBottom: '35px'}}>
             <div className="is-flex is-align-items-center">
 
             </div>
