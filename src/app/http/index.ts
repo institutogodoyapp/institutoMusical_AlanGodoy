@@ -31,9 +31,14 @@ const processQueue = (error: any, token: any = null) => {
 // Interceptor request
 // Request interceptor CORRIGIDO
 httpClient.interceptors.request.use(
+
   (config) => config,
+
+  
   (error) => Promise.reject(error)
 );
+
+console.log(httpClient.interceptors.request)
 
 httpClient.interceptors.response.use(
   (response) => response,
