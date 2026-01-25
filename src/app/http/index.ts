@@ -82,7 +82,7 @@ httpClient.interceptors.response.use(
     let message = error.response.data?.message || "Erro inesperado";
     switch (status) {
       case 400: message ||= "Dados inválidos"; break;
-      case 403: message = "Acesso negado"; break;
+   //   case 403: message = "Acesso negado"; break;
       case 404: message ||= "Recurso não encontrado"; break;
       case 409: message ||= "Conflito de dados"; break;
       case 500: message = "Erro no servidor"; break;
