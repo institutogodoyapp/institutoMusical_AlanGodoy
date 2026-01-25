@@ -66,12 +66,14 @@ httpClient.interceptors.response.use(
         isRefreshing = false;
         processQueue(null);
         return httpClient(originalRequest);
-      } catch (refreshError) {
+      } catch (refreshError: any) {
+
+        console.log(refreshError.message)
         isRefreshing = false;
         processQueue(refreshError, null);
-        authService.logout();
-        window.location.href = '/instituto-musical/autenticacao/login';
-        return Promise.reject(refreshError);
+      //  authService.logout();
+      //  window.location.href = '/instituto-musical/autenticacao/login';
+        //return Promise.reject(refreshError);
       }
     }
 
