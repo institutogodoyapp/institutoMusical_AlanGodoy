@@ -14,7 +14,16 @@ export const refreshClient = axios.create({
   withCredentials: true,
 });
 
+httpClient.interceptors.request.use((config) => {
+  console.log('🚀 Request URL:', config.url);
+  console.log('🚀 Cookies enviados?', document.cookie.length); // DEBUG
+  return config;
+});
 
+refreshClient.interceptors.request.use((config) => {
+  console.log('🔄 REFRESH Request - withCredentials:', config.withCredentials);
+  return config;
+});
 
 // Flag global para evitar múltiplos refreshes
 let isRefreshing = false;
