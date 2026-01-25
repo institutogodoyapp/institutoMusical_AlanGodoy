@@ -234,6 +234,7 @@ export const CadastroAlunos: React.FC = () => {
         }
     };
 
+
     // ========== RENDERIZAÇÃO DE CARREGAMENTO ==========
     if (loading) {
         return (

@@ -40,7 +40,7 @@ export const HomeEscolaMusica = () => {
             try {
                 const responseAulas = await service.getAulasSemana();
                 setAulasAgendadas(Array.isArray(responseAulas) ? responseAulas : [responseAulas]);
-              console.log(responseAulas)
+          
                 
    setLoading(false)
             } catch (error: any) {

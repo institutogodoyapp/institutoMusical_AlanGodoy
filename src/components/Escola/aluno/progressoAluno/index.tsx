@@ -114,7 +114,7 @@ const atualizarStatusTopico = async (topicoId: number, novoStatus: StatusTopico)
       
       return prev.map(p => {
         if (p.instrumentoId === activeTab) { // ✅ Mantém a tab ativa atual
-          console.log(activeTab)
+      
           const disciplinasAtualizadas = p.disciplinas.map(disciplina => ({
             ...disciplina,
             topicos: disciplina.topicos.map(topico =>

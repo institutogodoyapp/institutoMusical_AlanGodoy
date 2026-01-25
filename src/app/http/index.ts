@@ -15,7 +15,7 @@ export const refreshClient = axios.create({
 });
 
 
-console.log('baseURL: ' + process.env.NEXT_PUBLIC_INSTITUTOMUSICAL_GODOY_APP)
+
 // Flag global para evitar múltiplos refreshes
 let isRefreshing = false;
 let failedQueue: any[] = [];
@@ -46,10 +46,10 @@ httpClient.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    console.log("status: " + status,"Request: " + originalRequest._retry)
+
 
     if ((status === 401 || status === 403) && !originalRequest._retry) {
-      console.log("interceptei", isRefreshing);
+  
 
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
@@ -62,7 +62,6 @@ httpClient.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        console.log('lancei refresh')
         await refreshClient.post('/usuario/refresh', {});
         isRefreshing = false;
         processQueue(null);

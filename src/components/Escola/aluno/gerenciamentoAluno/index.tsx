@@ -106,7 +106,7 @@ export const GerenciamentoAlunos: React.FC = () => {
     try {
       setLoading(true);
       const resposta = await service.getAlunos();
-      console.log(resposta)
+
       setAlunos(Array.isArray(resposta) ? resposta : [resposta]);
       setLoading(false);
     } catch (error) {
