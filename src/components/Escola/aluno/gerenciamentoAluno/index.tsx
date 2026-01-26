@@ -261,6 +261,14 @@ export const GerenciamentoAlunos: React.FC = () => {
       required: true
     },
 
+        {
+      tipo: 'date',
+      nome: 'dataMatricula',
+      label: 'Data da Matrícula(opcional)',
+      //placeholder: "Ex: Violão..",
+      required: false
+    },
+
   ];
 
   // ========== FUNÇÕES DE CRUD ==========
