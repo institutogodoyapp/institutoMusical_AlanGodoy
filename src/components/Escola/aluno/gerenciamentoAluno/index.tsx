@@ -322,6 +322,7 @@ export const GerenciamentoAlunos: React.FC = () => {
         instrumentoId: Number(dados.instrumentoId),
         professorId: Number(dados.professorId),
         alunoId: Number(alunoIdMatricula),
+        dataMatricula: formatarDataString(dados.dataMatricula)
 
       }
 
