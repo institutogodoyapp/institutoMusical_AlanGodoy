@@ -196,6 +196,15 @@ export const RealizacaoPedidoPage: React.FC = () => {
     return pedido.itens.reduce((total, item) => total + (item.precoUnitario * item.quantidade), 0);
   };
 
+ function formatarDataString(dataString: string) {
+
+    const data = new Date(dataString);
+    const ano = data.getFullYear();
+    const mes = String(data.getMonth() + 1).padStart(2, '0');
+    const dia = String(data.getDate()).padStart(2, '0');
+    return `${dia}/${mes}/${ano}`;
+}
+
   // ========== FUNÇÃO PRINCIPAL ==========
   const finalizarPedido = async () => {
     try {
