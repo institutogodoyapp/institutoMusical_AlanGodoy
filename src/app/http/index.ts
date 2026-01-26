@@ -14,16 +14,7 @@ export const refreshClient = axios.create({
   withCredentials: true,
 });
 
-httpClient.interceptors.request.use((config) => {
-  console.log('🚀 Request URL:', config.url);
-  console.log('🚀 Cookies enviados?', document.cookie.length); // DEBUG
-  return config;
-});
 
-refreshClient.interceptors.request.use((config) => {
-  console.log('🔄 REFRESH Request - withCredentials:', config.withCredentials);
-  return config;
-});
 
 // Flag global para evitar múltiplos refreshes
 let isRefreshing = false;
@@ -43,11 +34,11 @@ httpClient.interceptors.request.use(
 
   (config) => config,
 
-  
+
   (error) => Promise.reject(error)
 );
 
-console.log(httpClient.interceptors.request)
+
 
 httpClient.interceptors.response.use(
   (response) => response,
@@ -63,7 +54,7 @@ httpClient.interceptors.response.use(
 
 
     if ((status === 401 || status === 403) && !originalRequest._retry) {
-  
+
 
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
@@ -82,12 +73,11 @@ httpClient.interceptors.response.use(
         return httpClient(originalRequest);
       } catch (refreshError: any) {
 
-        console.log(refreshError.message)
         isRefreshing = false;
         processQueue(refreshError, null);
-      //  authService.logout();
-      //  window.location.href = '/instituto-musical/autenticacao/login';
-        //return Promise.reject(refreshError);
+        authService.logout();
+        window.location.href = '/instituto-musical/autenticacao/login';
+        return Promise.reject(refreshError);
       }
     }
 
@@ -96,7 +86,7 @@ httpClient.interceptors.response.use(
     let message = error.response.data?.message || "Erro inesperado";
     switch (status) {
       case 400: message ||= "Dados inválidos"; break;
-   //   case 403: message = "Acesso negado"; break;
+      //   case 403: message = "Acesso negado"; break;
       case 404: message ||= "Recurso não encontrado"; break;
       case 409: message ||= "Conflito de dados"; break;
       case 500: message = "Erro no servidor"; break;

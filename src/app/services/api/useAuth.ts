@@ -18,11 +18,11 @@ export const useAuth = () => {
     
     try {
       await refreshClient.post('usuario/refresh', {})
-      console.log("fiz checaut")
+     
       setIsAuthenticated(true)
     } catch {
       setIsAuthenticated(false)
-      console.log("fiz checaut")
+   
     }
     setIsLoading(false);
   }, []);
