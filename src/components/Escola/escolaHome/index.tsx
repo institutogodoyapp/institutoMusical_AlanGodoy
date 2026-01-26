@@ -39,7 +39,8 @@ export const HomeEscolaMusica = () => {
         const fetchData = async () => {
             try {
                 const responseAulas = await service.getAulasSemana();
-                setAulasAgendadas(Array.isArray(responseAulas) ? responseAulas : [responseAulas]);
+                console.log(responseAulas)
+                setAulasAgendadas(responseAulas);
           
                 
    setLoading(false)

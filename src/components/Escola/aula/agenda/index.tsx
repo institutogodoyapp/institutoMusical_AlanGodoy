@@ -233,6 +233,8 @@ useEffect(() => {
             alunoId: response.alunoId,
             diaSemanaAula: response.diaSemanaAula,
           }];
+
+       
         setAulas(aulasFormatadas);
 
       } catch (error) {

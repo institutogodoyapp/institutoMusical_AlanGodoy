@@ -47,6 +47,9 @@ export const parseApiDate = (dateTimeStr: string): Date | null => {
 };
 
 export function formatarDataString(dataString: string) {
+
+   if (!dataString || !/^\d{2}\/\d{2}\/\d{4}$/.test(dataString)) return undefined;
+
     const data = new Date(dataString);
     const ano = data.getFullYear();
     const mes = String(data.getMonth() + 1).padStart(2, '0');

@@ -48,6 +48,8 @@ export const useAulaService = () => {
                                 }
                         }
                 );
+
+               
                 return response.data;
         };
 
@@ -75,6 +77,7 @@ export const useAulaService = () => {
         const getReposições = async (professorId: number): Promise<Reposicao[]> => {
 
                 const response: AxiosResponse<Reposicao[]> = await httpClient.get(`${resourceURL}reposicao/professor/${professorId}`)
+               
                 return response.data
 
         }

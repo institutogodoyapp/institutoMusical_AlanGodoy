@@ -69,8 +69,8 @@ export const useAlunoService = () => {
         return response.data
     }
 
-    const getAulasSemana = async (): Promise<aula> => {
-        const response: AxiosResponse<aula> = await httpClient.get<aula>(
+    const getAulasSemana = async (): Promise<aula[]> => {
+        const response: AxiosResponse<aula[]> = await httpClient.get<aula[]>(
             resourceURL + 'aula/semana'
         )
         return response.data

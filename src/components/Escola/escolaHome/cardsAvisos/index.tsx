@@ -102,8 +102,8 @@ export const CardsAvisos: React.FC<CardsAvisosProps> = ({
             </span>
           </h2>
           <div className="content">
-            {aulasAgendadas.length > 0 ? (
-              aulasAgendadas.map((aula) => (
+            {proximasAulas.length > 0 ? (
+              proximasAulas.map((aula) => (
                 <div key={aula.id} className="mb-4">
                   <div className="is-flex is-justify-content-space-between is-align-items-center">
                     <div>
