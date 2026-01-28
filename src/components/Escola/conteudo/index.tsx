@@ -468,6 +468,16 @@ export const GerenciamentoConteudo: React.FC = () => {
     await buscarConteudoInstrumento(Number(instrumentoSelecionado?.id))
   }
 
+ const tipoFormacao = (Instrumento: Instrumento) => {
+
+  if (Instrumento.nome === "Grade"){
+    return Instrumento.tipo = InstrumentoTipo.FORMACAO
+  } else {
+    return Instrumento.tipo
+  }
+
+}
+
   // ========== CONFIGURAÇÕES ==========
   const camposAddDoc: CampoModal[] = [
     {
@@ -575,7 +585,7 @@ export const GerenciamentoConteudo: React.FC = () => {
                 <h1 className={`title ${isMobile ? 'is-5' : 'is-4'}`}>{instrumentoSelecionado.nome}</h1>
                 <div className="tags are-small">
                   <span className="tag is-primary-custom">
-                    {instrumentoSelecionado.tipo}
+                    {tipoFormacao(instrumentoSelecionado)}
                   </span>
                   <span className="tag is-primary-custom">
                     {instrumentoSelecionado.quantidadeDeAluno} alunos

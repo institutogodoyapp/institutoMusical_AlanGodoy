@@ -5,7 +5,7 @@ import {
 } from 'react-icons/fa';
 
 import { HomePage } from '@/components/common/homeBase';
-import logo from '@/assets/logoMobiles.png';
+import logo from '@/assets/logo orang.png';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { FiShoppingCart } from 'react-icons/fi';

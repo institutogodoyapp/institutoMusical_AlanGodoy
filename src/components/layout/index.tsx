@@ -3,6 +3,7 @@ import { ReactNode } from 'react';
 import SimpleAuthorFooter from '../common/signature';
 import AuthorFooter from '../common/signature';
 
+
 interface LayoutProps {
     titulo?: string;
     children?: ReactNode;
@@ -16,7 +17,7 @@ export const Layout: React.FC<LayoutProps> = (props) => {
         <div className="app" style={{
 
         }}>
-            <section className="main-content columns is-fullheight" style={{ boxShadow: 'none' }}>
+            <section className="main-content columns is-fullheight" style={{ boxShadow: 'none'}}>
                 <Menu />
 
                 <div className="container column is-10" style={{ padding: '0rem' }}>

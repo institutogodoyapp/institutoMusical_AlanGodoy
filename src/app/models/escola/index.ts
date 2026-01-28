@@ -1,6 +1,8 @@
 export type  {Aluno, 
               StatusSoft} from './aluno'
 
+
+
 export type { DisciplinaProgresso,
               ProgressoAluno,
               StatusProgresso,

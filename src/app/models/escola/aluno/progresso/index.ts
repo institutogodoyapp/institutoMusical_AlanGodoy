@@ -34,7 +34,7 @@ export interface ProgressoAluno {
   alunoNome: string;
   dataInicio: string;
   disciplinas: DisciplinaProgresso[];
-  instrumentoNome: String;
+  instrumentoNome: string;
   instrumento: Instrumento;
   instrumentoTipo: string;
   instrumentoId: number;

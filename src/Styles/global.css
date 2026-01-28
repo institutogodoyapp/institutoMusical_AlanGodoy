@@ -11,7 +11,7 @@
 }
 
 .has-primary-custom {
-  color: #A33100 !important;
+  color: #E75B10 !important;
 }
 
 .is-warning-custom {
@@ -31,11 +31,11 @@
 }
 
 .is-primary-custom {
-  color: #A33100 !important;
+  color: #E75B10 !important;
 }
 
 .menu-item:hover {
-  color: #A33100;
+  color: #E75B10;
   transform: translateY(-6px);
 
   border: 4px solid transparent;
@@ -500,7 +500,7 @@ textarea,
 .card-chip {
   width: 50px;
   height: 40px;
-  background: linear-gradient(135deg, #A33100 0%, #c99985 100%);
+  background: linear-gradient(135deg, #E75B10 0%, #c99985 100%);
   border-radius: 8px;
   margin-bottom: 20px;
   position: relative;
@@ -538,7 +538,7 @@ textarea,
 
 .card-value.highlight {
   font-size: 1.4rem;
-  color: #A33100;
+  color: #E75B10;
 }
 
 .card-value.small {
@@ -653,11 +653,11 @@ textarea,
 }
 
 .doc-name-container:hover .doc-name {
-  color: #A33100; /* Cor para o nome do arquivo ao passar o mouse (ajuste conforme necessário) */
+  color: #E75B10; /* Cor para o nome do arquivo ao passar o mouse (ajuste conforme necessário) */
 }
 
 .doc-name-container:hover .doc-mini-icon {
-  color: #A33100; 
+  color: #E75B10; 
 }
 
 .topico-header {

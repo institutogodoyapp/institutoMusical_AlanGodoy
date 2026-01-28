@@ -32,7 +32,7 @@ export const CustomButton: React.FC<CustomButtonProps> = ({
 
 
   const defaultStyle: React.CSSProperties = {
-    backgroundColor: '#A33100',
+    backgroundColor: '#E75B10',
     border: 'none',
     color: '#ffffff',
 

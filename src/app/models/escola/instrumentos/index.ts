@@ -6,7 +6,8 @@ export enum InstrumentoTipo {
     SOPRO = 'SOPRO',
     PERCUSSAO = 'PERCUSSAO',
     TECLAS = 'TECLAS',
-    VOCAL = 'VOCAL'
+    VOCAL = 'VOCAL',
+    FORMACAO = 'FORMACAO'
     // Adicione outros roles conforme necessário
 }
 

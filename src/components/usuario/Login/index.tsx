@@ -109,11 +109,11 @@ export const LoginPage: React.FC = () => {
               onRemove={removeNotification}
             />
             <div className="columns is-centered ">
-              <div className="column is-10-tablet is-6-desktop is-widescreen " style={{ height: '60%' }}>
+              <div className="column is-10-tablet is-8-desktop is-widescreen " style={{ height: '60%' }}>
                 <div className={`box p-0 ${isMobile ? '' : 'is-flex'}`} style={{ borderRadius: "25px 25px 25px 25px", minHeight: isMobile ? 'auto' : '600px' }}>
                   {/* Left Side - Hidden on mobile */}
                   {!isMobile && (
-                    <div className="column is-6 p-6 has-text-white " style={{ backgroundColor: "#A33100", borderRadius: "25px 0 0 25px" }}>
+                    <div className="column is-6 p-6 has-text-white " style={{ backgroundColor: "#e25e13", borderRadius: "25px 0 0 25px" }}>
                       <div className="mb-6">
                         <h1 className="title has-text-white">Instituto Alan Godoy</h1>
                       </div>

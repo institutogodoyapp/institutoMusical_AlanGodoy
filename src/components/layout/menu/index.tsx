@@ -142,10 +142,10 @@ export const Menu: React.FC = () => {
                     left: 0,
                     top: 0,
                     height: "100vh",
-                    width: "230px",
+                    width: "250px",
                     zIndex: 100,
                     transition: "transform 0.3s ease-in-out",
-                    backgroundColor: "#FCFDFC",
+                    backgroundColor: "#fdfdfc",
                     color: "#555",
                     transform: isDesktop
                         ? (showMenuDesktop ? 'translateX(0)' : 'translateX(-100%)')
@@ -162,7 +162,7 @@ export const Menu: React.FC = () => {
 
                 <ul className="menu-list" style={{ padding: "0.5rem" }}>
 
-                    <MenuItens href="/instituto-musical/home" label="Home" icon={<FaHome />} />
+                    <MenuItens href="/instituto-musical/home" label="Inicio" icon={<FaHome />} />
 
 
                     {/* Escola de Música */}
@@ -187,12 +187,12 @@ export const Menu: React.FC = () => {
                         </div>
                         {expandedItems.escola && 
                             <ul style={{ marginLeft: "1.5em", borderLeft: "1px solid #34495e", paddingLeft: "0.5em" }}>
-                                <MenuItens href="/instituto-musical/escola/home" label="Home" />
+                                <MenuItens href="/instituto-musical/escola/home" label="Painel Inicial" />
                                 <MenuItens href="/instituto-musical/escola/aluno/gerenciamento-aluno" label="Alunos" />
                                 <MenuItens href="/instituto-musical/escola/professor" label="Professores" />
                             
                                 <MenuItens href="/instituto-musical/escola/receita" label="Financeiro" />
-                                <MenuItens href="/instituto-musical/escola/instrumento" label="Instrumentos" />
+                                <MenuItens href="/instituto-musical/escola/instrumento" label="Cursos" />
                             </ul>
                         }
                     </li>

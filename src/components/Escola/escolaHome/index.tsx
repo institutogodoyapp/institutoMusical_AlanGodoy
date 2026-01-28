@@ -81,7 +81,7 @@ export const HomeEscolaMusica = () => {
                 main={""}
                 operacoesPrincipais={[
                     { title: 'Alunos', icon: <FaUser size={28} />, route: '/instituto-musical/escola/aluno/gerenciamento-aluno', description: 'Gerencie seus alunos' },
-                    { title: 'Instrumentos', icon: <FaMusic size={28} />, route: '/instituto-musical/escola/instrumento', description: 'Gerencie os cursos e conteúdos' },
+                    { title: 'Cursos', icon: <FaMusic size={28} />, route: '/instituto-musical/escola/instrumento', description: 'Gerencie os cursos e conteúdos' },
                     { title: 'Professores', icon: <FaChalkboardTeacher size={28} />, route: '/instituto-musical/escola/professor', description: 'Operações com professores' },
                     { title: 'Marcar Reposição', icon: <FaClock size={28} />, route: '/instituto-musical/escola/reposicao', description: 'Reposições de aula' },
                     { title: 'Financeiro', icon: <FaFileInvoiceDollar size={28} />, route: '/instituto-musical/escola/receita', description: 'Cuide da saúde financeira da sua escola' },

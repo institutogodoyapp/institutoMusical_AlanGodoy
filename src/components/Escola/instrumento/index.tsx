@@ -64,6 +64,7 @@ export const GerenciamentoInstrumentos: React.FC = () => {
     InstrumentoTipo.SOPRO,
     InstrumentoTipo.TECLAS,
     InstrumentoTipo.VOCAL,
+    InstrumentoTipo.FORMACAO
   ];
 
   // ========== EFEITOS ==========
@@ -155,7 +156,7 @@ const getInstrumentoIcon = (tipo: string) => {
     {
       tipo: 'text',
       nome: 'nome',
-      label: 'Nome do Instrumento',
+      label: 'Nome do Curso',
       placeholder: "Ex: Violão..",
       required: true
     },
@@ -181,31 +182,31 @@ const getInstrumentoIcon = (tipo: string) => {
       if (instrumentoEditando?.id) {
       
         response = await instrumentoService.AtualizarInstrumentos(instrumentoEditando.id, dados);
-        showSuccess("Instrumento atualizado com sucesso!");
+        showSuccess("Curso atualizado com sucesso!");
       } else {
         response = await instrumentoService.cadastrarInstrumento(dados as InstrumentoCadastro);
-        showSuccess("Instrumento salvo com sucesso!");
+        showSuccess("Curso salvo com sucesso!");
       }
   setLoading(false);
       await fetchInstrumentos();
       fecharModal();
     } catch (err) {
         setLoading(false);
-      showError('Erro ao salvar instrumento');
+      showError('Erro ao salvar Curso');
     }
   };
 
   const excluirInstrumento = async (id: number) => {
-    if (confirm('Tem certeza que deseja excluir este instrumento?')) {
+    if (confirm('Tem certeza que deseja excluir este Curso?')) {
       try {
           setLoading(true);
         await instrumentoService.removerInstrumento(id);
-        showSuccess("Instrumento excluído com sucesso!");
+        showSuccess("Curso excluído com sucesso!");
           setLoading(false);
         await fetchInstrumentos();
       } catch (err) {
           setLoading(false);
-        showError('Erro ao excluir instrumento');
+        showError('Erro ao excluir Curso');
       }
     }
   };
@@ -228,6 +229,16 @@ const getInstrumentoIcon = (tipo: string) => {
   icon: getInstrumentoIcon(instrumento.tipo)  // Adiciona ícone ao objeto
 }));
 
+const tipoFormacao = (Instrumento: Instrumento) => {
+
+  if (Instrumento.nome === "Grade"){
+    return Instrumento.tipo = InstrumentoTipo.FORMACAO
+  } else {
+    return Instrumento.tipo
+  }
+
+}
+
   // ========== RENDERIZAÇÃO DE CARREGAMENTO ==========
    if (loading) {
         return (
@@ -241,7 +252,7 @@ const getInstrumentoIcon = (tipo: string) => {
 
   // ========== RENDERIZAÇÃO PRINCIPAL ==========
   return (
-    <Layout titulo='Gerenciamento de Instrumentos'>
+    <Layout titulo='Gerenciamento de Cursos'>
       <section className="section">
         <div className="container">
           <NotificationContainer
@@ -273,7 +284,7 @@ const getInstrumentoIcon = (tipo: string) => {
 
               <div className="column is-6">
                 <div className="field">
-                  <label className="label">Buscar Instrumento</label>
+                  <label className="label">Buscar Curso</label>
                   <div className="control has-icons-left">
                     <input
                       className="input"
@@ -310,7 +321,7 @@ const getInstrumentoIcon = (tipo: string) => {
           <div className="box" style={{ boxShadow: 'none' }}>
             {instrumentosFiltrados.length === 0 ? (
               <div className="notification is-light has-text-centered">
-                Nenhum instrumento encontrado com os filtros selecionados.
+                Nenhum Curso encontrado com os filtros selecionados.
               </div>
             ) : (
               <div className="table-container">
@@ -330,7 +341,7 @@ const getInstrumentoIcon = (tipo: string) => {
                         <td>{instrumento.nome}</td>
                         <td>
                           <span className={'tag is-primary-custom'}>
-                            {instrumento.tipo}
+                            {tipoFormacao(instrumento)}
                           </span>
                         </td>
                         <td>{instrumento.quantidadeDeAluno}</td>
