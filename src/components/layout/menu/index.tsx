@@ -111,7 +111,7 @@ export const Menu: React.FC = () => {
                 >
                     <span className="icon">
                         {showMenuDesktop ? (
-                              <FiXOctagon />
+                            ''
                             // <img src="/icons/colapsar.svg" alt="Fechar menu" style={{ width: '24px', height: '24px' }} />
                         ) : (
 
@@ -123,18 +123,35 @@ export const Menu: React.FC = () => {
             )}
 
 
-            {isMenuOpen && !isDesktop && (
+            {showMenuDesktop && isDesktop && (
                 <div
-                    className="is-overlay is-hidden-tablet"
+                    className="is-overlay"
                     style={{
                         backgroundColor: "rgba(0, 0, 0, 0.5)",
                         position: "fixed",
                         zIndex: 100,
                     }}
-                    onClick={() => setIsMenuOpen(false)}
+                    onClick={() =>  {setIsMenuOpen(false)
+                        setShowMenuDesktop(false)}
+                    }
                 />
             )}
 
+               {isMenuOpen && !isDesktop && (
+                <div
+                    className="is-overlay"
+                    style={{
+                        backgroundColor: "rgba(0, 0, 0, 0.5)",
+                        position: "fixed",
+                        zIndex: 100,
+                    }}
+                    onClick={() =>  {setIsMenuOpen(false)
+                        setShowMenuDesktop(false)}
+                    }
+                />
+            )}
+
+         
             <aside
                 className="column is-3 is-narrow-mobile is-fullheight section"
                 style={{
@@ -297,7 +314,7 @@ export const Menu: React.FC = () => {
                 </ul>
             </aside>
 
-           
+            
         </>
     );
 };

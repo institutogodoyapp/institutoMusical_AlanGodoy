@@ -492,7 +492,7 @@ export const GerenciamentoConteudo: React.FC = () => {
     {
       tipo: 'text',
       nome: 'nome',
-      label: 'Disciplina',
+      label: 'Matéria',
       placeholder: "Ex: Triade Menor..",
       required: true
     },
@@ -594,7 +594,7 @@ export const GerenciamentoConteudo: React.FC = () => {
               </div>
               <div className="column is-narrow">
                 <div className="buttons">
-                  {isMobile ? <button
+                  {disciplinasParaExibir.length !== 0 && (isMobile ? <button
                                 className="button is-primary-custom has-secundary-custom" style={{boxShadow: 'none'}}
                                 onClick={(e) => {
                                   e.stopPropagation();
@@ -606,12 +606,12 @@ export const GerenciamentoConteudo: React.FC = () => {
                                 </span>
                               </button> :
                   <CustomButton
-                    text={`${!isMobile ? 'Adicionar Disciplina' : ''}`}
+                    text={`${!isMobile ? 'Adicionar Matéria' : ''}`}
                     icon={<FaPlus size={isMobile ? 12 : 16} />}
                     onClick={() => abrirModal()}
                     className={`is-fullwidth  ${isMobile ? 'is-small' : ''}`}
                     style={{ borderRadius: '6px' }}
-                  />}
+                  />)}
                 </div>
               </div>
             </div>
@@ -651,9 +651,9 @@ export const GerenciamentoConteudo: React.FC = () => {
             <div className="box" style={{ boxShadow: 'none', padding: '0px' }}>
               {!loadingConteudo && disciplinasParaExibir.length === 0 ? (
                 <div className="has-text-centered py-6">
-                  <p className="mb-4">Nenhuma disciplina cadastrada para este instrumento.</p>
+                  <p className="mb-4">Nenhuma Matéria cadastrada para este instrumento.</p>
                   <CustomButton
-                    text={!isMobile ? 'Criar Primeira Disciplina' : ''}
+                    text={!isMobile ? 'Criar Primeira Matéria' : ''}
                     icon={<FaPlus size={isMobile ? 12 : 16} />}
                     onClick={() => setShowDisciplinaForm(true)}
                     className={isMobile ? 'is-small' : ''}
@@ -661,7 +661,9 @@ export const GerenciamentoConteudo: React.FC = () => {
                   />
                 </div>
               ) : (
-                disciplinasParaExibir.map(disciplina => (
+                disciplinasParaExibir
+                .sort((a, b) => (a.ordem || 0) - (b.ordem || 0))
+                .map(disciplina => (
                   <div key={disciplina.id} className="card mb-3" style={{ boxShadow: 'none' }}>
                     <header
                       className="card-header is-clickable"
@@ -889,7 +891,7 @@ export const GerenciamentoConteudo: React.FC = () => {
             </div>
           ) : (
             <div className="box" style={{ boxShadow: 'none' }}>
-              <h2 className={`title ${isMobile ? 'is-5' : 'is-4'}`}>Estatísticas do Instrumento</h2>
+              <h2 className={`title ${isMobile ? 'is-5' : 'is-4'}`}>Estatísticas do Curso</h2>
               <div className={`columns `}>
                 <div className="column">
                   <div className="card">
@@ -901,7 +903,7 @@ export const GerenciamentoConteudo: React.FC = () => {
                           </span>
                         </div>
                         <div className="media-content">
-                          <p className={`title ${isMobile ? 'is-5' : 'is-4'} `}>Disciplinas</p>
+                          <p className={`title ${isMobile ? 'is-5' : 'is-4'} `}>Matérias</p>
                           <p className={`subtitle ${isMobile ? 'is-7' : 'is-6'}`}>
                             {disciplinasParaExibir.length} cadastradas
                           </p>
