@@ -7,15 +7,21 @@ export enum InstrumentoTipo {
     PERCUSSAO = 'PERCUSSAO',
     TECLAS = 'TECLAS',
     VOCAL = 'VOCAL',
-    FORMACAO = 'FORMACAO'
+    FORMACAO =  'FORMACAO'
+
     // Adicione outros roles conforme necessário
 }
 
+export enum TiposExcendentes {
+    FORMACAO= 'FORMACAO',
+    OUTROS = 'OUTROS'
+}
 
 export interface Instrumento {
   id: number;
   nome: string;
   tipo: InstrumentoTipo;
+  tiposExcedentes: TiposExcendentes;
   quantidadeDeAluno?: number;
   ativo?: boolean;
   conteudoProgramatico?: ConteudoProgramatico;
@@ -26,6 +32,7 @@ export interface InstrumentoCadastro {
 
   nome: string;
   tipo: InstrumentoTipo;
+  tiposExcedentes: TiposExcendentes;
 
 }
 

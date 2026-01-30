@@ -24,7 +24,8 @@ import { ProgressoAluno, StatusTopico, DisciplinaProgresso, statusLabels, Status
 import { voltar } from '@/util/navegacao';
 import { DividerGradient } from '@/components/common/divisor';
 import LoadingSpinner from '@/components/common/loading';
-import { InstrumentoTipo } from '@/app/models';
+import { Instrumento, InstrumentoTipo } from '@/app/models';
+import { TiposExcendentes } from '@/app/models/escola/instrumentos';
 
 export const ProgressoAlunos: React.FC = () => {
   // ========== SERVICES E HOOKS ==========
@@ -77,6 +78,7 @@ const fetchProgresso = async () => {
         setLoading(true);
         try {
           const response = await service.getAlunoProgresso(parseId);
+    
           setProgressos(response)
           if (response && Array.isArray(response) && response.length > 0) {
             setProgresso({
@@ -210,9 +212,9 @@ const atualizarStatusTopico = async (topicoId: number, novoStatus: StatusTopico)
     }
   };
 
-   const tipoFormacao = ( instrumentoTipo: string, instrumentoNome: string,) => {
+   const tipoFormacao = ( instrumentoTipo: string, tipoExcedente: string) => {
 
-    if (instrumentoNome === "Grade"){
+    if (tipoExcedente === 'FORMACAO'){
       return instrumentoTipo = 'FORMACAO'
     } else {
       return instrumentoTipo
@@ -275,7 +277,7 @@ const atualizarStatusTopico = async (topicoId: number, novoStatus: StatusTopico)
                 <div className="tags is-justify-content-center-mobile is-flex-wrap-wrap">
                   <span className="tag has-primary-custom is-medium">
                     <img
-                      src={getInstrumentoIcon(tipoFormacao(progressoAtivo.instrumentoTipo, progressoAtivo.instrumentoNome))}
+                      src={getInstrumentoIcon(tipoFormacao(progressoAtivo.instrumentoTipo, progressoAtivo.tipoExcedente))}
                       // alt={progressoAtivo.instrumentoNome}
                       className="icon-img"
                       style={{
@@ -309,7 +311,7 @@ const atualizarStatusTopico = async (topicoId: number, novoStatus: StatusTopico)
                   <a>
                     <span className="icon is-small">
                       <img
-                        src={getInstrumentoIcon(tipoFormacao(p.instrumentoTipo, p.instrumentoNome))}
+                        src={getInstrumentoIcon(tipoFormacao(p.instrumentoTipo, p.tipoExcedente))}
                         // alt={progressoAtivo.instrumentoNome}
                         className="icon-img"
                         style={{

@@ -11,13 +11,14 @@ import { formatarMoeda } from '@/util/moeda';
 import CardList from '@/components/common/tableMobile';
 import NotificationContainer from '@/components/common/notificacao/mutiplasNotifacoes';
 import { CampoModal, DadosModal } from '@/components/common/modal/modal-generico';
-import { Matricula } from '@/app/models/escola/aluno/matricula';
+import { Matricula, TipoMatricula } from '@/app/models/escola/aluno/matricula';
 import { useProfessorService } from '@/app/services/escola/professor/professor.service';
 import { parseApiDate } from '@/util';
 import { formatarDataString } from '@/util/Datas';
 import LoadingSpinner from '@/components/common/loading';
 import { set } from 'date-fns';
 import { Console } from 'console';
+import { TiposExcendentes } from '@/app/models/escola/instrumentos';
 
 export const GerenciamentoAlunos: React.FC = () => {
   // ========== SERVICES E HOOKS ==========
@@ -106,7 +107,7 @@ export const GerenciamentoAlunos: React.FC = () => {
     try {
       setLoading(true);
       const resposta = await service.getAlunos();
-console.log(resposta)
+
       setAlunos(Array.isArray(resposta) ? resposta : [resposta]);
       setLoading(false);
     } catch (error) {
@@ -323,11 +324,7 @@ console.log(resposta)
         professorId: Number(dados.professorId),
         alunoId: Number(alunoIdMatricula),
         dataMatricula: formatarDataString(dados.dataMatricula)
-
       }
-
-
-
 
 
       const aluno = alunos.find(a => a.id === dadostypes.alunoId)
@@ -335,8 +332,21 @@ console.log(resposta)
         .flatMap(matricula => matricula.instrumento)
         .find(instr => instr?.id === dadostypes.instrumentoId);
 
+      const instrumentoselecionado = instrumentos.find(inst => inst.id === dadostypes.instrumentoId)
+
+
+      const tipoMatricula = instrumentoselecionado?.tiposExcedentes === TiposExcendentes.FORMACAO ? TipoMatricula.FLEXIVEL : TipoMatricula.REGULAR
+       const dadosCompletos = {
+        ...dadostypes,
+ 
+tipoMatricula: tipoMatricula
+      }
+
+   
+
       if (instrumento?.id !== dadostypes.instrumentoId) {
-        await service.matricular(dadostypes);
+  
+        await service.matricular(dadosCompletos);
         setLoading(false)
         showSuccess('Aluno matriculado com sucesso!');
         fecharModalAção()
@@ -547,9 +557,9 @@ console.log(resposta)
                                 {aluno.instrumentos.map(instAluno => <div key={instAluno.id} className="box is-6" style={{ margin: '19px', padding: '1.2rem' }}>
                                   <h1><strong>Matrícula: </strong> {instAluno.numeroMatricula}</h1>
                                   <h1><strong>Curso: </strong>{instAluno.instrumento?.nome}</h1>
-                                  {aluno.ativo && <p><strong>Horário da Aula:</strong> {instAluno.horarioAula}</p>}
                                   {aluno.ativo && <p><strong>Professor:</strong> {instAluno.professor?.nome}</p>}
-                                  {aluno.ativo && <p><strong>Dia da Aula:</strong> {traduzirDiaSemana(instAluno.diaSemanaAula)}</p>}
+                                  {aluno.ativo && instAluno.tipoMatricula === TipoMatricula.REGULAR &&  <p><strong>Horário da Aula:</strong> {instAluno.horarioAula}</p>}
+                                  {aluno.ativo && instAluno.tipoMatricula === TipoMatricula.REGULAR && <p><strong>Dia da Aula:</strong> {traduzirDiaSemana(instAluno.diaSemanaAula)}</p>}
                                   {aluno.ativo && <p><strong>Data Matrícula:</strong> {instAluno.dataMatricula}</p>}
 
 

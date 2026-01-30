@@ -4,6 +4,11 @@ import { Professor } from "../../professor";
 import { aula} from "../../aula"
 import { ProgressoAluno } from "../progresso";
 
+export enum TipoMatricula{
+    REGULAR = 'REGULAR',
+    FLEXIVEL = "FLEXIVEL"
+}
+
 export interface Matricula {
     id?: number;
     aluno?: Aluno;
@@ -12,6 +17,7 @@ export interface Matricula {
     alunoId?: number;
     professor?: Professor;
     instrumento?: Instrumento;
+    tipoMatricula?: TipoMatricula;
     numeroMatricula?: number;
     dataMatricula?: string;
     diaSemanaAula: string;

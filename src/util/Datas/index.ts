@@ -46,15 +46,43 @@ export const parseApiDate = (dateTimeStr: string): Date | null => {
     }
 };
 
-export function formatarDataString(dataString: string) {
+export function formatarDataString(dataString: string): string | undefined {
+  let dataFormatada: string | undefined;
+  
+  // YYYY-MM-DD → DD/MM/YYYY
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dataString)) {
+    const partes = dataString.split('-');
+    dataFormatada = `${partes[2]}/${partes[1]}/${partes[0]}`;
+   
+  } 
+  // Já DD/MM/YYYY
+  else if (/^\d{2}\/\d{2}\/\d{4}$/.test(dataString)) {
+    dataFormatada = dataString;
+  } 
+  else {
+  
+    return undefined;
+  }
+  
+  // Agora valida data real (seja qual formato veio)
+  const partes = dataFormatada.split('/');
+  const dia = parseInt(partes[0], 10);
+  const mes = parseInt(partes[1], 10) - 1;
+  const ano = parseInt(partes[2], 10);
+  
+  const data = new Date(ano, mes, dia);
+  
+  if (isNaN(data.getTime()) || 
+      data.getDate() !== dia || 
+      data.getMonth() !== mes || 
+      data.getFullYear() !== ano) {
 
-   if (!dataString || !/^\d{2}\/\d{2}\/\d{4}$/.test(dataString)) return undefined;
-
-    const data = new Date(dataString);
-    const ano = data.getFullYear();
-    const mes = String(data.getMonth() + 1).padStart(2, '0');
-    const dia = String(data.getDate()).padStart(2, '0');
-    return `${dia}/${mes}/${ano}`;
+    return undefined;
+  }
+  
+  const mesFormatado = String(data.getMonth() + 1).padStart(2, '0');
+  const diaFormatado = String(data.getDate()).padStart(2, '0');
+  return `${diaFormatado}/${mesFormatado}/${data.getFullYear()}`;
 }
 
 export const converterDataParaInput = (dataString: string): string => {

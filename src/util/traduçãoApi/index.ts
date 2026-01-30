@@ -1,4 +1,6 @@
-export const traduzirDiaSemana = (diaIngles: string): string => {
+export const traduzirDiaSemana = (diaIngles: string): string | undefined => {
+
+  if(!diaIngles) return
   const traducoes: Record<string, string> = {
     'SUNDAY': 'Domingo',
     'MONDAY': 'Segunda-feira',

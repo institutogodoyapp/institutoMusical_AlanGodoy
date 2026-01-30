@@ -21,7 +21,7 @@ import {
 
 import { formatBytes } from '@/util';
 
-import { Instrumento, InstrumentoTipo } from '@/app/models/escola/instrumentos';
+import { Instrumento, InstrumentoTipo, TiposExcendentes } from '@/app/models/escola/instrumentos';
 import { Topico, TopicoCadastro } from '@/app/models/escola/instrumentos/conteudoProgramatico/topico';
 import { Disciplina, DisciplinaCadastro } from '@/app/models/escola/instrumentos/conteudoProgramatico/disciplina';
 import { ConteudoProgramatico } from '@/app/models/escola/instrumentos/conteudoProgramatico';
@@ -470,7 +470,7 @@ export const GerenciamentoConteudo: React.FC = () => {
 
  const tipoFormacao = (Instrumento: Instrumento) => {
 
-  if (Instrumento.nome === "Grade"){
+  if (Instrumento.tiposExcedentes === TiposExcendentes.FORMACAO){
     return Instrumento.tipo = InstrumentoTipo.FORMACAO
   } else {
     return Instrumento.tipo
@@ -526,6 +526,8 @@ export const GerenciamentoConteudo: React.FC = () => {
       required: true
     },
   ];
+
+  
 
   // ========== RENDERIZAÇÃO DE CARREGAMENTO ==========
 

@@ -15,7 +15,7 @@ import {
 import { FiSearch, FiTrash2, FiEdit, FiUserPlus, FiToggleLeft, FiToggleRight, FiChevronUp, FiChevronRight, FiChevronDown, FiBarChart2, FiMoreVertical, FiBook } from 'react-icons/fi';
 
 import { FaArrowPointer } from 'react-icons/fa6';
-import { Instrumento, InstrumentoTipo, InstrumentoCadastro } from '@/app/models/escola/instrumentos';
+import { Instrumento, InstrumentoTipo, InstrumentoCadastro, TiposExcendentes } from '@/app/models/escola/instrumentos';
 import { useInstrumentoService } from '@/app/services/escola';
 import { getInstrumentoIcon } from '@/util'
 import NotificationContainer from '@/components/common/notificacao/mutiplasNotifacoes';
@@ -49,6 +49,7 @@ export const GerenciamentoInstrumentos: React.FC = () => {
   const [formData, setFormData] = useState<InstrumentoCadastro>({
     nome: '',
     tipo: InstrumentoTipo.CORDA,
+    tiposExcedentes: TiposExcendentes.OUTROS
   });
 
   // ========== ESTADOS DE UI ==========
@@ -64,12 +65,17 @@ export const GerenciamentoInstrumentos: React.FC = () => {
     InstrumentoTipo.SOPRO,
     InstrumentoTipo.TECLAS,
     InstrumentoTipo.VOCAL,
-    InstrumentoTipo.FORMACAO
+
+  ];
+  const tiposExcedentesDisponiveis: TiposExcendentes[] = [
+    TiposExcendentes.FORMACAO,
+    TiposExcendentes.OUTROS
+
   ];
 
   // ========== EFEITOS ==========
 
-useEffect(() => {
+  useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
@@ -101,10 +107,10 @@ useEffect(() => {
     try {
       setLoading(true);
       const response = await instrumentoService.getAllInstrumentos();
-    
+
       setInstrumentos(Array.isArray(response) ? response : [response]);
     } catch (err) {
-        setLoading(false);
+      setLoading(false);
       showError('Erro ao buscar instrumentos');
     } finally {
       setLoading(false);
@@ -112,22 +118,24 @@ useEffect(() => {
   };
 
   // ========== FUNÇÕES AUXILIARES ==========
-const getInstrumentoIcon = (tipo: string) => {
-  switch (tipo) {
-    case 'CORDA':
-      return <img src="/icons/instrumentos.svg" alt="Cordas" className="w-6 h-6" />;
-    case 'SOPRO':
-      return <img src="/icons/sopro.svg" alt="Sopro" className="w-6 h-6" />;
-    case 'PERCUSSAO':
-      return <img src="/icons/percussão.svg" alt="Percussão" className="w-6 h-6" />;
-    case 'TECLAS':
-      return <img src="/icons/teclas.svg" alt="Teclas" className="w-6 h-6" />;
-    case 'VOCAL':
-      return <img src="/icons/voz.svg" alt="Voz" className="w-6 h-6" />;
-    default:
-      return <img src="/icons/others.svg" alt="Outros" className="w-6 h-6" />;
-  }
-};
+  const getInstrumentoIcon = (tipo: string) => {
+    switch (tipo) {
+      case 'CORDA':
+        return <img src="/icons/instrumentos.svg" alt="Cordas" className="w-6 h-6" />;
+      case 'SOPRO':
+        return <img src="/icons/sopro.svg" alt="Sopro" className="w-6 h-6" />;
+      case 'PERCUSSAO':
+        return <img src="/icons/percussão.svg" alt="Percussão" className="w-6 h-6" />;
+      case 'TECLAS':
+        return <img src="/icons/teclas.svg" alt="Teclas" className="w-6 h-6" />;
+      case 'VOCAL':
+        return <img src="/icons/voz.svg" alt="Voz" className="w-6 h-6" />;
+      case 'FORMACAO':
+        return <img src="/icons/others.svg" alt="Outros" className="w-6 h-6" />;
+      default:
+        return <img src="/icons/others.svg" alt="Outros" className="w-6 h-6" />;
+    }
+  };
 
 
   // ========== FUNÇÕES DE CONTROLE DE UI ==========
@@ -136,12 +144,12 @@ const getInstrumentoIcon = (tipo: string) => {
   };
 
   const abrirModal = (instrumento: Instrumento | null = null) => {
-    
+
     if (instrumento?.id) {
       setInstrumentoEditando(instrumento);
       setFormData(instrumento);
     } else {
-      setFormData({ nome: '', tipo: InstrumentoTipo.CORDA });
+      setFormData({ nome: '', tipo: InstrumentoTipo.CORDA, tiposExcedentes: TiposExcendentes.OUTROS });
     }
     setModalAberto(true);
   };
@@ -170,6 +178,16 @@ const getInstrumentoIcon = (tipo: string) => {
         label: type
       })),
       required: true
+    },
+    {
+      tipo: 'select',
+      nome: 'tiposExcedentes',
+      label: 'Categoria Adicional',
+      opcoes: tiposExcedentesDisponiveis.map(type => ({
+        valor: type,
+        label: type
+      })),
+      required: false
     }
 
   ];
@@ -177,21 +195,21 @@ const getInstrumentoIcon = (tipo: string) => {
   // ========== FUNÇÕES DE CRUD ==========
   const salvarInstrumento = async (dados: DadosModal) => {
     try {
-        setLoading(true);
+      setLoading(true);
       let response;
       if (instrumentoEditando?.id) {
-      
+
         response = await instrumentoService.AtualizarInstrumentos(instrumentoEditando.id, dados);
         showSuccess("Curso atualizado com sucesso!");
       } else {
         response = await instrumentoService.cadastrarInstrumento(dados as InstrumentoCadastro);
         showSuccess("Curso salvo com sucesso!");
       }
-  setLoading(false);
+      setLoading(false);
       await fetchInstrumentos();
       fecharModal();
     } catch (err) {
-        setLoading(false);
+      setLoading(false);
       showError('Erro ao salvar Curso');
     }
   };
@@ -199,13 +217,13 @@ const getInstrumentoIcon = (tipo: string) => {
   const excluirInstrumento = async (id: number) => {
     if (confirm('Tem certeza que deseja excluir este Curso?')) {
       try {
-          setLoading(true);
+        setLoading(true);
         await instrumentoService.removerInstrumento(id);
         showSuccess("Curso excluído com sucesso!");
-          setLoading(false);
+        setLoading(false);
         await fetchInstrumentos();
       } catch (err) {
-          setLoading(false);
+        setLoading(false);
         showError('Erro ao excluir Curso');
       }
     }
@@ -213,7 +231,7 @@ const getInstrumentoIcon = (tipo: string) => {
 
   // ========== FUNÇÕES DE NAVEGAÇÃO ==========
   const irParaConteudo = (id: number) => {
- 
+
     router.push(`/instituto-musical/escola/instrumento/conteudo?id=${id}`)
   }
 
@@ -225,30 +243,31 @@ const getInstrumentoIcon = (tipo: string) => {
   });
 
   const instrumentosComIcon = instrumentosFiltrados.map(instrumento => ({
-  ...instrumento,
-  icon: getInstrumentoIcon(instrumento.tipo)  // Adiciona ícone ao objeto
-}));
+    ...instrumento,
+    icon: getInstrumentoIcon(instrumento.tipo)  // Adiciona ícone ao objeto
+  }));
 
-const tipoFormacao = (Instrumento: Instrumento) => {
+  //RESOLVER PROBLEMAN DE TIPOS NA UI
+  const tipoFormacao = (Instrumento: Instrumento) => {
 
-  if (Instrumento.nome === "Grade"){
-    return Instrumento.tipo = InstrumentoTipo.FORMACAO
-  } else {
-    return Instrumento.tipo
+    if (Instrumento.tiposExcedentes === TiposExcendentes.FORMACAO) {
+      return Instrumento.tipo = InstrumentoTipo.FORMACAO
+    } else {
+      return Instrumento.tipo
+    }
+
   }
 
-}
-
   // ========== RENDERIZAÇÃO DE CARREGAMENTO ==========
-   if (loading) {
-        return (
-            <div className="section">
-                <div className="container">
-                           <LoadingSpinner show = {loading} isMobile={isMobile}/>
-                </div>
-            </div>
-        );
-    }
+  if (loading) {
+    return (
+      <div className="section">
+        <div className="container">
+          <LoadingSpinner show={loading} isMobile={isMobile} />
+        </div>
+      </div>
+    );
+  }
 
   // ========== RENDERIZAÇÃO PRINCIPAL ==========
   return (
@@ -385,8 +404,8 @@ const tipoFormacao = (Instrumento: Instrumento) => {
 
           {/* Cards para Mobile */}
           <div className="columns is-multiline is-hidden-tablet">
-            
-              {instrumentosFiltrados.length > 0 ? (
+
+            {instrumentosFiltrados.length > 0 ? (
               <CardList
                 data={instrumentosComIcon}
                 titleField='nome'
@@ -394,7 +413,7 @@ const tipoFormacao = (Instrumento: Instrumento) => {
                 iconColor='is-primary-custom'
                 subtitleField=''
                 fields={[
-                 
+
                 ]}
                 tags={[
                   { label: '', key: 'tipo', color: 'has-primary-custom' },
@@ -423,7 +442,7 @@ const tipoFormacao = (Instrumento: Instrumento) => {
                     color: 'is-danger is-light',
                     onClick: (item) => excluirInstrumento(item.id),
                     icon: <FiTrash2 />,
-                    itemAtivo:true
+                    itemAtivo: true
                   }
                 ]}
               />
@@ -433,7 +452,7 @@ const tipoFormacao = (Instrumento: Instrumento) => {
                   Nenhum Aluno encontrado
                 </div>}
               </div>
-            
+
             )}
           </div>
         </div>
@@ -452,7 +471,7 @@ const tipoFormacao = (Instrumento: Instrumento) => {
         isEdit={instrumentoEditando?.id ? true : false}
         textoBotaoSalvar="Salvar"
       />
-     
+
     </Layout>
   );
 };

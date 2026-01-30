@@ -200,6 +200,7 @@ useEffect(() => {
 
         setLoading(true);
         const response = await service.getAulasPorProfessor(professorIdNovo, dataInicio, dataFim);
+
         const aulasFormatadas = Array.isArray(response)
           ? response.map((aula) => ({
             id: aula.id,

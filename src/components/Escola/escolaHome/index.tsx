@@ -39,7 +39,6 @@ export const HomeEscolaMusica = () => {
         const fetchData = async () => {
             try {
                 const responseAulas = await service.getAulasSemana();
-                console.log(responseAulas)
                 setAulasAgendadas(responseAulas);
           
                 
